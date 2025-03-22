@@ -20,8 +20,9 @@ using System.IO;
 using System.Linq;
 using OfficeOpenXml.Utils;
 using OfficeOpenXml.Utils.Extensions;
-using System.Drawing;
+using System.Threading;
 using System.Runtime.InteropServices;
+using OfficeOpenXml.Packaging.Ionic.Zip;
 
 namespace OfficeOpenXml
 {
@@ -827,7 +828,7 @@ namespace OfficeOpenXml
             {
                 return;
             }
-            if (value == "" && removeIfBlank)
+            if (string.IsNullOrEmpty(value) && removeIfBlank)
             {
                 DeleteAllNode(path);
             }
@@ -888,7 +889,7 @@ namespace OfficeOpenXml
                 DeleteNode(path);
             }
         }
-        internal void SetXmlNodeAngel(string path, double? value, string parameter = null, int minValue = 0, int maxValue = 360)
+        internal void SetXmlNodeAngle(string path, double? value, string parameter = null, int minValue = 0, int maxValue = 360)
         {
             if (value.HasValue)
             {
@@ -911,6 +912,19 @@ namespace OfficeOpenXml
             {
                 int v;
                 v = (int)(value * Drawing.ExcelDrawing.EMU_PER_POINT);
+                SetXmlNodeString(path, v.ToString());
+            }
+            else
+            {
+                DeleteNode(path);
+            }
+        }
+        internal void SetXmlNodeEmuToPixel(string path, double? value)
+        {
+            if (value.HasValue)
+            {
+                int v;
+                v = (int)(value * Drawing.ExcelDrawing.EMU_PER_PIXEL);
                 SetXmlNodeString(path, v.ToString());
             }
             else
@@ -989,6 +1003,20 @@ namespace OfficeOpenXml
         {
             return GetXmlNodeBool(path, false);
         }
+        /// <summary>
+        /// Get xmlNodeBool from parent node
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="parentNode"></param>
+        /// <returns></returns>
+        internal bool GetXmlNodeBool(string path, XmlNode parentNode)
+        {
+            var tempNode = TopNode;
+            TopNode = parentNode;
+            var retVal = GetXmlNodeBool(path, TopNode);
+            TopNode = tempNode;
+            return retVal;
+        }
         internal bool GetXmlNodeBool(string path, bool blankValue)
         {
             string value = GetXmlNodeString(path);
@@ -1026,7 +1054,7 @@ namespace OfficeOpenXml
                 return defaultValue;
             }
         }
-        internal double GetXmlNodeAngel(string path, double defaultValue = 0)
+        internal double GetXmlNodeAngle(string path, double defaultValue = 0)
         {
             int a = GetXmlNodeInt(path);
             if (a < 0) return defaultValue;
@@ -1037,6 +1065,12 @@ namespace OfficeOpenXml
             var v = GetXmlNodeLong(path);
             if (v < 0) return 0;
             return (double)(v / (double)Drawing.ExcelDrawing.EMU_PER_POINT);
+        }
+        internal double GetXmlNodeEmuToPixel(string path)
+        {
+            var v = GetXmlNodeLong(path);
+            if (v < 0) return 0;
+            return (double)(v / (double)Drawing.ExcelDrawing.EMU_PER_PIXEL);
         }
         internal double? GetXmlNodeEmuToPtNull(string path)
         {
@@ -1149,8 +1183,27 @@ namespace OfficeOpenXml
                 }
             }
         }
+		internal DateTime? GetXmlNodeDateTime(string path)
+		{
+			string s = GetXmlNodeString(path);
+			if (s == "")
+			{
+				return default;
+			}
+			else
+			{
+				if (DateTime.TryParse(s,CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime dt))
+				{
+                    return dt;
+				}
+				else
+				{
+					return default;
+				}
+			}
+		}
 
-        internal string GetXmlNodeString(XmlNode node, string path)
+		internal string GetXmlNodeString(XmlNode node, string path)
         {
             if (node == null)
             {
@@ -1192,6 +1245,18 @@ namespace OfficeOpenXml
                 uri = new Uri(string.Format(sUri, ++id), UriKind.Relative);
             }
             return uri;
+        }
+        internal T GetXmlEnum<T>(string path, T defaultValue) where T : struct, Enum
+        {
+            var v = GetXmlNodeString(path);
+            if (string.IsNullOrEmpty(v))
+            {
+                return defaultValue;
+            }
+            else
+            {
+                return v.ToEnum(default(T));
+            }
         }
         internal T? GetXmlEnumNull<T>(string path, T? defaultValue = null) where T : struct, Enum
         {
@@ -1282,7 +1347,10 @@ namespace OfficeOpenXml
 #else
             settings.DtdProcessing = DtdProcessing.Prohibit;
 #endif
-            XmlReader reader = XmlReader.Create(stream, settings);
+            var sr = new StreamReader(stream);
+            //var b=sr.ReadToEnd();
+            //var xml = sr.ReadToEnd();
+            XmlReader reader = XmlReader.Create(sr, settings);
             xmlDoc.Load(reader);
         }
         internal static void LoadXmlSafe(XmlDocument xmlDoc, string xml, Encoding encoding)
@@ -1402,7 +1470,7 @@ namespace OfficeOpenXml
         {
             if (n != null)
             {
-                if (ConvertUtil.TryParseNumericString(n.Attributes["val"].Value, out double num))
+                if (ConvertUtil.TryParseNumericString(n.Attributes["val"].Value, out double num, CultureInfo.InvariantCulture))
                 {
                    return Convert.ToSingle(num);
                 }

@@ -44,6 +44,7 @@ items:
           Inherits IAddressInfo, IEnumerator(Of ICellInfo), IEnumerable(Of ICellInfo)
   inheritedMembers:
   - OfficeOpenXml.FormulaParsing.IAddressInfo.Address
+  - OfficeOpenXml.FormulaParsing.IAddressInfo.Addresses
   - System.Collections.Generic.IEnumerator{OfficeOpenXml.FormulaParsing.ICellInfo}.Current
   - System.Collections.IEnumerator.MoveNext
   - System.Collections.IEnumerator.Reset
@@ -501,6 +502,12 @@ references:
   name: Address
   nameWithType: IAddressInfo.Address
   fullName: OfficeOpenXml.FormulaParsing.IAddressInfo.Address
+- uid: OfficeOpenXml.FormulaParsing.IAddressInfo.Addresses
+  commentId: P:OfficeOpenXml.FormulaParsing.IAddressInfo.Addresses
+  parent: OfficeOpenXml.FormulaParsing.IAddressInfo
+  name: Addresses
+  nameWithType: IAddressInfo.Addresses
+  fullName: OfficeOpenXml.FormulaParsing.IAddressInfo.Addresses
 - uid: System.Collections.Generic.IEnumerator{OfficeOpenXml.FormulaParsing.ICellInfo}.Current
   commentId: P:System.Collections.Generic.IEnumerator{OfficeOpenXml.FormulaParsing.ICellInfo}.Current
   parent: System.Collections.Generic.IEnumerator{OfficeOpenXml.FormulaParsing.ICellInfo}

@@ -46,7 +46,7 @@ namespace EPPlusTest.ConditionalFormatting
             var cf = ws.ConditionalFormatting.AddDatabar(ws.Cells["A1:A5"], Color.BlueViolet);
             cf.Address = new ExcelAddress("C3");
 
-            Assert.AreEqual(cf.Address, "C3");
+            Assert.AreEqual(cf.Address.Address, "C3");
         }
 
         [TestMethod]
@@ -385,6 +385,130 @@ namespace EPPlusTest.ConditionalFormatting
                 Assert.AreEqual(eExcelDatabarAxisPosition.Middle, bar.AxisPosition);
                 ////Do not do this
                 //*Assert.AreEqual(Color.FromArgb(255, Color.DarkBlue), bar.NegativeFillColor.Color);*/
+            }
+        }
+
+        [TestMethod]
+        public void CF_DatabarPercentage()
+        {
+            using (var pck = OpenPackage("DataBarPercentage.xlsx", true))
+            {
+                var ws = pck.Workbook.Worksheets.Add("percentageDatabars");
+
+                ws.Cells["A1:A30"].Formula = "ROW()-10";
+
+                var db = ws.Cells["A1:A30"].ConditionalFormatting.AddDatabar(Color.CornflowerBlue);
+
+                ws.Calculate();
+
+                var dbCast = (ExcelConditionalFormattingDataBar)db;
+
+                Assert.AreEqual(0d, dbCast.GetPercentageAtCell(ws.Cells["A10"]));
+                Assert.AreEqual(50d, dbCast.GetPercentageAtCell(ws.Cells["A20"]));
+                Assert.AreEqual(100d, dbCast.GetPercentageAtCell(ws.Cells["A30"]));
+
+                //Negative range should be 100% at -9 and -1 should be 100/9
+                Assert.AreEqual(100d, dbCast.GetPercentageAtCell(ws.Cells["A1"]));
+                Assert.AreEqual(100d/9, dbCast.GetPercentageAtCell(ws.Cells["A9"]));
+                Assert.AreEqual((100d / 9) * 2, dbCast.GetPercentageAtCell(ws.Cells["A8"]));
+            }
+        }
+
+        [TestMethod]
+        public void CF_DatabarThemeColor()
+        {
+            using (var pck = OpenPackage("DatabarThemeColor.xlsx", true))
+            {
+                var sheet = pck.Workbook.Worksheets.Add("dataBarSheet");
+
+                var range = sheet.Cells["A1:A30"];
+
+                range.Formula = "ROW()-12";
+                range.Calculate();
+
+                var cf = range.ConditionalFormatting.AddDatabar(Color.AliceBlue);
+
+                cf.FillColor.Theme = eThemeSchemeColor.Accent6;
+                cf.BorderColor.Theme = eThemeSchemeColor.Background2;
+                cf.AxisColor.Theme = eThemeSchemeColor.Accent2;
+                cf.NegativeBorderColor.Theme = eThemeSchemeColor.Accent4;
+                cf.NegativeFillColor.Theme = eThemeSchemeColor.Hyperlink;
+
+                SaveAndCleanup(pck);
+            }
+
+            using (var pck = OpenPackage("DatabarThemeColor.xlsx"))
+            {
+                var ws = pck.Workbook.Worksheets[0];
+
+                var cfs = ws.Cells["A1"].ConditionalFormatting.GetConditionalFormattings();
+
+                var cf = cfs[0].As.DataBar;
+
+                Assert.AreEqual(eThemeSchemeColor.Accent6, cf.FillColor.Theme);
+                Assert.AreEqual(eThemeSchemeColor.Background2, cf.BorderColor.Theme);
+                Assert.AreEqual(eThemeSchemeColor.Accent2, cf.AxisColor.Theme);
+                Assert.AreEqual(eThemeSchemeColor.Accent4, cf.NegativeBorderColor.Theme);
+                Assert.AreEqual(eThemeSchemeColor.Hyperlink, cf.NegativeFillColor.Theme);
+
+                SaveAndCleanup(pck);
+            }
+        }
+        [TestMethod]
+        public void CF_DBIdTest()
+        {
+            string id = "";
+            using (var p = OpenTemplatePackage("databarIdTest.xlsx"))
+            {
+                var ws = p.Workbook.Worksheets[0];
+                var format = ws.ConditionalFormatting;
+                id = format[0].Uid;
+                Assert.AreNotEqual(id[0], '{');
+                Assert.AreNotEqual(id[id.Length - 1], '}');
+                SaveAndCleanup(p);
+            }
+
+            using (var p = new ExcelPackage("C:\\epplusTest\\Testoutput\\databarIdTest.xlsx"))
+            {
+                var ws = p.Workbook.Worksheets[0];
+                var format = ws.ConditionalFormatting;
+
+                var id2 = format[0].Uid;
+                Assert.AreEqual(id, id2);
+                Assert.AreNotEqual(id2[0], '{');
+                Assert.AreNotEqual(id2[id2.Length - 1], '}');
+
+                SaveAndCleanup(p);
+            }
+        }
+        [TestMethod]
+        public void CF_DBIdTestGenerated()
+        {
+            string id = "";
+            using (var p = OpenPackage("databarIdTestGenerated.xlsx", true))
+            {
+                var ws = p.Workbook.Worksheets.Add("TestIdSheet");
+                ws.Cells["A1:C5"].Formula = "ROW() + COLUMN()";
+                var dataBar = ws.ConditionalFormatting.AddDatabar(ws.Cells["A1:C5"], Color.Red);
+                var format = ws.ConditionalFormatting;
+
+                id = format[0].Uid;
+                Assert.AreNotEqual(id[0], '{');
+                Assert.AreNotEqual(id[id.Length - 1], '}');
+                SaveAndCleanup(p);
+            }
+
+            using (var p = new ExcelPackage("C:\\epplusTest\\Testoutput\\databarIdTestGenerated.xlsx"))
+            {
+                var ws = p.Workbook.Worksheets[0];
+                var format = ws.ConditionalFormatting;
+
+                var id2 = format[0].Uid;
+                Assert.AreEqual(id, id2);
+                Assert.AreNotEqual(id2[0] , '{');
+                Assert.AreNotEqual(id2[id2.Length - 1], '}');
+
+                SaveAndCleanup(p);
             }
         }
     }

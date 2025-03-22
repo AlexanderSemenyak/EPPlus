@@ -35,7 +35,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: ExcelXfs
     path: ../src/EPPlus/Style/XmlAccess/ExcelXfsXml.cs
-    startLine: 25
+    startLine: 27
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Style.XmlAccess
@@ -84,7 +84,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: XfId
     path: ../src/EPPlus/Style/XmlAccess/ExcelXfsXml.cs
-    startLine: 105
+    startLine: 107
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Style.XmlAccess
@@ -121,7 +121,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: Numberformat
     path: ../src/EPPlus/Style/XmlAccess/ExcelXfsXml.cs
-    startLine: 165
+    startLine: 168
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Style.XmlAccess
@@ -158,7 +158,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: Font
     path: ../src/EPPlus/Style/XmlAccess/ExcelXfsXml.cs
-    startLine: 175
+    startLine: 200
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Style.XmlAccess
@@ -195,7 +195,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: Fill
     path: ../src/EPPlus/Style/XmlAccess/ExcelXfsXml.cs
-    startLine: 185
+    startLine: 210
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Style.XmlAccess
@@ -232,7 +232,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: Border
     path: ../src/EPPlus/Style/XmlAccess/ExcelXfsXml.cs
-    startLine: 195
+    startLine: 220
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Style.XmlAccess
@@ -269,7 +269,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: HorizontalAlignment
     path: ../src/EPPlus/Style/XmlAccess/ExcelXfsXml.cs
-    startLine: 207
+    startLine: 232
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Style.XmlAccess
@@ -306,7 +306,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: VerticalAlignment
     path: ../src/EPPlus/Style/XmlAccess/ExcelXfsXml.cs
-    startLine: 213
+    startLine: 238
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Style.XmlAccess
@@ -343,7 +343,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: JustifyLastLine
     path: ../src/EPPlus/Style/XmlAccess/ExcelXfsXml.cs
-    startLine: 218
+    startLine: 243
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Style.XmlAccess
@@ -380,7 +380,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: WrapText
     path: ../src/EPPlus/Style/XmlAccess/ExcelXfsXml.cs
-    startLine: 224
+    startLine: 249
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Style.XmlAccess
@@ -417,7 +417,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: TextRotation
     path: ../src/EPPlus/Style/XmlAccess/ExcelXfsXml.cs
-    startLine: 230
+    startLine: 255
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Style.XmlAccess
@@ -454,7 +454,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: Locked
     path: ../src/EPPlus/Style/XmlAccess/ExcelXfsXml.cs
-    startLine: 246
+    startLine: 271
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Style.XmlAccess
@@ -491,7 +491,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: Hidden
     path: ../src/EPPlus/Style/XmlAccess/ExcelXfsXml.cs
-    startLine: 252
+    startLine: 277
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Style.XmlAccess
@@ -528,7 +528,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: QuotePrefix
     path: ../src/EPPlus/Style/XmlAccess/ExcelXfsXml.cs
-    startLine: 257
+    startLine: 282
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Style.XmlAccess
@@ -565,7 +565,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: ReadingOrder
     path: ../src/EPPlus/Style/XmlAccess/ExcelXfsXml.cs
-    startLine: 263
+    startLine: 288
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Style.XmlAccess
@@ -602,7 +602,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: ShrinkToFit
     path: ../src/EPPlus/Style/XmlAccess/ExcelXfsXml.cs
-    startLine: 279
+    startLine: 304
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Style.XmlAccess
@@ -639,7 +639,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: Indent
     path: ../src/EPPlus/Style/XmlAccess/ExcelXfsXml.cs
-    startLine: 285
+    startLine: 310
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Style.XmlAccess

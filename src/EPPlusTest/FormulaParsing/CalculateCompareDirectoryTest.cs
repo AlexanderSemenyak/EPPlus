@@ -24,7 +24,7 @@ namespace EPPlusTest.FormulaParsing
     public class CalculateCompareDirecory : TestBase
     {
         //private ParsingContext _context;
-        private ExcelPackage _package;
+        //private ExcelPackage _package;
         //private ExcelWorksheet _sheet;
         //private ExcelDataProvider _excelDataProvider;
         //private ExpressionGraphBuilder _graphBuilder;
@@ -73,7 +73,7 @@ namespace EPPlusTest.FormulaParsing
             {
                 p.Workbook.FormulaParserManager.AttachLogger(formulaLogFile);
                 var values = new Dictionary<ulong, object>();
-                foreach(var ws in p.Workbook.Worksheets)
+                foreach (var ws in p.Workbook.Worksheets)
                 {                    
                     if (ws.IsChartSheet) continue;
                     var cse = new CellStoreEnumerator<object>(ws._formulas);
@@ -102,7 +102,7 @@ namespace EPPlusTest.FormulaParsing
                 try
                 {
                     p.Workbook.Calculate(x => x.CacheExpressions=true);
-                    //p.Workbook.Worksheets["Data_Elements"].Cells["AS2"].Calculate(x => x.CacheExpressions = false);
+                    //p.Workbook.Worksheets["Monthly Cash Flow"].Cells["F10"].Calculate(x => x.CacheExpressions = false);
                 }
                 catch (Exception ex)
                 {

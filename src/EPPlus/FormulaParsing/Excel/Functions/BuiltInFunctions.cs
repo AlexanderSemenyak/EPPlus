@@ -10,10 +10,6 @@
  *************************************************************************************************
   01/27/2020         EPPlus Software AB       Initial release EPPlus 5
  *************************************************************************************************/
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.Database;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.Text;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.MathFunctions;
@@ -29,6 +25,9 @@ using OfficeOpenXml.FormulaParsing.Excel.Functions.Statistical;
 
 namespace OfficeOpenXml.FormulaParsing.Excel.Functions
 {
+    /// <summary>
+    /// Built-in functions Epplus provides. As opposed to custom functions made by the user.
+    /// </summary>
     public class BuiltInFunctions : FunctionsModule
     {
         /// <summary>
@@ -65,6 +64,9 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             Functions["unichar"] = new Unichar();
             Functions["numbervalue"] = new NumberValue();
             Functions["dollar"] = new Dollar();
+            Functions["textsplit"] = new TextSplit();
+            Functions["textbefore"] = new TextBefore(DelimiterFunction.TextBefore);
+            Functions["textafter"] = new TextAfter(DelimiterFunction.TextAfter);
             // Numbers
             Functions["int"] = new IntFunction();
             // Math
@@ -190,6 +192,11 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             Functions["odd"] = new Odd();
             Functions["even"] = new Even();
             Functions["sequence"] = new Sequence();
+            Functions["mmult"] = new MMult();
+            Functions["minverse"] = new MInverse();
+            Functions["mdeterm"] = new MDeterm();
+            Functions["munit"] = new MUnit();
+
             // Statistical
             Functions["confidence.norm"] = new ConfidenceNorm();
             Functions["confidence"] = new Confidence();
@@ -209,7 +216,10 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             Functions["gammaln.precise"] = new GammalnPrecise();
             Functions["gammadist"] = new GammaDist();
             Functions["gamma.dist"] = new GammaDotDist();
+            Functions["gammainv"] = new GammaInv();
+            Functions["gamma.inv"] = new GammaDotInv();
             Functions["lognorm.inv"] = new LognormDotInv();
+            Functions["loginv"] = new LogInv();
             Functions["negbinom.dist"] = new NegBinomDotDist();
             Functions["negbinomdist"] = new NegBinomDist();
             Functions["norminv"] = new NormInv();
@@ -247,10 +257,12 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             Functions["chisq.inv.rt"] = new ChisqInvRt();
             Functions["chiinv"] = new ChiInv();
             Functions["chisq.test"] = new ChisqTest();
+            Functions["chitest"] = new ChiTest();   
             Functions["expondist"] = new Expondist();
             Functions["expon.dist"] = new ExponDotDist();
             Functions["steyx"] = new Steyx();
-            Functions["t.dist"] = new TDist();
+            Functions["t.dist"] = new TDotDist();
+            Functions["tdist"] = new TDist();
             Functions["t.dist.2t"] = new TDist2t();
             Functions["t.inv"] = new TInv();
             Functions["t.dist.rt"] = new TDistRt();
@@ -267,9 +279,16 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             Functions["weibull.dist"] = new WeibullDotDist();
             Functions["weibull"] = new WeibullDist();
             Functions["t.test"] = new TTest();
+            Functions["ttest"] = new TTest();
             Functions["trimmean"] = new Trimmean();
             Functions["ztest"] = new Ztest();
             Functions["z.test"] = new ZDotTest();
+
+            Functions["linest"] = new Linest();
+            Functions["logest"] = new Logest();
+            Functions["trend"] = new Trend();
+            Functions["growth"] = new Growth();
+
             // Information
             Functions["isblank"] = new IsBlank();
             Functions["isnumber"] = new IsNumber();
@@ -301,8 +320,10 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             Functions["false"] = new False();
             Functions["switch"] = new Switch();
             Functions["xor"] = new Xor();
+            Functions["let"] = new LetFunction();
             // Reference and lookup
             Functions["address"] = new Address();
+            Functions["areas"] = new Areas();
             Functions["hlookup"] = new HLookup();
             Functions["vlookup"] = new VLookup();
             Functions["xlookup"] = new Xlookup();
@@ -333,6 +354,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             Functions["chooserows"] = new ChooseRows();
             Functions["vstack"] = new Vstack();
             Functions["hstack"] = new Hstack();
+            Functions["getpivotdata"] = new GetPivotData();
             // Date
             Functions["date"] = new Date();
             Functions["datedif"] = new DateDif();
@@ -369,6 +391,9 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             Functions["daverage"] = new Daverage();
             Functions["dvar"] = new Dvar();
             Functions["dvarp"] = new Dvarp();
+            Functions["dproduct"] = new Dproduct();
+            Functions["dstdev"] = new Dstdev();
+            Functions["dstdevp"] = new DstdevP();
             //Finance
             Functions["accrint"] = new Accrint();
             Functions["accrintm"] = new AccrintM();
@@ -422,6 +447,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             Functions["vdb"] = new Vdb();
             Functions["received"] = new Received();
             Functions["pricemat"] = new Pricemat();
+            Functions["yielddisc"] = new YieldDisc();
             
             //Engineering
             Functions["bitand"] = new BitAnd();

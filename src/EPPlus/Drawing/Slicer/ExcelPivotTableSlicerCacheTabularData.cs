@@ -10,12 +10,20 @@
  *************************************************************************************************
   07/01/2020         EPPlus Software AB       EPPlus 5.3
  *************************************************************************************************/
+using OfficeOpenXml.FormulaParsing.Excel.Functions.Finance;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.MathFunctions;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup.LookupUtils;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup.Sorting;
+using OfficeOpenXml.Sorting.Internal;
 using OfficeOpenXml.Table.PivotTable;
 using OfficeOpenXml.Utils.Extensions;
 using System;
+using System.Collections;
+using System.Linq;
 using System.Security.Principal;
 using System.Text;
 using System.Xml;
+using static OfficeOpenXml.Table.PivotTable.ExcelPivotTableFieldItemsCollection;
 
 namespace OfficeOpenXml.Drawing.Slicer
 {
@@ -131,14 +139,35 @@ namespace OfficeOpenXml.Drawing.Slicer
             int x = 0;
             if (_cache._field == null) return;
 
-            foreach (var item in _cache._field.Items)
+            IOrderedEnumerable<ExcelPivotTableFieldItem> listedItems;
+
+            if (SortOrder == eSortOrder.Ascending)
             {
-                if (item.Type == eItemType.Data)
+                listedItems = _cache._field.Items.OrderBy(x => x, new SlicerDataComparer(CrossFilter));
+            }
+            else
+            {
+                listedItems = _cache._field.Items.OrderByDescending(x => x, new SlicerDataComparer(CrossFilter));
+            }
+
+            foreach (var item in listedItems)
+            {
+                if (item.Type == eItemType.Data )
                 {
-                    if (item.Hidden)
-                        sb.Append($"<i x=\"{x++}\" />");
-                    else
-                        sb.Append($"<i x=\"{x++}\" s=\"1\"/>");
+                    sb.Append($"<i x=\"{item.X}\" ");
+
+                    if (item.Value is PivotNull)
+                    {
+                        sb.Append("nd=\"1\" ");
+                    }
+
+                    if (IsHidden(item)==false)
+                    {
+                        sb.Append($"s=\"1\" ");
+                    }
+
+                    sb.Append($"/>");
+                    x++;
                 }
             }
 
@@ -149,6 +178,26 @@ namespace OfficeOpenXml.Drawing.Slicer
             var dataNode = (XmlElement)CreateNode(_topPath+"/x14:items");
             dataNode.SetAttribute("count", x.ToString());
             dataNode.InnerXml = sb.ToString();
+        }
+
+        private bool IsHidden(ExcelPivotTableFieldItem item)
+        {
+            if (item.Hidden)
+            {
+                return true;
+            }
+            else
+            {
+                var field = _cache._field;
+                if (field.IsPageField && field.MultipleItemSelectionAllowed == false)
+                {
+                    return field.PageFieldSettings.SelectedItem != item.X;
+                }
+                else
+                {
+                    return false;
+                }
+            }
         }
     }
 }

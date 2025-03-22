@@ -115,11 +115,11 @@ namespace OfficeOpenXml.Drawing.Style.Effect
         {
             get
             {
-                return GetXmlNodeAngel(_fadeDirectionPath, 90);
+                return GetXmlNodeAngle(_fadeDirectionPath, 90);
             }
             set
             {
-                SetXmlNodeAngel(_fadeDirectionPath, value, "FadeDirection", -90, 90);
+                SetXmlNodeAngle(_fadeDirectionPath, value, "FadeDirection", -90, 90);
             }
         }
         /// <summary>
@@ -165,11 +165,11 @@ namespace OfficeOpenXml.Drawing.Style.Effect
         {
             get
             {
-                return GetXmlNodeAngel(_horizontalSkewAnglePath);
+                return GetXmlNodeAngle(_horizontalSkewAnglePath);
             }
             set
             {
-                SetXmlNodeAngel(_horizontalSkewAnglePath, value, "HorizontalSkewAngle", -90, 90);
+                SetXmlNodeAngle(_horizontalSkewAnglePath, value, "HorizontalSkewAngle", -90, 90);
             }
         }
         /// <summary>
@@ -180,11 +180,11 @@ namespace OfficeOpenXml.Drawing.Style.Effect
         {
             get
             {
-                return GetXmlNodeAngel(_verticalSkewAnglePath);
+                return GetXmlNodeAngle(_verticalSkewAnglePath);
             }
             set
             {
-                SetXmlNodeAngel(_verticalSkewAnglePath, value, "HorizontalSkewAngle", -90, 90);
+                SetXmlNodeAngle(_verticalSkewAnglePath, value, "HorizontalSkewAngle", -90, 90);
             }
         }
         /// <summary>
@@ -224,11 +224,11 @@ namespace OfficeOpenXml.Drawing.Style.Effect
         {
             get
             {
-                return GetXmlNodeAngel(_directionPath);
+                return GetXmlNodeAngle(_directionPath);
             }
             set
             {
-                SetXmlNodeAngel(_directionPath, value, "Direction");
+                SetXmlNodeAngle(_directionPath, value, "Direction");
             }
         }
         /// <summary>

@@ -90,11 +90,18 @@ namespace OfficeOpenXml.FormulaParsing
         /// </summary>
         FormulaRangeAddress Dimension { get; }
     }
+    /// <summary>
+    /// Address info
+    /// </summary>
     public interface IAddressInfo
     {
         /// <summary>
         /// The address.
         /// </summary>
         FormulaRangeAddress Address { get; }
+        /// <summary>
+        /// If the address contains commaseparated addresses, this array contains the individual addresses.
+        /// </summary>
+        FormulaRangeAddress[] Addresses { get; }
     }
 }

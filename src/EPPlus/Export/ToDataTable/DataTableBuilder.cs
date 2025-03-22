@@ -41,7 +41,19 @@ namespace OfficeOpenXml.Export.ToDataTable
 
         internal DataTable Build()
         {
-            var columnNames = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
+            var fromCol = _range.Start.Column;
+            var toCol = _range.End.Column;
+            var fromRow = _range.Start.Row;
+            var toRow = _range.End.Row;
+            if (_options.DataIsTransposed)
+            {
+                fromRow = _range.Start.Column;
+                toRow = _range.End.Column;
+                fromCol = _range.Start.Row;
+                toCol = _range.End.Row;
+            }
+            //var columnNames = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
+            var columnNames = new Dictionary<string, int>(StringComparer.InvariantCultureIgnoreCase);
             if(_dataTable == null)
             {
                 _dataTable = string.IsNullOrEmpty(_options.DataTableName) ? new DataTable() : new DataTable(_options.DataTableName);
@@ -51,9 +63,9 @@ namespace OfficeOpenXml.Export.ToDataTable
                 _dataTable.Namespace = _options.DataTableNamespace;
             }
             var columnOrder = 0;
-            for (var col = _range.Start.Column; col <= _range.End.Column; col++)
+            for (var col = fromCol; col <= toCol; col++)
             {
-                var row = _range.Start.Row;
+                var row = fromRow;
                 var name = _options.ColumnNamePrefix + ++columnOrder;
                 var origName = name;
                 var columnIndex = columnOrder - 1;
@@ -63,25 +75,49 @@ namespace OfficeOpenXml.Export.ToDataTable
                 }
                 else if (_options.FirstRowIsColumnNames)
                 {                    
-                    name = _sheet.GetValue(row, col)?.ToString();
+                    name = _options.DataIsTransposed ? _sheet.GetValue(col, row)?.ToString() : _sheet.GetValue(row, col)?.ToString();
                     origName = name;
-                    if (name == null) throw new InvalidOperationException(string.Format("First row contains an empty cell at index {0}", col - _range.Start.Column));
+                    if (name == null) throw new InvalidOperationException(string.Format("First row contains an empty cell at index {0}", col - fromCol));
                     name = GetColumnName(name);
                 }
                 else
                 {
                     row--;
                 }
-                if(columnNames.Contains(name))
+                if(columnNames.ContainsKey(name) == false)
+                {
+                    columnNames[name] = 1;
+                }
+                else if(_options.AllowDuplicateColumnNames)
+                {
+                    if (columnNames[name] == 1)
+                    {
+                        var newName = $"{name}1";
+                        var prevCol = _dataTable.Columns[name];
+                        prevCol.ColumnName = newName;
+                        _options.Mappings.SetNewName(name, newName);
+                    }
+                    var colNameSuffix = columnNames[name] + 1;
+                    name = $"{name}{colNameSuffix}";
+                    columnNames[name] = colNameSuffix;
+                }
+                else
                 {
                     throw new InvalidOperationException($"Duplicate column name : {name}");
                 }
-                columnNames.Add(name);
                 // find type
-                while (_sheet.GetValue(++row, col) == null && row <= _range.End.Row)
-                    ;
-                var v = _sheet.GetValue(row, col);
-                if (row == _range.End.Row && v == null) throw new InvalidOperationException(string.Format("Column with index {0} does not contain any values", col));
+                if (_options.DataIsTransposed)
+                {
+                    while (_sheet.GetValue(col, ++row) == null && row <= toRow)
+                        ;
+                }
+                else
+                {
+                    while (_sheet.GetValue(++row, col) == null && row <= toRow)
+                        ;
+                }
+                var v = _options.DataIsTransposed ? _sheet.GetValue(col, row) : _sheet.GetValue(row, col);
+                if (row == toRow && v == null) throw new InvalidOperationException(string.Format("Column with index {0} does not contain any values", col));
                 var type = v == null ? typeof(Nullable) : v.GetType();
 
                 // check mapping

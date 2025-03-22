@@ -13,6 +13,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Reflection.Emit;
 using System.Xml;
 
 namespace OfficeOpenXml.Drawing.Chart
@@ -24,14 +25,18 @@ namespace OfficeOpenXml.Drawing.Chart
     {
         ExcelChart _chart;
         private readonly List<ExcelChartDataLabelItem> _list;
-        internal ExcelChartDataLabelCollection(ExcelChart chart, XmlNamespaceManager ns, XmlNode topNode, string[] schemaNodeOrder) : base(ns, topNode)
+        ExcelChartDataLabelStandard parentDatalabel;
+
+        internal ExcelChartDataLabelCollection(ExcelChart chart, XmlNamespaceManager ns, XmlNode topNode, string[] schemaNodeOrder, ExcelChartDataLabelStandard parent) : base(ns, topNode)
         {
             SchemaNodeOrder = schemaNodeOrder;
             _list = new List<ExcelChartDataLabelItem>();
-            foreach (XmlNode pointNode in TopNode.SelectNodes(ExcelChartDataPoint.topNodePath, ns))
+            foreach (XmlNode dataLabelNode in TopNode.SelectNodes("c:dLbl", ns))
             {
-                _list.Add(new ExcelChartDataLabelItem(chart, ns, pointNode, "idx", schemaNodeOrder));
+                _list.Add(new ExcelChartDataLabelItem(chart, ns, dataLabelNode, "", schemaNodeOrder));
             }
+
+            parentDatalabel = parent;
             _chart = chart;
         }
         /// <summary>
@@ -52,15 +57,22 @@ namespace OfficeOpenXml.Drawing.Chart
                 {
                     throw (new ArgumentException($"Data label with index {index} already exists"));
                 }
-                return CreateDataLabel(ix);
+                return CreateDataLabel(index);
             }
         }
 
         private ExcelChartDataLabelItem CreateDataLabel(int idx)
         {
-            var pos = GetItemAfter(idx);
             XmlElement element = CreateElement(idx);
             var dl = new ExcelChartDataLabelItem(_chart, NameSpaceManager, element, "dLbl", SchemaNodeOrder) { Index=idx };
+
+            //initialize item with parent values
+            dl.ShowSeriesName = parentDatalabel.ShowSeriesName;
+            dl.ShowCategory = parentDatalabel.ShowCategory;
+            dl.ShowLegendKey = parentDatalabel.ShowLegendKey;
+            dl.ShowLeaderLines = true;
+            dl.ShowValue = true;
+            dl.Position = eLabelPosition.Center;
 
             if (idx < _list.Count)
             {
@@ -79,12 +91,12 @@ namespace OfficeOpenXml.Drawing.Chart
             XmlElement pointNode;
             if (idx < _list.Count)
             {
-                pointNode = TopNode.OwnerDocument.CreateElement("c", "dLbl", ExcelPackage.schemaMain);
-                _list[idx].TopNode.InsertBefore(pointNode, _list[idx].TopNode);
+                pointNode = TopNode.OwnerDocument.CreateElement("c", "dLbl", @"http://schemas.openxmlformats.org/drawingml/2006/chart");
+                TopNode.InsertBefore(pointNode, _list[idx].TopNode);
             }
             else
             {
-                pointNode = (XmlElement)CreateNode("c:dLbl");
+                pointNode = (XmlElement)CreateNode("c:dLbl", false, true);
             }
             return pointNode;
         }

@@ -105,7 +105,7 @@ items:
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Table.PivotTable
-  summary: "\nThe data field that the conditions will apply to. \n"
+  summary: "\nThe data field that the conditions will apply too. \n"
   example: []
   syntax:
     content: public ExcelPivotAreaDataFieldReference DataFields { get; }

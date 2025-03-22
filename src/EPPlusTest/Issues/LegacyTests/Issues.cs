@@ -26,6 +26,8 @@
  *******************************************************************************
   01/27/2020         EPPlus Software AB       Initial release EPPlus 5
  *******************************************************************************/
+using EPPlusTest.Properties;
+using EPPlusTest.Table;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using OfficeOpenXml;
@@ -36,10 +38,8 @@ using OfficeOpenXml.Drawing.Chart;
 using OfficeOpenXml.Drawing.Chart.Style;
 using OfficeOpenXml.Drawing.Slicer;
 using OfficeOpenXml.Drawing.Style.Coloring;
-using OfficeOpenXml.Export.HtmlExport;
-using OfficeOpenXml.Filter;
 using OfficeOpenXml.FormulaParsing;
-using OfficeOpenXml.FormulaParsing.Utilities;
+using OfficeOpenXml.FormulaParsing.Logging;
 using OfficeOpenXml.Sparkline;
 using OfficeOpenXml.Style;
 using OfficeOpenXml.Table;
@@ -56,8 +56,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading;
-using System.Xml;
-using System.Xml.Linq;
 
 namespace EPPlusTest
 {
@@ -3045,7 +3043,9 @@ namespace EPPlusTest
         [TestMethod]
         public void CheckEnvironment()
         {
+#pragma warning disable CA1416 // Validate platform compatibility
             System.Drawing.Graphics.FromHwnd(IntPtr.Zero);
+#pragma warning restore CA1416 // Validate platform compatibility
         }
         [TestMethod]
         public void Issue592()
@@ -3212,6 +3212,19 @@ namespace EPPlusTest
             }
         }
         [TestMethod]
+        public void s314OpenClose()
+        {
+            using (var p = OpenTemplatePackage("SlicerIssue.xlsx"))
+            {
+                //var drawings =  p.Workbook.Worksheets[0].Drawings;
+                p.Workbook.Worksheets.Add("aWs");
+
+                //var table = p.Workbook.Worksheets[0].PivotTables;
+
+                SaveWorkbook("SlicerIssueOpenClose.xlsx", p);
+            }
+        }
+                [TestMethod]
         public void i620()
         {
             using (var p = OpenTemplatePackage("i621.xlsx"))
@@ -3339,7 +3352,6 @@ namespace EPPlusTest
             {
                 SaveAndCleanup(p);
             }
-
         }
         [TestMethod]
         public void I676()
@@ -3931,7 +3943,7 @@ namespace EPPlusTest
                     foreach (var richText in cell.RichText)
                     {
                         Debug.Write($"RichText {richText.Text} Font: [{richText.FontName}], Size: [{richText.Size}]");
-                        if (richText.Bold != null) Console.Write(", Bold");
+                        if (richText.Bold) Console.Write(", Bold");
                         Debug.WriteLine("");
                     }
                 }
@@ -5581,8 +5593,6 @@ namespace EPPlusTest
         public void s539()
         {
             //Outputs
-            bool success = true;
-            string exc = "";
             var pc = Thread.CurrentThread.CurrentCulture;
 
             try
@@ -5605,8 +5615,8 @@ namespace EPPlusTest
             }
             catch (Exception e)
             {
+                string exc = "";
                 exc = "Failed. " + e.ToString();
-                success = false;
             }
             finally
             {
@@ -5677,7 +5687,7 @@ namespace EPPlusTest
                 pivotTableWorksheet.PivotTables["PivotTable1"].CacheDefinition.SourceRange = ws.Cells["M6:S16"];
                 var definition = pivotTableWorksheet.PivotTables["PivotTable1"].CacheDefinition;
 
-                Assert.AreEqual(definition.PivotTable.Fields[0].CacheField._cache.Ref, definition._cacheReference.Fields[0]._cache.Ref);
+                Assert.AreEqual(definition.PivotTable.Fields[0].Cache._cache.Ref, definition._cacheReference.Fields[0]._cache.Ref);
 
                 SaveAndCleanup(package);
             }
@@ -6004,6 +6014,25 @@ namespace EPPlusTest
                 SaveAndCleanup(p);
             }
         }
+        [TestMethod]
+        public void s553()
+        {
+            using (var p = OpenTemplatePackage("ExportTest2.xlsx"))
+            {
+                var ws = p.Workbook.Worksheets[0];
+                var json = ws.Cells["C2"].ToJson();
+            }
+        }
+        [TestMethod]
+        public void i1214()
+        {
+            using (var p = OpenTemplatePackage("i1214.xlsx"))
+            {
+                p.Workbook.Calculate();
+
+                SaveAndCleanup(p);
+            }
+        }
         public void I1211()
         {
             using (var p = OpenTemplatePackage("i1211.xlsx"))
@@ -6137,10 +6166,11 @@ namespace EPPlusTest
                 }
             }
         }
+
         [TestMethod]
         public void s608()
         {
-            using(var package = OpenTemplatePackage("s608.xlsx"))
+            using (var package = OpenTemplatePackage("s608.xlsx"))
             {
                 Debug.Assert(package.Workbook.Worksheets.Count == 2);
                 package.Workbook.Worksheets.Delete("Sheet1");
@@ -6177,6 +6207,22 @@ namespace EPPlusTest
                 }
             }
         }
+        [TestMethod]
+        public void i1435()
+        {
+            using (var package = OpenTemplatePackage("i1435.xlsx"))
+            {
+                var sheet = package.Workbook.Worksheets[0];
+                var groupDrawing = ((ExcelGroupShape)sheet.Drawings["img_d2_bt"]);
+                var childLine1 = groupDrawing.Drawings.FirstOrDefault(x => x.Name == "D2_Line1_BT");
+                var childLine2 = groupDrawing.Drawings["D2_Line2_BT"];
+                var childLine3 = groupDrawing.Drawings["D2_Line3_BT"];
+
+                var childa = groupDrawing.Drawings[3];
+                var childb = groupDrawing.Drawings[4];
+                var childc = groupDrawing.Drawings[5];
+            }
+        }
 
         [TestMethod]
         public void s660()
@@ -6190,6 +6236,70 @@ namespace EPPlusTest
 
                 SaveAndCleanup(package);
             }
+        }
+
+        [TestMethod]
+        public void s745()
+        {
+            using (var package = OpenTemplatePackage("s745.xlsx"))
+            {
+                var workbook = package.Workbook;
+
+                var worksheet = workbook.Worksheets["Sheet2"];
+                worksheet.Tables["Table2"].AddRow(2);
+            }
+        }
+
+        [TestMethod]
+        public void i1626()
+        {
+            using (var package = OpenTemplatePackage("i1626.xlsx"))
+            {
+                var sheet = package.Workbook.Worksheets[0];
+
+                var pictures = sheet.Drawings.Where(x => x.DrawingType == eDrawingType.Picture).Select(x => x.As.Picture);
+                var pic = pictures.First();
+
+                SaveAndCleanup(package);
+            }
+        }
+
+        [TestMethod]
+        public void s789_Issues()
+        {
+            using (var package = OpenTemplatePackage("789_issue.xlsx"))
+            {
+                var originalWs = package.Workbook.Worksheets[0];
+
+                var drawing = originalWs.PivotTables;
+                //ptSlicer.Cache.Data.SortOrder = eSortOrder.Ascending;
+                //ptSlicer.Cache.Data.UpdateItemsXml();
+
+                var ws = package.Workbook.Worksheets.Add("newWs");
+                SaveAndCleanup(package);
+            }
+        }
+        [TestMethod]
+        public void s789_IssuesNoAccessDrawing()
+        {
+            using (var package = OpenTemplatePackage("789_issue.xlsx"))
+            {
+                var originalWs = package.Workbook.Worksheets[0];
+
+                var ws = package.Workbook.Worksheets.Add("newWs");
+                SaveWorkbook("789_issue_only_ws.xlsx", package);
+               //SaveAndCleanup(package);
+            }
+        }
+
+        [TestMethod]
+        public void s830_ChangeColor()
+        {
+            using var p = OpenTemplatePackage("tabcolor830.xlsx");
+            var ws1 = p.Workbook.Worksheets[0];
+            Color k = ws1.TabColor;
+            ws1.TabColor = Color.Empty;
+            SaveAndCleanup(p);
         }
     }
 }

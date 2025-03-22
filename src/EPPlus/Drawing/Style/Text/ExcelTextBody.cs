@@ -150,12 +150,12 @@ namespace OfficeOpenXml.Drawing
         {
             get
             {
-                return GetXmlNodeAngel($"{_path}/@rot");
+                return GetXmlNodeAngle($"{_path}/@rot");
             }
             set
             {
 				_initXml?.Invoke();
-				SetXmlNodeAngel($"{_path}/@rot", value, "Rotation", -100000, 100000);
+				SetXmlNodeAngle($"{_path}/@rot", value, "Rotation", -100000, 100000);
             }
         }
         /// <summary>

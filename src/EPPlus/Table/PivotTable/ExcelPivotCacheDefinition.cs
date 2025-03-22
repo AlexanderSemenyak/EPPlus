@@ -16,6 +16,10 @@ using OfficeOpenXml.Utils;
 using System.Linq;
 using OfficeOpenXml.Packaging;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.Finance;
+using System.Collections.Generic;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.Helpers;
+using OfficeOpenXml.Core.RangeQuadTree;
 
 namespace OfficeOpenXml.Table.PivotTable
 {
@@ -81,7 +85,10 @@ namespace OfficeOpenXml.Table.PivotTable
             var rel = pivotTable.Part.CreateRelationship(UriHelper.ResolvePartUri(pivotTable.PivotTableUri, _cacheReference.CacheDefinitionUri), Packaging.TargetMode.Internal, ExcelPackage.schemaRelationships + "/pivotCacheDefinition");
         }
 
-        internal void Refresh()
+        /// <summary>
+        /// Refreshes the pivot tables cache.
+        /// </summary>
+        public void Refresh()
         {
             _cacheReference.RefreshFields();
         }
@@ -124,7 +131,6 @@ namespace OfficeOpenXml.Table.PivotTable
             get;
             private set;
         }
-
         const string _sourceWorksheetPath = "d:cacheSource/d:worksheetSource/@sheet";
         internal const string _sourceNamePath = "d:cacheSource/d:worksheetSource/@name";
         internal const string _sourceAddressPath = "d:cacheSource/d:worksheetSource/@ref";
@@ -204,7 +210,7 @@ namespace OfficeOpenXml.Table.PivotTable
                 var cf = _cacheReference.Fields.Where(x => x.Name == field.Name).FirstOrDefault();
                 if (cf != null)
                 {
-                    field.CacheField = cf;
+                    field.Cache = cf;
                 }
                 else
                 {
@@ -213,6 +219,19 @@ namespace OfficeOpenXml.Table.PivotTable
             }
         }
 
+        private List<int> IntersectRows(List<int> rows1, List<int> rows2)
+        {
+            var rowsSmall = rows1.Count < rows2.Count ? rows1 : rows2;
+            var rowsLarge = rows1.Count >= rows2.Count ? rows1 : rows2;
+            for (int i=0; i < rowsSmall.Count;i++)
+            {
+                if (rowsLarge.BinarySearch(rowsSmall[i])<0)
+                {
+                    rowsSmall.Remove(i--);
+                }
+            }
+            return rowsSmall;
+        }
         /// <summary>
         /// If Excel will save the source data with the pivot table.
         /// </summary>

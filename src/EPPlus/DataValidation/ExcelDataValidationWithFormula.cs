@@ -27,6 +27,9 @@ namespace OfficeOpenXml.DataValidation
     public abstract class ExcelDataValidationWithFormula<T> : ExcelDataValidation
         where T : IExcelDataValidationFormula
     {
+        /// <summary>
+        /// Name of worksheet this datavalidation belongs to
+        /// </summary>
         internal protected string _workSheetName;
 
         /// <summary>
@@ -79,7 +82,7 @@ namespace OfficeOpenXml.DataValidation
                     if (xr.ReadUntil(formulaIdentifier, "AlternateContent"))
                     {
                         xr.Read();
-                        retVal = DefineFormulaClassType(xr.ReadString(), _workSheetName);
+                        retVal = DefineFormulaClassType(ConvertUtil.ExcelDecodeString(xr.ReadString()), _workSheetName);
                         xr.Read();
 
                         xr.ReadUntil("Formula2", "dataValidation", "dataValidations");
@@ -104,13 +107,13 @@ namespace OfficeOpenXml.DataValidation
             {
                 xr.Read();
 
-                retVal = DefineFormulaClassType(xr.ReadString(), _workSheetName);
+                retVal = DefineFormulaClassType(ConvertUtil.ExcelDecodeString(xr.ReadString()), _workSheetName);
 
                 xr.Read();
             }
             else
             {
-                retVal = DefineFormulaClassType(xr.ReadString(), _workSheetName);
+                retVal = DefineFormulaClassType(ConvertUtil.ExcelDecodeString(xr.ReadString()), _workSheetName);
             }
 
             xr.Read();

@@ -281,7 +281,8 @@ namespace OfficeOpenXml
         /// <param name="value">The  formula</param>
         /// <param name="address">The address of the formula</param>
         /// <param name="IsArray">If the forumla is an array formula.</param>
-        private static void Set_SharedFormula(ExcelRangeBase range, string value, ExcelAddressBase address, bool IsArray)
+        /// <param name="isDynamic">If the array formula is dynamic</param>
+        private static void Set_SharedFormula(ExcelRangeBase range, string value, ExcelAddressBase address, bool IsArray, bool isDynamic = false)
         {
             if (range._fromRow == 1 && range._fromCol == 1 && range._toRow == ExcelPackage.MaxRows && range._toCol == ExcelPackage.MaxColumns)  //Full sheet (ex ws.Cells.Value=0). Set value for A1 only to avoid hanging 
             {
@@ -300,16 +301,27 @@ namespace OfficeOpenXml
             f.Index = range._worksheet.GetMaxShareFunctionIndex(IsArray);
             f.Address = address.FirstAddress;
             f.FormulaType = IsArray ? FormulaType.Array : FormulaType.Shared;
-
-            range._worksheet._sharedFormulas.Add(f.Index, f);
-
+            var ws = range._worksheet;
+            ws._sharedFormulas.Add(f.Index, f);
+            ws.Workbook.Metadata.GetDynamicArrayIndex(out int diIx);
             for (int col = address.Start.Column; col <= address.End.Column; col++)
             {
                 for (int row = address.Start.Row; row <= address.End.Row; row++)
                 {
-                    range._worksheet._formulas.SetValue(row, col, f.Index);
-                    range._worksheet._flags.SetFlagValue(row, col, true, CellFlags.ArrayFormula);
-                    range._worksheet.SetValueInner(row, col, null);
+                    ws._formulas.SetValue(row, col, f.Index);
+                    var flags = CellFlags.ArrayFormula;
+                    if(isDynamic)
+                    {
+                        flags |= CellFlags.CanBeDynamicArray;                        
+                    }
+                    ws._flags.SetFlagValue(row, col, true, flags);
+                    ws.SetValueInner(row, col, null);
+                    if(isDynamic)
+                    {
+                        var md=ws._metadataStore.GetValue(row, col);
+                        md.cm = diIx;
+                        ws._metadataStore.SetValue(row, col, md);
+                    }
                 }
             }
         }
@@ -375,7 +387,7 @@ namespace OfficeOpenXml
             Exists_ThreadedComment(range, value, row, col);
             if (range._worksheet._commentsStore.Exists(row, col))
             {
-                throw (new InvalidOperationException(string.Format("Cell {0} already contain a comment.", new ExcelCellAddress(row, col).Address)));
+                throw (new InvalidOperationException(string.Format("Cell {0} already contains a comment.", new ExcelCellAddress(row, col).Address)));
             }
 
         }
@@ -806,13 +818,23 @@ namespace OfficeOpenXml
         {
             get
             {
+
+                object value;
                 if (IsSingleCell || IsName)
                 {
-                    return ValueToTextHandler.GetFormattedText(Value, _workbook, StyleID, false);
+                    value = Value;
                 }
                 else
                 {
-                    return ValueToTextHandler.GetFormattedText(_worksheet.GetValue(_fromRow, _fromCol), _workbook, StyleID, false);
+                    value = _worksheet.GetValue(_fromRow, _fromCol);
+                }
+                if (_workbook.NumberFormatToTextHandler == null)
+                {
+                    return ValueToTextHandler.GetFormattedText(value, _workbook, StyleID, false);
+                }
+                else
+                {
+                    return _workbook.NumberFormatToTextHandler(new NumberFormatToTextArgs(_worksheet, _fromRow, _fromCol, value, StyleID));
                 }
             }
         }
@@ -2023,13 +2045,19 @@ namespace OfficeOpenXml
         /// Creates an array-formula.
         /// </summary>
         /// <param name="ArrayFormula">The formula</param>
-        public void CreateArrayFormula(string ArrayFormula)
+        /// <param name="isDynamic">If the array formula is dynamic. 
+        /// Setting this argument to true will only add the dynamic array formula cell meta data flag to the formula. 
+        /// If you calculate the formula it is not be necessary to set this flag. If you set this flag, you are responsible to set the correct range for the dynamic array formula, so in most cases calculating is a better approach.
+        /// If you calculate the formula this flag will be overwritten with the value the EPPlus decides for the formula.
+        /// Also see <see cref="CalculationExtension.Calculate(ExcelWorkbook)" />, <seealso cref="CalculationExtension.Calculate(ExcelWorksheet)"/>, <seealso cref="CalculationExtension.Calculate(ExcelRangeBase)"/>
+        /// </param>
+        public void CreateArrayFormula(string ArrayFormula, bool isDynamic=false)
         {
             if (Addresses != null)
             {
                 throw (new Exception("An array formula cannot have more than one address"));
             }
-            Set_SharedFormula(this, ArrayFormula, this, true);
+            Set_SharedFormula(this, ArrayFormula, this, true, isDynamic);
         }
         /// <summary>
         /// The output range of the formula in the top-left cell of the range.

@@ -169,7 +169,6 @@ namespace EPPlusTest.ConditionalFormatting
         [TestMethod]
         public void CustomIconsWriteRead()
         {
-
             using (var pck = OpenPackage("FlagTest.xlsx", true))
             {
                 var wks = pck.Workbook.Worksheets.Add("FormattingTest");
@@ -523,6 +522,93 @@ namespace EPPlusTest.ConditionalFormatting
                 Assert.AreEqual(0, c11.Icon3.GetCustomIconIndex());
 
                 SaveAndCleanup(pck);
+            }
+        }
+
+        [TestMethod]
+        public void CanReadIconsetFormulas()
+        {
+            using(var package = OpenTemplatePackage("s665.xlsx"))
+            {
+                var sheet = package.Workbook.Worksheets.GetByName("Answer Sheet");
+                var iconFormula = sheet.ConditionalFormatting[0].As.ThreeIconSet.Icon2.Formula;
+
+                SaveAndCleanup(package);
+            }
+        }
+
+        [TestMethod]
+        public void CanReadIconsetFormulasWhenTypeNum()
+        {
+            using (var package = OpenTemplatePackage("s670.xlsx"))
+            {
+                var sheet = package.Workbook.Worksheets.GetByName("Sheet");
+                var icon = sheet.ConditionalFormatting[0].As.ThreeIconSet.Icon2;
+                var iconFormula = icon.Formula;
+
+                Assert.AreEqual("$N$9", iconFormula);
+                Assert.AreEqual(eExcelConditionalFormattingValueObjectType.Num, icon.Type);
+
+                SaveAndCleanup(package);
+            }
+        }
+
+        [TestMethod]
+        public void CF_IconSetReadID()
+        {
+            string id = "";
+            using (var p = OpenTemplatePackage("ExtIconsetIdTest.xlsx"))
+            {
+                var ws = p.Workbook.Worksheets[0];
+                var format = ws.ConditionalFormatting;
+                id = format[0].Uid;
+                SaveAndCleanup(p);
+            }
+
+            using (var p = new ExcelPackage("C:\\epplusTest\\Testoutput\\ExtIconsetIdTest.xlsx"))
+            {
+                var ws = p.Workbook.Worksheets[0];
+                var format = ws.ConditionalFormatting;
+
+                var id2 = format[0].Uid;
+                Assert.AreEqual(id, id2);
+                Assert.AreNotEqual(id2[0], '{');
+                Assert.AreNotEqual(id2[id2.Length - 1], '}');
+
+                SaveAndCleanup(p);
+            }
+        }
+
+        [TestMethod]
+        public void CF_IconSetReadIDGenerated()
+        {
+            string id = "";
+            using (var p = OpenPackage("ExtIconsetIdGenerated.xlsx", true))
+            {
+                var ws = p.Workbook.Worksheets.Add("TestIdSheet");
+                var ws2 = p.Workbook.Worksheets.Add("TestIdSheetFormulaTarget");
+
+                ws.Cells["A1:C5"].Formula = "ROW() + COLUMN()";
+                var iconSet = ws.ConditionalFormatting.AddThreeIconSet(ws.Cells["A1:C5"], eExcelconditionalFormatting3IconsSetType.Stars);
+                var format = ws.ConditionalFormatting;
+
+                id = format[0].Uid;
+                Assert.AreNotEqual(id[0], '{');
+                Assert.AreNotEqual(id[id.Length - 1], '}');
+                SaveAndCleanup(p);
+            }
+
+            using (var p = new ExcelPackage("C:\\epplusTest\\Testoutput\\ExtIconsetIdGenerated.xlsx"))
+            {
+                var ws = p.Workbook.Worksheets[0];
+                var format = ws.ConditionalFormatting;
+
+                var id2 = format[0].Uid;
+                Assert.AreEqual(id, id2);
+                Assert.AreNotEqual(id2[0], '{');
+                Assert.AreNotEqual(id2[id2.Length - 1], '}');
+
+                SaveAndCleanup(p);
             }
         }
     }

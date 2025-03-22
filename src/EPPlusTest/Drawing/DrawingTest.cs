@@ -39,6 +39,9 @@ using OfficeOpenXml.Style;
 using System.Diagnostics;
 using System.Reflection;
 using OfficeOpenXml.Drawing.Theme;
+using System.Linq;
+using System.Collections.Generic;
+using System.Collections;
 
 namespace EPPlusTest
 {
@@ -316,10 +319,8 @@ namespace EPPlusTest
             var ws = _pck.Workbook.Worksheets.Add("Scatter");
             var chrt = ws.Drawings.AddChart("ScatterChart1", eChartType.XYScatterSmoothNoMarkers) as ExcelScatterChart;
             AddTestSerie(ws, chrt);
-           // chrt.Series[0].Marker = eMarkerStyle.Diamond;
             chrt.To.Row = 23;
             chrt.To.Column = 12;
-            //chrt.Title.Text = "Header Text";
             var r1=chrt.Title.RichText.Add("Header");
             r1.Bold = true;
             var r2=chrt.Title.RichText.Add("  Text");
@@ -346,11 +347,7 @@ namespace EPPlusTest
             chrt.From.Row=25;
             chrt.To.Row = 53;
             chrt.To.Column = 12;
-            chrt.Legend.Position = eLegendPosition.Bottom;
-            
-            ////chrt.Series[0].DataLabel.Position = eLabelPosition.Center;
-            //Assert.IsTrue(chrt.ChartType == eChartType.XYScatter, "Invalid Charttype");
-
+            chrt.Legend.Position = eLegendPosition.Bottom;          
         }
        [TestMethod]
         public void Bubble()
@@ -1186,8 +1183,20 @@ namespace EPPlusTest
 			pic = ws.Drawings.AddPicture("shape3", Resources.Test1);
 			pic.HorizontalFlip = true;
 			pic.SetPosition(30, 0, 10, 0);
-
 		}
 
-	}
+        [TestMethod]
+        public void AddTextBox()
+        {
+            using (var package = OpenPackage("TextBoxPackage.xlsx", true))
+            {
+                var wb = package.Workbook;
+                var ws = wb.Worksheets.Add("NewWs");
+
+                ws.Drawings.AddTextbox("TextboxName", "TextBoxContent");
+
+                SaveAndCleanup(package);
+            }
+        }
+    }
 }

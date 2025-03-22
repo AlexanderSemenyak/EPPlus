@@ -27,7 +27,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: ExcelPivotTableSlicerItemCollection
     path: ../src/EPPlus/Drawing/Slicer/ExcelPivotTableSlicerItemCollection.cs
-    startLine: 14
+    startLine: 15
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing.Slicer
@@ -75,7 +75,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: Refresh
     path: ../src/EPPlus/Drawing/Slicer/ExcelPivotTableSlicerItemCollection.cs
-    startLine: 29
+    startLine: 30
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing.Slicer
@@ -107,7 +107,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: GetEnumerator
     path: ../src/EPPlus/Drawing/Slicer/ExcelPivotTableSlicerItemCollection.cs
-    startLine: 61
+    startLine: 62
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing.Slicer
@@ -145,7 +145,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: System.Collections.IEnumerable.GetEnumerator
     path: ../src/EPPlus/Drawing/Slicer/ExcelPivotTableSlicerItemCollection.cs
-    startLine: 71
+    startLine: 72
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing.Slicer
@@ -180,7 +180,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: Count
     path: ../src/EPPlus/Drawing/Slicer/ExcelPivotTableSlicerItemCollection.cs
-    startLine: 79
+    startLine: 80
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing.Slicer
@@ -217,7 +217,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: this[]
     path: ../src/EPPlus/Drawing/Slicer/ExcelPivotTableSlicerItemCollection.cs
-    startLine: 91
+    startLine: 92
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing.Slicer
@@ -261,7 +261,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: GetByValue
     path: ../src/EPPlus/Drawing/Slicer/ExcelPivotTableSlicerItemCollection.cs
-    startLine: 103
+    startLine: 104
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing.Slicer
@@ -300,7 +300,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: GetIndexByValue
     path: ../src/EPPlus/Drawing/Slicer/ExcelPivotTableSlicerItemCollection.cs
-    startLine: 116
+    startLine: 117
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing.Slicer
@@ -339,7 +339,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: Contains
     path: ../src/EPPlus/Drawing/Slicer/ExcelPivotTableSlicerItemCollection.cs
-    startLine: 129
+    startLine: 130
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing.Slicer

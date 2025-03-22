@@ -27,7 +27,7 @@ namespace OfficeOpenXml.Drawing.Chart
     {
        internal ExcelChartSerieDataLabel(ExcelChart chart, XmlNamespaceManager ns, XmlNode node, string[] schemaNodeOrder)
            : base(chart, ns,node,"dLbls", schemaNodeOrder)
-       {
+        {
             Position = eLabelPosition.Center;
         }
         ExcelChartDataLabelCollection _dataLabels = null;
@@ -40,7 +40,7 @@ namespace OfficeOpenXml.Drawing.Chart
             {
                 if (_dataLabels == null)
                 {
-                    _dataLabels = new ExcelChartDataLabelCollection(_chart, NameSpaceManager, TopNode, SchemaNodeOrder);
+                    _dataLabels = new ExcelChartDataLabelCollection(_chart, NameSpaceManager, TopNode, SchemaNodeOrder, this as ExcelChartDataLabelStandard);
                 }
                 return _dataLabels;
             }

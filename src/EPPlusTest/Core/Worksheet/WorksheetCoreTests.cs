@@ -28,7 +28,9 @@
  *******************************************************************************/
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OfficeOpenXml;
+using System;
 using System.Drawing;
+using System.Linq;
 
 namespace EPPlusTest.Core.Worksheet
 {
@@ -168,5 +170,202 @@ namespace EPPlusTest.Core.Worksheet
                 SaveAndCleanup(p);
             }
         }
+        [TestMethod]
+        public void ValidateFirstLastCellTest()
+        {
+            using (var p = new ExcelPackage())
+            {
+                var ws = p.Workbook.Worksheets.Add("Sheet1");
+                ws.Cells["B4:H10"].Style.Numberformat.Format = "0";
+                Assert.IsNull(ws.FirstValueCell);
+                Assert.IsNull(ws.LastValueCell);
+
+                ws.Cells["B6:C7"].Value = 1;
+
+                Assert.AreEqual("B6",ws.FirstValueCell.Address);
+                Assert.AreEqual("C7", ws.LastValueCell.Address);
+
+                Assert.AreEqual("B6:C7", ws.DimensionByValue.Address);
+            }
+        }
+        [TestMethod]
+        public void ValidateDimensionValueLargerRowTest()
+        {
+            using (var p = new ExcelPackage())
+            {
+                var ws = p.Workbook.Worksheets.Add("Sheet1");
+                ws.Cells["B4:H10"].Style.Numberformat.Format = "0";
+                Assert.IsNull(ws.FirstValueCell);
+                Assert.IsNull(ws.LastValueCell);
+
+                ws.Cells["D7"].Value = 1;
+                ws.Cells["C6"].Value = 1;
+                ws.Cells["G6"].Value = 1;
+                ws.Cells["D5"].Value = 1;
+
+                Assert.AreEqual("D5", ws.FirstValueCell.Address);
+                Assert.AreEqual("D7", ws.LastValueCell.Address);
+
+                Assert.AreEqual("C5:G7", ws.DimensionByValue.Address);
+            }
+        }
+        [TestMethod]
+        public void ValidateDimensionValueTest()
+        {
+            using (var p = new ExcelPackage())
+            {
+                var ws = p.Workbook.Worksheets.Add("Sheet1");
+                ws.Cells["A4:H10"].Style.Numberformat.Format = "0";
+                ws.Cells["B6:C7"].Value = 1;
+
+
+                Assert.AreEqual("B6:C7", ws.DimensionByValue.Address);
+            }
+        }
+        [TestMethod]
+        public void ValidateDimensionValue2Test()
+        {
+            using (var p = new ExcelPackage())
+            {
+                var ws = p.Workbook.Worksheets.Add("Sheet1");
+                ws.Cells["A4:H10"].Style.Numberformat.Format = "0";
+                ws.Cells["B6:D10"].Value = 1;
+                ws.Cells["B11:C13"].Value = 1;
+
+                Assert.AreEqual("B6:D13", ws.DimensionByValue.Address);
+            }
+        }
+        [TestMethod]
+        public void ValidateDimensionValue2WithGap()
+        {
+            using (var p = new ExcelPackage())
+            {
+                var ws = p.Workbook.Worksheets.Add("Sheet1");
+                ws.Cells["A4:H10"].Style.Numberformat.Format = "0";
+                ws.Cells["B14:C14"].Value = 1;
+                ws.Cells["G12:K12"].Value = 1;
+                ws.Cells["G2:K2"].Value = 1;
+
+                ws.Cells["H20:L22"].Style.Fill.SetBackground(Color.Blue);
+
+                Assert.AreEqual("B2:K14", ws.DimensionByValue.Address);
+            }
+        } 
+        [TestMethod]
+        public void ValidateWorksheetGetValue_Timespan()
+        {               
+            var p = new ExcelPackage();
+            var ws = p.Workbook.Worksheets.Add("Sheet1");
+            ws.SetValue("A1", new TimeSpan(12, 30, 45));
+            ws.Cells["A1"].Style.Numberformat.Format = "hh:MM:ss";
+
+
+            p.Save();
+            using (var p2 = new ExcelPackage(p.Stream))
+            {
+                var ws2 = p.Workbook.Worksheets.First();
+
+                var timeSpanCell = ws2.GetValue<TimeSpan>(1, 1);
+
+                Assert.AreEqual(timeSpanCell.Ticks, new TimeSpan(12, 30, 45).Ticks);
+            }
+        }
+#if (Core)
+        [TestMethod]
+        public void ValidateWorksheetGetValue_TimeOnlyToTimeOnly()
+        {
+            var p = new ExcelPackage();
+            var ws = p.Workbook.Worksheets.Add("Sheet1");
+            ws.SetValue("A1", new TimeOnly(12, 30, 45));
+            ws.Cells["A1"].Style.Numberformat.Format = "hh:MM:ss";
+
+            p.Save();
+            using (var p2 = new ExcelPackage(p.Stream))
+            {
+                var ws2 = p.Workbook.Worksheets.First();
+
+                var timeSpanCell = ws2.GetValue<TimeSpan>(1, 1);
+
+                Assert.AreEqual(timeSpanCell.Ticks, new TimeSpan(12, 30, 45).Ticks);
+            }
+        }
+        [TestMethod]
+        public void ValidateWorksheetGetValue_ToTimeOnlyFromTimeSpan()
+        {
+            var p = new ExcelPackage();
+            var ws = p.Workbook.Worksheets.Add("Sheet1");
+            var timeSpan = new TimeSpan(12, 30, 45);
+            ws.SetValue("A1", timeSpan);
+            ws.Cells["A1"].Style.Numberformat.Format = "hh:MM:ss";
+
+            p.Save();
+            using (var p2 = new ExcelPackage(p.Stream))
+            {
+                var ws2 = p.Workbook.Worksheets.First();
+
+                var timeSpanCell = ws2.GetValue<TimeOnly>(1, 1);
+
+                Assert.AreEqual(timeSpanCell.Ticks, timeSpan.Ticks);
+            }
+        }
+        [TestMethod]
+        public void ValidateWorksheetGetValue_ToTimeOnlyFromNumber()
+        {
+            var p = new ExcelPackage();
+            var ws = p.Workbook.Worksheets.Add("Sheet1");
+            var timeSpan = new TimeSpan(12, 30, 45);
+            ws.SetValue("A1", new DateTime(timeSpan.Ticks).ToOADate());
+            ws.Cells["A1"].Style.Numberformat.Format = "hh:MM:ss";
+
+            p.Save();
+            using (var p2 = new ExcelPackage(p.Stream))
+            {
+                var ws2 = p.Workbook.Worksheets.First();
+
+                var timeSpanCell = ws2.GetValue<TimeOnly>(1, 1);
+
+                Assert.AreEqual(timeSpanCell.Ticks, timeSpan.Ticks);
+            }
+        }
+        [TestMethod]
+        public void ValidateWorksheetGetValue_ToDateOnlyFromDateTime()
+        {
+            var p = new ExcelPackage();
+            var ws = p.Workbook.Worksheets.Add("Sheet1");
+            var dateTime = new DateTime(2025, 2, 3);
+            ws.SetValue("A1", dateTime);
+            ws.Cells["A1"].Style.Numberformat.Format = "hh:MM:ss";
+
+            p.Save();
+            using (var p2 = new ExcelPackage(p.Stream))
+            {
+                var ws2 = p.Workbook.Worksheets.First();
+
+                var dateOnlyCell = ws2.GetValue<DateOnly>(1, 1);
+
+                Assert.AreEqual(dateOnlyCell.ToDateTime(TimeOnly.MinValue).Ticks, dateTime.Ticks);
+            }
+        }
+        [TestMethod]
+        public void ValidateWorksheetGetValue_ToDateOnlyFromNumber()
+        {
+            var p = new ExcelPackage();
+            var ws = p.Workbook.Worksheets.Add("Sheet1");
+            var dateTime = new DateTime(2025, 2, 3);
+            ws.SetValue("A1", dateTime.ToOADate());
+            ws.Cells["A1"].Style.Numberformat.Format = "hh:MM:ss";
+
+            p.Save();
+            using (var p2 = new ExcelPackage(p.Stream))
+            {
+                var ws2 = p.Workbook.Worksheets.First();
+
+                var dateOnlyCell = ws2.GetValue<DateOnly>(1, 1);
+
+                Assert.AreEqual(dateOnlyCell.ToDateTime(TimeOnly.MinValue).Ticks, dateTime.Ticks);
+            }
+        }
+
+#endif
     }
 }

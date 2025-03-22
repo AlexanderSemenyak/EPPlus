@@ -11,115 +11,12 @@
   01/27/2020         EPPlus Software AB       Initial release EPPlus 5
  *************************************************************************************************/
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace OfficeOpenXml.Table.PivotTable
 {
-    /// <summary>
-    /// 
-    /// </summary>
-    public class ExcelPivotTableFieldItemsCollection : ExcelPivotTableFieldCollectionBase<ExcelPivotTableFieldItem>
-    {
-        ExcelPivotTableField _field;
-
-        internal ExcelPivotTableFieldItemsCollection(ExcelPivotTableField field) : base()
-        {
-            _field = field;
-        }
-        /// <summary>
-        /// It the object exists in the cache
-        /// </summary>
-        /// <param name="value">The object to check for existance</param>
-        /// <returns></returns>
-        public bool Contains(object value)
-        {
-            return _field.Cache._cacheLookup.ContainsKey(value);
-        }
-        /// <summary>
-        /// Get the item with the value supplied. If the value does not exist, null is returned.
-        /// </summary>
-        /// <param name="value">The value</param>
-        /// <returns>The pivot table field</returns>
-        public ExcelPivotTableFieldItem GetByValue(object value)
-        {
-            if(_field.Cache._cacheLookup.TryGetValue(value, out int ix))
-            {
-                return _list[ix];
-            }
-            return null;
-        }
-        /// <summary>
-        /// Get the index of the item with the value supplied. If the value does not exist, null is returned.
-        /// </summary>
-        /// <param name="value">The value</param>
-        /// <returns>The index of the item</returns>
-        public int GetIndexByValue(object value)
-        {
-            if (_field.Cache._cacheLookup.TryGetValue(value, out int ix))
-            {
-                return ix;
-            }
-            return -1;
-        }
-        /// <summary>
-        /// Set Hidden to false for all items in the collection
-        /// </summary>
-        public void ShowAll()
-        {
-            foreach(var item in _list)
-            {
-                item.Hidden = false;
-            }
-            _field.PageFieldSettings.SelectedItem = -1;
-        }
-        /// <summary>
-        /// Set the ShowDetails for all items.
-        /// </summary>
-        /// <param name="isExpanded">The value of true is set all items to be expanded. The value of false set all items to be collapsed</param>
-        public void ShowDetails(bool isExpanded=true)
-        {
-            if(!(_field.IsRowField || _field.IsColumnField))
-            {
-                //TODO: Add exception
-            }
-            if (_list.Count == 0) Refresh();
-            foreach (var item in _list)
-            {
-                item.ShowDetails= isExpanded;
-            }
-        }
-        /// <summary>
-        /// Hide all items except the item at the supplied index
-        /// </summary>
-        public void SelectSingleItem(int index)
-        {
-            if(index <0 || index >= _list.Count)
-            {
-                throw new ArgumentOutOfRangeException("index", "Index is out of range");
-            }
-
-            foreach (var item in _list)
-            {
-                if (item.Type == eItemType.Data)
-                {
-                    item.Hidden = true;
-                }
-            }
-            _list[index].Hidden=false;
-            if(_field.IsPageField)
-            {
-                _field.PageFieldSettings.SelectedItem = index;
-            }
-        }
-        /// <summary>
-        /// Refreshes the data of the cache field
-        /// </summary>
-        public void Refresh()
-        {
-            _field.Cache.Refresh();
-        }
-    }
     /// <summary>
     /// Base collection class for pivottable fields
     /// </summary>

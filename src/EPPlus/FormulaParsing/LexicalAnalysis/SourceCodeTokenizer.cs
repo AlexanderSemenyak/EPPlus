@@ -7,9 +7,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
+using OfficeOpenXml.FormulaParsing.ExcelUtilities;
 
 namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
 {
+    /// <summary>
+    /// Source code tokenizer
+    /// </summary>
     public class SourceCodeTokenizer : ISourceCodeTokenizer
     {
         private static readonly Dictionary<char, Token> _charAddressTokens = new Dictionary<char, Token>
@@ -44,6 +48,7 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
             {'\'',  new Token("\'", TokenType.SingleQuote) },
             //{'#',  new Token("#'", TokenType.HashMark) },
         };
+        private static readonly Token _negatorToken = new ("-", TokenType.Negator);
         private static readonly Dictionary<string, Token> _stringTokens = new Dictionary<string, Token>
         {
             {">=", new Token(">=", TokenType.Operator)},
@@ -58,13 +63,14 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
             {"#data" },
             {"#totals" }
         };
-        private bool _r1c1, _keepWhitespace;
-        /// <summary>
-        /// The default tokenizer. This tokenizer will remove and ignore whitespaces.
-        /// </summary>
-        public static ISourceCodeTokenizer Default
+        private bool _r1c1, _keepWhitespace, _isPivotFormula;
+        private readonly TokenType _nameValueOrPivotFieldToken;
+		/// <summary>
+		/// The default tokenizer. This tokenizer will remove and ignore whitespaces.
+		/// </summary>
+		public static ISourceCodeTokenizer Default
         {
-            get { return new SourceCodeTokenizer(FunctionNameProvider.Empty, NameValueProvider.Empty, false, false); }
+            get { return new SourceCodeTokenizer(FunctionNameProvider.Empty, NameValueProvider.Empty, false, false, false); }
         }
 
         /// <summary>
@@ -72,9 +78,8 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
         /// </summary>
         public static ISourceCodeTokenizer R1C1
         {
-            get { return new SourceCodeTokenizer(FunctionNameProvider.Empty, NameValueProvider.Empty, true, true); }
+            get { return new SourceCodeTokenizer(FunctionNameProvider.Empty, NameValueProvider.Empty, true, true, false); }
         }
-
 		/// <summary>
 		/// The default tokenizer. This tokenizer will remove and ignore whitespaces.
 		/// </summary>
@@ -84,18 +89,23 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
 		}
 
 		/// <summary>
-		/// Constructor
 		/// </summary>
+		public static ISourceCodeTokenizer PivotFormula
+		{
+			get { return new SourceCodeTokenizer(FunctionNameProvider.Empty, NameValueProvider.Empty, false, false, true); }
+		}
 		/// <param name="functionRepository">A function name provider</param>
 		/// <param name="nameValueProvider">A name value provider</param>
 		/// <param name="r1c1">If true the tokenizer will use the R1C1 format</param>
 		/// <param name="keepWhitespace">If true whitspaces in formulas will be preserved</param>
-		public SourceCodeTokenizer(IFunctionNameProvider functionRepository, INameValueProvider nameValueProvider, bool r1c1 = false, bool keepWhitespace = false)
-        {
-            _r1c1 = r1c1;
+        /// <param name="pivotFormula">If the formula is from a calculated column in a pivot table.</param>
+		public SourceCodeTokenizer(IFunctionNameProvider functionRepository, INameValueProvider nameValueProvider, bool r1c1 = false, bool keepWhitespace = false, bool pivotFormula = false)
+		{
+			_r1c1 = r1c1;
             _keepWhitespace = keepWhitespace;
-        }
-
+            _isPivotFormula = pivotFormula;
+            _nameValueOrPivotFieldToken = _isPivotFormula ? TokenType.PivotField : TokenType.NameValue;
+		}
         /// <summary>
         /// Split the input string into tokens used by the formula parser
         /// </summary>
@@ -115,7 +125,7 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
             isNumeric = 0x10,
             isDecimal = 0x20,
             isPercent = 0x40,
-            isNegator = 0x80,
+            //isNegator = 0x80, //Removed, in 7.4.1
             isColon = 0x100,
             isTableRef = 0x200,
             isExtRef = 0x400,
@@ -124,15 +134,14 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
             isExponential = 0x2000,
             isLastCharQuote = 0x4000
         }
-
         /// <summary>
-        /// Split the input string into tokens used by the formula parser
+        /// Splits a formula in tokens used in when calculating for example a worksheet cell, defined name or a pivot table field formula.
         /// </summary>
-        /// <param name="input"></param>
-        /// <param name="worksheet"></param>
+        /// <param name="input">The formula to tokenize</param>
+        /// <param name="worksheet">The worksheet name.</param>
         /// <returns></returns>
-        /// <exception cref="InvalidFormulaException"></exception>
-        public IList<Token> Tokenize(string input, string worksheet)
+        /// <exception cref="InvalidFormulaException">Thrown if the formula is not valid.</exception>
+         public IList<Token> Tokenize(string input, string worksheet)
         {
             var l = new List<Token>();
             int ix;
@@ -153,6 +162,7 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
             var current = new StringBuilder();
             var pc = '\0';
             var isR1C1 = false;
+            List<int> variableFuncPositions = default;
             while (ix < length)
             {
                 var c = input[ix];
@@ -166,15 +176,30 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
                 {
                     if (bracketCount == 0)
                     {
-                        if (current.Length == 0)
+                        if (_isPivotFormula)
                         {
-                            l.Add(_charTokens['\'']);
-                        }
+                            if(current.Length == 0)
+                            {
+                                flags |= statFlags.isNonNumeric;
+                            }
+							else if (pc == '\'')
+                            {
+								current.Append(c);
+								flags |= statFlags.isLastCharQuote;
+							}
+						}
                         else
                         {
-                            current.Append(c);
-                        }
-                        isInString ^= 2;
+							if (current.Length == 0)
+							{
+                                l.Add(_charTokens['\'']);
+                            }
+							else
+							{
+								current.Append(c);
+							}
+						}
+						isInString ^= 2;
                     }
                     else if (pc == '\'' && (flags & statFlags.isLastCharQuote)==0)
                     {
@@ -191,7 +216,7 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
                 {
                     if (bracketCount == 0 && isInString == 0 && IsWhiteSpace(c))
                     {
-                        HandleToken(l, c, ref current, ref flags);
+                        HandleToken(l, c, ref current, ref flags, ref variableFuncPositions);
                         short wsCnt = 1;
                         int wsIx = ix + 1;
                         while (wsIx < input.Length && IsWhiteSpace(input[wsIx++]))
@@ -199,16 +224,13 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
                             wsCnt++;
 
                         }
-                        if ((flags & statFlags.isNegator) != statFlags.isNegator)
+                        var pt = GetLastToken(l);
+                        if (pt.TokenType == TokenType.CellAddress ||
+                            pt.TokenType == TokenType.ClosingParenthesis ||
+                            pt.TokenType == TokenType.NameValue ||
+                            pt.TokenType == TokenType.InvalidReference)
                         {
-                            var pt = GetLastToken(l);
-                            if (pt.TokenType == TokenType.CellAddress ||
-                                pt.TokenType == TokenType.ClosingParenthesis ||
-                                pt.TokenType == TokenType.NameValue ||
-                                pt.TokenType == TokenType.InvalidReference)
-                            {
-                                flags |= statFlags.isIntersect;
-                            }
+                            flags |= statFlags.isIntersect;
                         }
 
                         if (_keepWhitespace)
@@ -219,8 +241,7 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
                     }
                     else if (isInString == 0 && _charTokens.ContainsKey(c) && (flags & statFlags.isExponential) == 0)
                     {
-                        
-                        if (c == '!' && current.Length > 0 && current[0] == '#')
+                        if (c == '!' && current.Length > 0 && current[0] == '#' && current[current.Length - 1] != '\'')
                         {
                             var currentString = current.ToString();
                             if (currentString.Equals("#NUM", StringComparison.OrdinalIgnoreCase))
@@ -235,11 +256,15 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
                             {
                                 l.Add(new Token("#NULL!", TokenType.Null));
                             }
-                            else
+                            else if(currentString.Equals("#REF", StringComparison.OrdinalIgnoreCase))
                             {
                                 l.Add(new Token("#REF!", TokenType.InvalidReference));
                             }
-                            flags &= statFlags.isTableRef;
+                            else
+                            {
+                                flags &= statFlags.isTableRef;
+                            }
+
                             current = new StringBuilder();
                         }
                         else if (c == '/' && current.Length == 2 && current[0] == '#' && (current[1] == 'n' || current[1] == 'N'))
@@ -256,23 +281,15 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
                             current.Append(c);
                             if (ix == input.Length - 1)
                             {
-                                if ((flags & statFlags.isNegator) == statFlags.isNegator)
-                                {
-                                    HandleNegator(l, current, flags);
-                                }
                                 l.Add(new Token(current.ToString(), TokenType.ExcelAddressR1C1));
                                 return l;
                             }
                         }
                         else
                         {
-                            HandleToken(l, c, ref current, ref flags);
+                            HandleToken(l, c, ref current, ref flags, ref variableFuncPositions);
 
-                            if (c == '-')
-                            {
-                                flags |= statFlags.isNegator;
-                            }
-                            else if (c == '[')
+                            if (c == '[')
                             {
                                 if (bracketCount > 0 && pc == '\'')
                                 {
@@ -291,7 +308,6 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
                             {
                                 var pt = GetLastToken(l);
 
-                                //Remove prefixing +
                                 if (!(pt.TokenType == TokenType.Operator
                                     ||
                                     pt.TokenType == TokenType.Negator
@@ -312,8 +328,33 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
                                 l.Add(_stringTokens[input.Substring(ix, 2)]);
                                 ix++;
                             }
-                            else
+                            else if(c=='-')
                             {
+                                var pt = GetLastToken(l);
+                                if ((
+                                    pt.TokenType == default 
+                                    ||
+                                    pt.TokenType == TokenType.Operator
+                                    ||
+                                    pt.TokenType == TokenType.Negator
+                                    ||
+                                    pt.TokenType == TokenType.OpeningParenthesis
+                                    ||
+                                    pt.TokenType == TokenType.Comma
+                                    ||
+                                    pt.TokenType == TokenType.SemiColon
+                                    ||
+                                    pt.TokenType == TokenType.OpeningEnumerable))
+                                {
+                                    l.Add(_negatorToken);
+                                }
+                                else
+                                {
+                                    l.Add(_charTokens[c]);
+                                }
+                            }
+                            else
+                            {                                
                                 l.Add(_charTokens[c]);
                             }
 
@@ -350,9 +391,7 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
                                 flags |= statFlags.isColon;
                             }
                             else if ((flags == statFlags.isNumeric || 
-                                      flags == (statFlags.isNumeric | statFlags.isDecimal) || 
-                                      flags == (statFlags.isNumeric | statFlags.isDecimal | statFlags.isNegator) || 
-                                      flags == (statFlags.isNumeric | statFlags.isNegator)) 
+                                      flags == (statFlags.isNumeric | statFlags.isDecimal)) //|| 
                                       && 
                                       (flags & statFlags.isNonNumeric) != statFlags.isNonNumeric 
                                       && 
@@ -403,7 +442,7 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
             }
             if (current.Length > 0 || (flags & statFlags.isString) == statFlags.isString)
             {
-                HandleToken(l, pc, ref current, ref flags);
+                HandleToken(l, pc, ref current, ref flags, ref variableFuncPositions);
             }
             if (isInString != 0)
             {
@@ -418,6 +457,11 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
                 throw new InvalidFormulaException("Number of opened and closed brackets does not match");
             }
 
+            if(variableFuncPositions != null && variableFuncPositions.Count > 0)
+            {
+                var variableHelper = new VariableParameterHelper(l, variableFuncPositions);
+                variableHelper.Process();
+            }
             return l;
         }
 #if (!NET35)
@@ -468,12 +512,12 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
             }
         }
 
-        private void HandleToken(List<Token> l, char c, ref StringBuilder current, ref statFlags flags)
+        private bool IsParameterVariable(string token)
         {
-            if ((flags & statFlags.isNegator) == statFlags.isNegator)
-            {
-                HandleNegator(l, current, flags);
-            }
+            return token.StartsWith("_xlpm.");
+        }
+        private void HandleToken(List<Token> l, char c, ref StringBuilder current, ref statFlags flags, ref List<int> variableFuncPositions)
+        {
             if (current.Length == 0)
             {
                 if ((flags & statFlags.isIntersect) == statFlags.isIntersect)
@@ -547,6 +591,14 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
             }
             else if (c == '(')
             {
+                if (VariableParameterHelper.IsVariableParameterFunction(currentString))
+                {
+                    if(variableFuncPositions == default)
+                    {
+                        variableFuncPositions = new List<int>();
+                    }
+                    variableFuncPositions.Add(l.Count);
+                }
                 if ((flags & statFlags.isColon) == statFlags.isColon)
                 {
                     l.Add(new Token(currentString, TokenType.Function | TokenType.RangeOffset));
@@ -566,14 +618,18 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
                     }
                     else
                     {
-                        l.Add(new Token(currentString, TokenType.NameValue));
+                        l.Add(new Token(currentString, _nameValueOrPivotFieldToken));
                     }
                 }
                 else
                 {
                     if (IsName(currentString))
                     {
-                        l.Add(new Token(currentString, TokenType.NameValue));
+                        l.Add(new Token(currentString, _nameValueOrPivotFieldToken));
+                    }
+                    else if(IsParameterVariable(currentString))
+                    {
+                        l.Add(new Token(currentString, TokenType.ParameterVariable));
                     }
                     else
                     {
@@ -634,13 +690,22 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
                         }
                         else
                         {
-                            l.Add(new Token(currentString, TokenType.NameValue));
+                            l.Add(new Token(currentString, _nameValueOrPivotFieldToken));
                         }
                     }
                 }
             }
             else
             {
+                if (l.Count>0 && (flags & statFlags.isNumeric) == statFlags.isNumeric && c != ':')
+                {                                        
+                    if (l[l.Count-1].TokenType == TokenType.Negator)
+                    {
+                        currentString = "-" + currentString;
+                        l.RemoveAt(l.Count - 1);
+                    }
+                }
+
                 if ((flags & statFlags.isPercent) == statFlags.isPercent)
                 {
                     l.Add(new Token(currentString, TokenType.Percent));
@@ -800,11 +865,6 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
                 }
             }
             int col;
-            //if (numPos == -1) //Column reference only, for exampel A:A
-            //{
-            //    col = ExcelAddressBase.GetColumnNumber(address);
-            //    return col > 0 && col <= ExcelPackage.MaxColumns;
-            //}
             if (numPos < 1 || numPos > 3)
             {
                 return false;

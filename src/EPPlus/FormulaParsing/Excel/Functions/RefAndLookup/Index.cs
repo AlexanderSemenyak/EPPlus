@@ -55,9 +55,16 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup
             }
 
             int? col = default;
+            //If column is not supplied and row has a value, argument 2 can be either row or column depending on the orientation of the supplied range.
             var colGivenButEmpty = false;
             if(arguments.Count > 2)
             {
+                var arg3 = arguments[2];
+                if (arg3.DataType == DataType.ExcelError)
+                {
+                    return CompileResult.GetErrorResult(((ExcelErrorValue)arg3.Value).Type);
+                }
+
                 col = ArgToInt(arguments, 2, RoundingMethod.Floor);
                 colGivenButEmpty = (arguments[2].Value == null);
             }
@@ -65,7 +72,8 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup
             if (arg1.IsExcelRangeOrSingleCell)
             {
                 var ri = arg1.ValueAsRangeInfo;
-                if(!colGivenButEmpty && !col.HasValue && ri.Size.NumberOfRows > 1 && ri.Size.NumberOfCols > 1)
+                if (row == null && (colGivenButEmpty || col==null)) return CreateAddressResult(ri, arg1.DataType);
+                if (!colGivenButEmpty && !col.HasValue && ri.Size.NumberOfRows > 1 && ri.Size.NumberOfCols > 1)
                 {
                     return CreateResult(eErrorType.Ref);
                 }
@@ -152,5 +160,9 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup
             }
             return FunctionParameterInformation.IgnoreErrorInPreExecute;
         }));
-    }
+		/// <summary>
+		/// If the function is allowed in a pivot table calculated field
+		/// </summary>
+		public override bool IsAllowedInCalculatedPivotTableField => false;
+	}
 }

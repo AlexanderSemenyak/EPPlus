@@ -12,7 +12,6 @@
   07/07/2023         EPPlus Software AB       Epplus 7
  *************************************************************************************************/
 using OfficeOpenXml.ConditionalFormatting.Contracts;
-using OfficeOpenXml.Drawing.Style.Fill;
 using OfficeOpenXml.Utils;
 using OfficeOpenXml.Utils.Extensions;
 using System;
@@ -21,7 +20,6 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
 using System.Linq;
-using System.Net.NetworkInformation;
 using System.Xml;
 
 namespace OfficeOpenXml.ConditionalFormatting
@@ -86,7 +84,7 @@ namespace OfficeOpenXml.ConditionalFormatting
 						//If cf exists in both local and ExtLst spaces
 						if (cf.IsExtLst && cf._uid != null)
 						{
-							localAndExtDict.Add(cf._uid, cf);
+							localAndExtDict.Add(cf._uid.Trim('{','}'), cf);
 						}
 						else
 						{
@@ -121,7 +119,7 @@ namespace OfficeOpenXml.ConditionalFormatting
                     var addresslessCFs = new List<ExcelConditionalFormattingRule>();  
                     do
                     {
-                        string id = xr.GetAttribute("id");
+                        string id = xr.GetAttribute("id").Trim('{','}');
 
                         if (string.IsNullOrEmpty(id))
                         {
@@ -239,6 +237,7 @@ namespace OfficeOpenXml.ConditionalFormatting
                             }
 
                             _rules.Add(dataBar);
+                            dataBar.Uid = id;
                         }
                         else if (xr.GetAttribute("type") == "iconSet")
                         {
@@ -258,10 +257,13 @@ namespace OfficeOpenXml.ConditionalFormatting
 
                             var types = new List<string>();
                             var values = new List<string>();
+                            var gteValues = new List<bool>();
 
                             do
                             {
                                 types.Add(xr.GetAttribute("type"));
+                                var test = xr.GetAttribute("gte");
+                                gteValues.Add(test != "0");
 
                                 xr.Read();
                                 xr.Read();
@@ -330,7 +332,7 @@ namespace OfficeOpenXml.ConditionalFormatting
                                     ApplyIconSetExtValues(
                                         new ExcelConditionalFormattingIconDataBarValue[]
                                         { threeIconSet.Icon1, threeIconSet.Icon2, threeIconSet.Icon3 },
-                                        types, values, customIconTypes, customIconIds);
+                                        types, values, gteValues, customIconTypes, customIconIds);
 
                                     ApplyIconSetAttributes(showValue, percent, reverse, threeIconSet);
 
@@ -353,7 +355,7 @@ namespace OfficeOpenXml.ConditionalFormatting
                                     ApplyIconSetExtValues(
                                     new ExcelConditionalFormattingIconDataBarValue[]
                                     { fourSet.Icon1, fourSet.Icon2, fourSet.Icon3, fourSet.Icon4 },
-                                    types, values, customIconTypes, customIconIds);
+                                    types, values, gteValues, customIconTypes, customIconIds);
 
                                     ApplyIconSetAttributes(showValue, percent, reverse, fourSet);
 
@@ -373,7 +375,7 @@ namespace OfficeOpenXml.ConditionalFormatting
                                     ApplyIconSetExtValues(
                                      new ExcelConditionalFormattingIconDataBarValue[]
                                      { fiveSet.Icon1, fiveSet.Icon2, fiveSet.Icon3, fiveSet.Icon4 , fiveSet.Icon5 },
-                                     types, values, customIconTypes, customIconIds);
+                                     types, values, gteValues, customIconTypes, customIconIds);
 
                                     ApplyIconSetAttributes(showValue, percent, reverse, fiveSet);
 
@@ -382,6 +384,7 @@ namespace OfficeOpenXml.ConditionalFormatting
                             }
 
                             rule.Priority = priority;
+                            rule.Uid = id;
 
                             if (iconAddress == null && rule != null)
                             {
@@ -391,6 +394,7 @@ namespace OfficeOpenXml.ConditionalFormatting
                         else
                         {
                             var cf = ExcelConditionalFormattingRuleFactory.Create(null, _ws, xr);
+                            cf.Uid = id;
                             _rules.Add(cf);
 
                             if (cf.Address == null)
@@ -427,6 +431,7 @@ namespace OfficeOpenXml.ConditionalFormatting
             ExcelConditionalFormattingIconDataBarValue[] iconArr, 
             List<string> types, 
             List<string> values,
+            List<bool> gteValues,
             List<string> customIconTypes = null,
             List<int> customIconIds = null)
         {
@@ -442,6 +447,11 @@ namespace OfficeOpenXml.ConditionalFormatting
                 else
                 {
                     iconArr[i].Formula = values[i];
+                }
+
+                if (gteValues[i] == false)
+                {
+                    iconArr[i].GreaterThanOrEqualTo = gteValues[i];
                 }
 
                 if(customIconTypes != null)
@@ -573,8 +583,9 @@ namespace OfficeOpenXml.ConditionalFormatting
             {
                 Remove(RulesByPriority(priority));
             }
-            catch
+            catch(Exception ex)
             {
+                throw new InvalidOperationException($"Could not remove item with priority {priority}", ex);
             }
         }
 
@@ -1866,6 +1877,18 @@ namespace OfficeOpenXml.ConditionalFormatting
             dataBar.BorderColor.Color = color;
 
             return dataBar;
+        }
+
+        internal IExcelConditionalFormattingRule GetByPriority(int priority)
+        {
+            foreach (var rule in _rules)
+            {
+                if(rule.Priority == priority)
+                {
+                    return rule;
+                }
+            }
+            return null;
         }
     }
 }

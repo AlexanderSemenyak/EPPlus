@@ -44,7 +44,7 @@ namespace OfficeOpenXml.FormulaParsing.Ranges
         {
             if (address?._context != null)
             {
-                _ws = address._context.Package.Workbook.Worksheets[address._context.CurrentCell.WorksheetIx];
+                _ws = address._context.Package.Workbook.GetWorksheetByIndexInList(address._context.CurrentCell.WorksheetIx);
             }
             _address = address;
             _cells = new ICellInfo[rangeDef.NumberOfRows, rangeDef.NumberOfCols];
@@ -58,9 +58,9 @@ namespace OfficeOpenXml.FormulaParsing.Ranges
         {
             Size = new RangeDefinition(range.Count, (short)range[0].Count);
             _cells = new ICellInfo[Size.NumberOfRows, Size.NumberOfCols];
-            for(int c=0;c < Size.NumberOfCols; c++)
+            for (int c = 0; c < Size.NumberOfCols; c++)
             {
-                for(int r=0;r< Size.NumberOfRows; r++)
+                for (int r = 0; r < Size.NumberOfRows; r++)
                 {
                     _cells[r, c] = new InMemoryCellInfo(range[r][c]);
                 }
@@ -103,7 +103,7 @@ namespace OfficeOpenXml.FormulaParsing.Ranges
         private int _rowIndex = 0;
 
         private static InMemoryRange _empty = new InMemoryRange(new RangeDefinition(0, 0));
-        
+
         /// <summary>
         /// An empty range
         /// </summary>
@@ -169,6 +169,9 @@ namespace OfficeOpenXml.FormulaParsing.Ranges
                 return _address;
             }
         }
+        /// <summary>
+        /// Current
+        /// </summary>
         public ICellInfo Current
         {
             get
@@ -184,12 +187,22 @@ namespace OfficeOpenXml.FormulaParsing.Ranges
                 return _cells[_rowIndex, _colIx] ?? new InMemoryCellInfo(null);
             }
         }
+        /// <summary>
+        /// The addresses for the range, if more than one.
+        /// </summary>
+        public FormulaRangeAddress[] Addresses => [_address];
 
+        /// <summary>
+        /// Dispose
+        /// </summary>
         public void Dispose()
         {
 
         }
-
+        /// <summary>
+        /// Get enumerator
+        /// </summary>
+        /// <returns></returns>
         public IEnumerator<ICellInfo> GetEnumerator()
         {
             _colIx = -1;
@@ -282,14 +295,22 @@ namespace OfficeOpenXml.FormulaParsing.Ranges
                 return c.Value;
             }
         }
-
+        /// <summary>
+        /// Get cell
+        /// </summary>
+        /// <param name="row"></param>
+        /// <param name="col"></param>
+        /// <returns></returns>
         public ICellInfo GetCell(int row, int col)
         {
             var c = _cells[row, col];
             if (c == null) return null;
             return c;
         }
-
+        /// <summary>
+        /// Move next
+        /// </summary>
+        /// <returns></returns>
         public bool MoveNext()
         {
             if (_colIx < Size.NumberOfCols - 1)
@@ -302,7 +323,9 @@ namespace OfficeOpenXml.FormulaParsing.Ranges
             if (_rowIndex >= Size.NumberOfRows) return false;
             return true;
         }
-
+        /// <summary>
+        /// Reset
+        /// </summary>
         public void Reset()
         {
             _colIx = 0;

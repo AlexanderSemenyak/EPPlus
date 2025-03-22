@@ -17,6 +17,8 @@ using System.Text;
 using System.Xml;
 using System.Drawing;
 using OfficeOpenXml.Drawing;
+using OfficeOpenXml.Utils;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.MathFunctions;
 
 namespace OfficeOpenXml.Style.XmlAccess
 {
@@ -160,6 +162,7 @@ namespace OfficeOpenXml.Style.XmlAccess
         #endregion
         #region Public Properties
 
+        ExcelNumberFormatXml _numberformat = null;
         /// <summary>
         /// Numberformat properties
         /// </summary>
@@ -167,7 +170,29 @@ namespace OfficeOpenXml.Style.XmlAccess
         {
             get
             {
-                return _styles.NumberFormats[_numFmtId < 0 ? 0 : _numFmtId];
+                if (_numberformat == null)
+                {
+                    if (_numFmtId < 0)
+                    {
+                        _numberformat = _styles.NumberFormats[0];
+                    }
+                    else
+                    {
+                        for (int i = 0; i < _styles.NumberFormats.Count; i++)
+                        {
+                            if (_numFmtId == _styles.NumberFormats[i].NumFmtId)
+                            {
+                                _numberformat = _styles.NumberFormats[i];
+                                break;
+                            }
+                        }
+                        if (_numberformat == null)
+                        {
+                            _numberformat = _styles.NumberFormats[0];
+                        }
+                    }
+                }
+                return _numberformat;
             }
         }
         /// <summary>
@@ -295,17 +320,12 @@ namespace OfficeOpenXml.Style.XmlAccess
             }
         }
         #endregion
-        internal void RegisterEvent(ExcelXfs xf)
-        {
-            //                RegisterEvent(xf, xf.Xf_ChangedEvent);
-        }
         internal override string Id
         {
 
             get
             {
-                return XfId + "|" + NumberFormatId.ToString() + "|" + FontId.ToString() + "|" + FillId.ToString() + "|" + BorderId.ToString() + VerticalAlignment.ToString() + "|" + HorizontalAlignment.ToString() + "|" + WrapText.ToString() + "|" + ReadingOrder.ToString() + "|" + isBuildIn.ToString() + TextRotation.ToString() + Locked.ToString() + Hidden.ToString() + ShrinkToFit.ToString() + Indent.ToString() + QuotePrefix.ToString() + JustifyLastLine.ToString(); 
-                //return Numberformat.Id + "|" + Font.Id + "|" + Fill.Id + "|" + Border.Id + VerticalAlignment.ToString() + "|" + HorizontalAlignment.ToString() + "|" + WrapText.ToString() + "|" + ReadingOrder.ToString(); 
+                return XfId + "|" + NumberFormatId.ToString() + "|" + FontId.ToString() + "|" + FillId.ToString() + "|" + BorderId.ToString() + VerticalAlignment.ToString() + "|" + HorizontalAlignment.ToString() + "|" + WrapText.ToString() + "|" + ReadingOrder.ToString() + "|" + isBuildIn.ToString() + TextRotation.ToString() + Locked.ToString() + Hidden.ToString() + ShrinkToFit.ToString() + Indent.ToString() + QuotePrefix.ToString() + JustifyLastLine.ToString() + (ApplyProtection??false ? "1" : "0") + (ApplyAlignment ?? false ? "1" : "0"); 
             }
         }
         internal ExcelXfs Copy()
@@ -822,9 +842,9 @@ namespace OfficeOpenXml.Style.XmlAccess
                 SetXmlNodeBool("@applyProtection", ApplyProtection??true);
             }
 
-            if (HorizontalAlignment != ExcelHorizontalAlignment.General || VerticalAlignment != ExcelVerticalAlignment.Bottom || ApplyProtection.HasValue)
+            if (HorizontalAlignment != ExcelHorizontalAlignment.General || VerticalAlignment != ExcelVerticalAlignment.Bottom || ApplyAlignment.HasValue || WrapText || JustifyLastLine || TextRotation!=0 || ShrinkToFit || ReadingOrder!=ExcelReadingOrder.ContextDependent)
             {
-                SetXmlNodeBool("@applyAlignment", ApplyProtection??true);
+                SetXmlNodeBool("@applyAlignment", ApplyAlignment??true);
             }
 
             return TopNode;

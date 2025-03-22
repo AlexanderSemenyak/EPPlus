@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace OfficeOpenXml.RichData
 {
@@ -15,16 +16,27 @@ namespace OfficeOpenXml.RichData
         public int StructureId { get; set; }
         public ExcelRichValueStructure Structure { get; set; }
         public List<string> Values { get; }=new List<string>();
-        public RichValueFallbackType Fallback { get; internal set; } = RichValueFallbackType.Decimal;
+
+        public RichValueFallbackType FallbackType { get; internal set; } = RichValueFallbackType.Decimal;
+        public string FallbackValue { get; set; }
 
         internal void WriteXml(StreamWriter sw)
         {
             sw.Write($"<rv s=\"{StructureId}\">");
-            if (Fallback != RichValueFallbackType.Decimal)
+            if (!string.IsNullOrEmpty(FallbackValue))
             {
-                sw.Write($"<fb t=\"{GetFallbackAsString()}\" />");
+                if (FallbackType != RichValueFallbackType.Decimal)
+                {
+                    sw.Write($"<fb t=\"{GetFallbackAsString()}\">");
+                }
+                else
+                {
+                    sw.Write("<fb>");
+                }
+                sw.Write(FallbackValue);
+                sw.Write("</fb>");
             }
-            foreach(var v in Values)
+            foreach (var v in Values)
             {
                 sw.Write($"<v>{ConvertUtil.ExcelEscapeString(v)}</v>");
             }
@@ -32,7 +44,7 @@ namespace OfficeOpenXml.RichData
         }
         private string GetFallbackAsString()
         {
-            switch (Fallback)
+            switch (FallbackType)
             {
                 case RichValueFallbackType.Boolean:
                     return "b";
@@ -94,6 +106,27 @@ namespace OfficeOpenXml.RichData
                         break;
                 }
             }
+        }
+        Dictionary<string, string> _keyValues = null;
+        internal bool HasValue(string[] keys, string[] values)
+        {
+            if(_keyValues==null)
+            {
+                _keyValues = new Dictionary<string, string>();
+                for(int i=0;i < Structure.Keys.Count;i++)
+                {
+                    _keyValues.Add(Structure.Keys[i].Name, Values[i]);
+                }
+            }
+            
+            for(int i=0;i<keys.Length;i++)
+            {
+                if (_keyValues.TryGetValue(keys[i], out string s)==false || s != values[i])
+                {
+                    return false;
+                }
+            }
+            return true;
         }
     }
 }

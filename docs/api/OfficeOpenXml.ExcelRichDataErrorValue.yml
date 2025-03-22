@@ -19,7 +19,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: ExcelRichDataErrorValue
     path: ../src/EPPlus/FormulaParsing/ExcelValues.cs
-    startLine: 79
+    startLine: 80
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml

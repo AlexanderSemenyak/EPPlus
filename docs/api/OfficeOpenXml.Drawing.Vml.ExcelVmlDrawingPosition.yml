@@ -23,7 +23,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: ExcelVmlDrawingPosition
     path: ../src/EPPlus/Drawing/Vml/ExcelVmlDrawingPosition.cs
-    startLine: 22
+    startLine: 23
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing.Vml
@@ -69,7 +69,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: Row
     path: ../src/EPPlus/Drawing/Vml/ExcelVmlDrawingPosition.cs
-    startLine: 33
+    startLine: 34
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing.Vml
@@ -106,7 +106,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: RowOffset
     path: ../src/EPPlus/Drawing/Vml/ExcelVmlDrawingPosition.cs
-    startLine: 47
+    startLine: 48
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing.Vml
@@ -143,7 +143,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: Column
     path: ../src/EPPlus/Drawing/Vml/ExcelVmlDrawingPosition.cs
-    startLine: 61
+    startLine: 62
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing.Vml
@@ -180,7 +180,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: ColumnOffset
     path: ../src/EPPlus/Drawing/Vml/ExcelVmlDrawingPosition.cs
-    startLine: 75
+    startLine: 76
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing.Vml

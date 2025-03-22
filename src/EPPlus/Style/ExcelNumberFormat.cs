@@ -15,13 +15,17 @@ using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Globalization;
+using System.Linq;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.Information;
+using static OfficeOpenXml.Style.ExcelNumberFormat;
+using OfficeOpenXml.Style.XmlAccess;
 
 namespace OfficeOpenXml.Style
 {
-    /// <summary>
-    /// The numberformat of the cell
-    /// </summary>
-    public sealed class ExcelNumberFormat : StyleBase
+	/// <summary>
+	/// The numberformat of the cell
+	/// </summary>
+	public sealed partial class ExcelNumberFormat : StyleBase
     {
         internal ExcelNumberFormat(ExcelStyles styles, OfficeOpenXml.XmlHelper.ChangedEventHandler ChangedEvent, int PositionID, string Address, int index) :
             base(styles, ChangedEvent, PositionID, Address)
@@ -29,7 +33,7 @@ namespace OfficeOpenXml.Style
             Index = index;
         }
         /// <summary>
-        /// The numeric index fror the format
+        /// The numeric index for the format
         /// </summary>
         public int NumFmtID 
         {
@@ -74,6 +78,15 @@ namespace OfficeOpenXml.Style
 
         internal static string GetFromBuildInFromID(int _numFmtId)
         {
+            //First check if we have custom formats.
+            if(ExcelPackageSettings.CultureSpecificBuildInNumberFormats.TryGetValue(CultureInfo.CurrentCulture.Name, out var customFormats))
+            {
+                if(customFormats.TryGetValue(_numFmtId, out var customFormat))
+                {
+                    return customFormat;
+                }
+            }
+
             switch (_numFmtId)
             {
                 case 0:
@@ -129,7 +142,7 @@ namespace OfficeOpenXml.Style
                 case 47:
                     return "mmss.0";
                 case 48:
-                    return "##0.0";
+                    return "##0.0E+0";
                 case 49:
                     return "@";
                 default:
@@ -138,6 +151,15 @@ namespace OfficeOpenXml.Style
         }
         internal static int GetFromBuildIdFromFormat(string format)
         {
+            if (ExcelPackageSettings.CultureSpecificBuildInNumberFormats.TryGetValue(CultureInfo.CurrentCulture.Name, out var customFormats))
+            {
+                var id = customFormats.Where(x => x.Value.Equals(format, StringComparison.OrdinalIgnoreCase)); //We scan the values here. Not the fastest way,but we avoid having two dictionaries.
+                if(id.Any())
+                {
+                    return id.First().Key;
+                }
+            }
+            
             switch (format)
             {
                 case "General":
@@ -193,7 +215,7 @@ namespace OfficeOpenXml.Style
                     return 46;
                 case "mmss.0":
                     return 47;
-                case "##0.0":
+                case "##0.0E+0":
                     return 48;
                 case "@":
                     return 49;
@@ -201,5 +223,98 @@ namespace OfficeOpenXml.Style
                     return int.MinValue;
             }
         }
-    }
+        internal NumberFormatType _numberformatType= NumberFormatType.Unset;
+        //TODO: Implement convert to DateTime if dateformat.
+		internal bool IsDateFormat
+        {
+            get
+            {
+                if(_numberformatType==NumberFormatType.Unset)
+                {
+                    _numberformatType = GetNumberFormatType(Format);
+				}
+                return _numberformatType == NumberFormatType.Date;
+            }
+        }
+        //TODO: Use to determin number of decimals in the number format.
+        internal bool IsNumberFormat
+		{
+            get
+            {
+				if (_numberformatType == NumberFormatType.Unset)
+				{
+					_numberformatType = GetNumberFormatType(Format);
+				}
+				return _numberformatType == NumberFormatType.Numeric;
+            }
+		}
+        internal static NumberFormatType GetNumberFormatType(string format)
+        {
+            if(string.IsNullOrEmpty(format)) return NumberFormatType.General;
+            bool isInString = false;
+            bool isInBracket = false;
+            bool IsEscaped = false;
+            bool isDate=false, isNumber=false, isText = false;
+            foreach(var c in format.ToLower())
+            {
+                if (IsEscaped)
+                {
+                    IsEscaped = false;
+                    continue;
+				}
+                else if((isInString && c!='\"') || isInBracket && c != ']')
+                {
+                    continue;
+                }
+                else if(isText)
+                {
+                    isText = false;
+                    continue;
+                }
+                switch(c)
+                {
+                    case '\\':
+                        IsEscaped = true;
+                        break;
+                    case '\"':
+                        isInBracket=!isInString; 
+                        break;
+                    case '[':
+                        isInBracket = true;
+						break; ;
+                    case ']':
+						isInBracket = false;
+                        break;
+                    case 'y':
+					case 'm':
+					case 'd':
+					case 'h':
+					case 's':
+                        isDate=true;
+                        break;
+                    case '#':
+                    case '0':
+						isNumber = true;
+                        break;
+                    case '@':
+                        isText=true;
+                        break;
+				}
+			}
+            if(isNumber)
+            {
+                return NumberFormatType.Numeric;
+            }
+            else if (isDate)
+            {
+                return NumberFormatType.Date;
+            }
+            else if(isInString)
+            {
+                return NumberFormatType.String;
+            }
+            return NumberFormatType.General;
+        }
+
+	}
 }

@@ -50,6 +50,17 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup
             var lookupRange = arg1.ValueAsRangeInfo;
             var lookupIndex = ArgToInt(arguments, 2, out ExcelErrorValue e1);
             if (e1 != null) return CompileResult.GetErrorResult(e1.Type);
+
+            if (lookupIndex > lookupRange.Size.NumberOfCols)
+            {
+                return CompileResult.GetErrorResult(eErrorType.Ref);
+            }
+
+            if (lookupIndex <= 0)
+            {
+                return CompileResult.GetErrorResult(eErrorType.Value);
+            }
+
             var rangeLookup = true;
             if(arguments.Count > 3)
             {
@@ -67,6 +78,16 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup
             }
             else
             {
+                //Handle mixed types for rangeLookup here?
+                //if (arguments[0].DataType == DataType.String)
+                //{
+
+                //}
+                //else
+                //{
+
+                //}
+
                 index = LookupBinarySearch.BinarySearch(searchedValue, lookupRange, true, new LookupComparer(LookupMatchMode.ExactMatchReturnNextSmaller), LookupRangeDirection.Vertical);
                 index = LookupBinarySearch.GetMatchIndex(index, lookupRange, LookupMatchMode.ExactMatchReturnNextSmaller, true);
                 if (index < 0)
@@ -85,7 +106,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup
                 {
                     try
                     {
-                        var ix = (int)args[2].ResultNumeric-1;
+                        var ix = (int)args[2].ResultNumeric - 1;
                         if (ix < 0) return;
                         if (addresses == null) addresses = new Queue<FormulaRangeAddress>();
                         if (ix < 2)
@@ -105,5 +126,9 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup
                 }
             }
         }
-    }
+		/// <summary>
+		/// If the function is allowed in a pivot table calculated field
+		/// </summary>
+		public override bool IsAllowedInCalculatedPivotTableField => false;
+	}
 }

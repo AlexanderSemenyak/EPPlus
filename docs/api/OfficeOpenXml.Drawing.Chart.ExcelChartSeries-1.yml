@@ -31,7 +31,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: ExcelChartSeries
     path: ../src/EPPlus/Drawing/Chart/ExcelChartSeries.cs
-    startLine: 25
+    startLine: 27
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing.Chart
@@ -87,7 +87,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: this[]
     path: ../src/EPPlus/Drawing/Chart/ExcelChartSeries.cs
-    startLine: 165
+    startLine: 167
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing.Chart
@@ -131,7 +131,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: Count
     path: ../src/EPPlus/Drawing/Chart/ExcelChartSeries.cs
-    startLine: 175
+    startLine: 177
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing.Chart
@@ -170,7 +170,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: Delete
     path: ../src/EPPlus/Drawing/Chart/ExcelChartSeries.cs
-    startLine: 186
+    startLine: 188
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing.Chart
@@ -208,7 +208,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: Chart
     path: ../src/EPPlus/Drawing/Chart/ExcelChartSeries.cs
-    startLine: 195
+    startLine: 197
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing.Chart
@@ -247,7 +247,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: Add
     path: ../src/EPPlus/Drawing/Chart/ExcelChartSeries.cs
-    startLine: 208
+    startLine: 210
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing.Chart
@@ -290,7 +290,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: Add
     path: ../src/EPPlus/Drawing/Chart/ExcelChartSeries.cs
-    startLine: 221
+    startLine: 223
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing.Chart
@@ -333,7 +333,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: Add
     path: ../src/EPPlus/Drawing/Chart/ExcelChartSeries.cs
-    startLine: 236
+    startLine: 238
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing.Chart
@@ -379,7 +379,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: Add
     path: ../src/EPPlus/Drawing/Chart/ExcelChartSeries.cs
-    startLine: 250
+    startLine: 252
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing.Chart
@@ -425,7 +425,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: AddSeries
     path: ../src/EPPlus/Drawing/Chart/ExcelChartSeries.cs
-    startLine: 265
+    startLine: 267
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing.Chart
@@ -472,7 +472,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: GetEnumerator
     path: ../src/EPPlus/Drawing/Chart/ExcelChartSeries.cs
-    startLine: 449
+    startLine: 459
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing.Chart
@@ -510,7 +510,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: System.Collections.Generic.IEnumerable<T>.GetEnumerator
     path: ../src/EPPlus/Drawing/Chart/ExcelChartSeries.cs
-    startLine: 453
+    startLine: 463
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing.Chart
@@ -544,7 +544,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: System.Collections.IEnumerable.GetEnumerator
     path: ../src/EPPlus/Drawing/Chart/ExcelChartSeries.cs
-    startLine: 458
+    startLine: 468
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing.Chart

@@ -6,10 +6,10 @@ items:
   parent: OfficeOpenXml.FormulaParsing.ExcelUtilities
   children:
   - OfficeOpenXml.FormulaParsing.ExcelUtilities.ValueMatcher.CompareObjectToString(System.Object,System.String)
-  - OfficeOpenXml.FormulaParsing.ExcelUtilities.ValueMatcher.CompareStringToObject(System.String,System.Object)
+  - OfficeOpenXml.FormulaParsing.ExcelUtilities.ValueMatcher.CompareStringToObject(System.String,System.Object,System.Boolean)
   - OfficeOpenXml.FormulaParsing.ExcelUtilities.ValueMatcher.CompareStringToString(System.String,System.String)
   - OfficeOpenXml.FormulaParsing.ExcelUtilities.ValueMatcher.IncompatibleOperands
-  - OfficeOpenXml.FormulaParsing.ExcelUtilities.ValueMatcher.IsMatch(System.Object,System.Object)
+  - OfficeOpenXml.FormulaParsing.ExcelUtilities.ValueMatcher.IsMatch(System.Object,System.Object,System.Boolean)
   langs:
   - csharp
   - vb
@@ -24,10 +24,12 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: ValueMatcher
     path: ../src/EPPlus/FormulaParsing/ExcelUtilities/ValueMatcher.cs
-    startLine: 21
+    startLine: 24
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.FormulaParsing.ExcelUtilities
+  summary: "\nCompares and matches values\n"
+  example: []
   syntax:
     content: public class ValueMatcher
     content.vb: Public Class ValueMatcher
@@ -68,10 +70,12 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: IncompatibleOperands
     path: ../src/EPPlus/FormulaParsing/ExcelUtilities/ValueMatcher.cs
-    startLine: 23
+    startLine: 29
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.FormulaParsing.ExcelUtilities
+  summary: "\nValue to represent incompatible operands\n"
+  example: []
   syntax:
     content: public const int IncompatibleOperands = -2
     return:
@@ -83,16 +87,16 @@ items:
   modifiers.vb:
   - Public
   - Const
-- uid: OfficeOpenXml.FormulaParsing.ExcelUtilities.ValueMatcher.IsMatch(System.Object,System.Object)
-  commentId: M:OfficeOpenXml.FormulaParsing.ExcelUtilities.ValueMatcher.IsMatch(System.Object,System.Object)
-  id: IsMatch(System.Object,System.Object)
+- uid: OfficeOpenXml.FormulaParsing.ExcelUtilities.ValueMatcher.IsMatch(System.Object,System.Object,System.Boolean)
+  commentId: M:OfficeOpenXml.FormulaParsing.ExcelUtilities.ValueMatcher.IsMatch(System.Object,System.Object,System.Boolean)
+  id: IsMatch(System.Object,System.Object,System.Boolean)
   parent: OfficeOpenXml.FormulaParsing.ExcelUtilities.ValueMatcher
   langs:
   - csharp
   - vb
-  name: IsMatch(Object, Object)
-  nameWithType: ValueMatcher.IsMatch(Object, Object)
-  fullName: OfficeOpenXml.FormulaParsing.ExcelUtilities.ValueMatcher.IsMatch(System.Object, System.Object)
+  name: IsMatch(Object, Object, Boolean)
+  nameWithType: ValueMatcher.IsMatch(Object, Object, Boolean)
+  fullName: OfficeOpenXml.FormulaParsing.ExcelUtilities.ValueMatcher.IsMatch(System.Object, System.Object, System.Boolean)
   type: Method
   source:
     remote:
@@ -101,20 +105,28 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: IsMatch
     path: ../src/EPPlus/FormulaParsing/ExcelUtilities/ValueMatcher.cs
-    startLine: 25
+    startLine: 38
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.FormulaParsing.ExcelUtilities
+  summary: "\nCompares objects of different types using appropriate CompareTo methods\n"
+  example: []
   syntax:
-    content: public virtual int IsMatch(object searchedValue, object candidate)
+    content: public virtual int IsMatch(object searchedValue, object candidate, bool convertNumericString = true)
     parameters:
     - id: searchedValue
       type: System.Object
+      description: original value
     - id: candidate
       type: System.Object
+      description: potential match
+    - id: convertNumericString
+      type: System.Boolean
+      description: If true a numeric string will be convered to a number in the comparison. Default value is true.
     return:
       type: System.Int32
-    content.vb: Public Overridable Function IsMatch(searchedValue As Object, candidate As Object) As Integer
+      description: ''
+    content.vb: Public Overridable Function IsMatch(searchedValue As Object, candidate As Object, convertNumericString As Boolean = True) As Integer
   overload: OfficeOpenXml.FormulaParsing.ExcelUtilities.ValueMatcher.IsMatch*
   modifiers.csharp:
   - public
@@ -140,19 +152,24 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: CompareStringToString
     path: ../src/EPPlus/FormulaParsing/ExcelUtilities/ValueMatcher.cs
-    startLine: 88
+    startLine: 106
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.FormulaParsing.ExcelUtilities
+  summary: "\nCompares strings\n"
+  example: []
   syntax:
     content: protected virtual int CompareStringToString(string searchedValue, string candidate)
     parameters:
     - id: searchedValue
       type: System.String
+      description: ''
     - id: candidate
       type: System.String
+      description: ''
     return:
       type: System.Int32
+      description: ''
     content.vb: Protected Overridable Function CompareStringToString(searchedValue As String, candidate As String) As Integer
   overload: OfficeOpenXml.FormulaParsing.ExcelUtilities.ValueMatcher.CompareStringToString*
   modifiers.csharp:
@@ -161,16 +178,16 @@ items:
   modifiers.vb:
   - Protected
   - Overridable
-- uid: OfficeOpenXml.FormulaParsing.ExcelUtilities.ValueMatcher.CompareStringToObject(System.String,System.Object)
-  commentId: M:OfficeOpenXml.FormulaParsing.ExcelUtilities.ValueMatcher.CompareStringToObject(System.String,System.Object)
-  id: CompareStringToObject(System.String,System.Object)
+- uid: OfficeOpenXml.FormulaParsing.ExcelUtilities.ValueMatcher.CompareStringToObject(System.String,System.Object,System.Boolean)
+  commentId: M:OfficeOpenXml.FormulaParsing.ExcelUtilities.ValueMatcher.CompareStringToObject(System.String,System.Object,System.Boolean)
+  id: CompareStringToObject(System.String,System.Object,System.Boolean)
   parent: OfficeOpenXml.FormulaParsing.ExcelUtilities.ValueMatcher
   langs:
   - csharp
   - vb
-  name: CompareStringToObject(String, Object)
-  nameWithType: ValueMatcher.CompareStringToObject(String, Object)
-  fullName: OfficeOpenXml.FormulaParsing.ExcelUtilities.ValueMatcher.CompareStringToObject(System.String, System.Object)
+  name: CompareStringToObject(String, Object, Boolean)
+  nameWithType: ValueMatcher.CompareStringToObject(String, Object, Boolean)
+  fullName: OfficeOpenXml.FormulaParsing.ExcelUtilities.ValueMatcher.CompareStringToObject(System.String, System.Object, System.Boolean)
   type: Method
   source:
     remote:
@@ -179,20 +196,28 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: CompareStringToObject
     path: ../src/EPPlus/FormulaParsing/ExcelUtilities/ValueMatcher.cs
-    startLine: 93
+    startLine: 117
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.FormulaParsing.ExcelUtilities
+  summary: "\nCompares string to object candidate\n"
+  example: []
   syntax:
-    content: protected virtual int CompareStringToObject(string searchedValue, object candidate)
+    content: protected virtual int CompareStringToObject(string searchedValue, object candidate, bool convertNumericString = true)
     parameters:
     - id: searchedValue
       type: System.String
+      description: ''
     - id: candidate
       type: System.Object
+      description: ''
+    - id: convertNumericString
+      type: System.Boolean
+      description: ''
     return:
       type: System.Int32
-    content.vb: Protected Overridable Function CompareStringToObject(searchedValue As String, candidate As Object) As Integer
+      description: ''
+    content.vb: Protected Overridable Function CompareStringToObject(searchedValue As String, candidate As Object, convertNumericString As Boolean = True) As Integer
   overload: OfficeOpenXml.FormulaParsing.ExcelUtilities.ValueMatcher.CompareStringToObject*
   modifiers.csharp:
   - protected
@@ -218,19 +243,24 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: CompareObjectToString
     path: ../src/EPPlus/FormulaParsing/ExcelUtilities/ValueMatcher.cs
-    startLine: 116
+    startLine: 149
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.FormulaParsing.ExcelUtilities
+  summary: "\nCompares object to string candidate.\n"
+  example: []
   syntax:
     content: protected virtual int CompareObjectToString(object searchedValue, string candidate)
     parameters:
     - id: searchedValue
       type: System.Object
+      description: ''
     - id: candidate
       type: System.String
+      description: ''
     return:
       type: System.Int32
+      description: ''
     content.vb: Protected Overridable Function CompareObjectToString(searchedValue As Object, candidate As String) As Integer
   overload: OfficeOpenXml.FormulaParsing.ExcelUtilities.ValueMatcher.CompareObjectToString*
   modifiers.csharp:
@@ -549,6 +579,13 @@ references:
   name: IsMatch
   nameWithType: ValueMatcher.IsMatch
   fullName: OfficeOpenXml.FormulaParsing.ExcelUtilities.ValueMatcher.IsMatch
+- uid: System.Boolean
+  commentId: T:System.Boolean
+  parent: System
+  isExternal: true
+  name: Boolean
+  nameWithType: Boolean
+  fullName: System.Boolean
 - uid: OfficeOpenXml.FormulaParsing.ExcelUtilities.ValueMatcher.CompareStringToString*
   commentId: Overload:OfficeOpenXml.FormulaParsing.ExcelUtilities.ValueMatcher.CompareStringToString
   name: CompareStringToString

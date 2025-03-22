@@ -1,8 +1,278 @@
-
 # Features / Fixed issues - EPPlus 7
+## Version 7.7.0
+* Reverted System.* and Microsoft.* references to 8.0.x for all target frameworks except .NET 9.
+* LoadFromArray and LoadFromDataTable of the ExcelRangeBase class did not clear existing formulas before populating the range.
+* Fixed a rare issue when copying images between named ranges.
+* When sorting a range with formulas, the formulas addresses were sometimes updated incorrectly.
+* GetAsByteArrayAsync could not be called more than once.
+
+## Version 7.6.1
+* Pivot caches with error values in the source data were not handled correctly.
+* Timespan was not correctly converted in the GetValue<T> function.
+* The ExcelWorksheet.DimensionByValue property sometimes threw an unhandled exception.
+* The FIND function did not handle empty cells correctly in all cases.
+* Range sorting did not handle threaded comments.
+* Table.AddRows incorrectly shifted the first row if a table contained 1 row and had no header.* 
+
+## Version 7.6.0
+* Added target framework .NET 9. 
+* Removed out of support frameworks, .NET 6 and .NET 7.
+* Fixed an issue handling formulas when sorting a range.
+* Insert row in table caused corrupt workbook.
+* A workbook could lose styles if the ExcelPackage.FullPrecision property was set.
+* When copying a worksheet, drawings would be resized after inserting rows. This was caused by drawings being copied before styles and therefore drawings would not be aware of any styles.
+* Set Active Tab did not work correctly, if 'CompatibilitySettings.IsWorksheet1Based' was set to true.
+* Fixed "Part already exist" error when copying images between workbooks that already have images.
+* Fixed another issue when copying ExcelPicture’s between workbooks.
+* Iteration of worksheets indexed incorrectly in rare cases. EPPlus now throws an InvalidOperationException, if the collection has been altered under an enumerable operation.
+
+## Version 7.5.3
+* Improved COUNTIF performance, if full column addresses was used.
+* If having a workbook with no reference to a font in the styles.xml, caused an corrupt workbook.
+* ZipEntry's containing the zip data descriptor header could result in a BadReadException.
+* Added null as valid GetByValue for pivot table field items.
+* Added support for [h]:mm number format.
+* Improved sorting for pivot table slicer cache.
+* Fixed comment indices when sorting cells after deleting a row.
+* Fixed bug where adding a comment via ExcelWorksheet.Cells.AddComment and then adding a comment to the same cell via  ExcelWorksheet.Comments.Add would generate corrupt workbook.
+* Added Drawings.AddTextBox for easier creation of textboxes
+* Sheet protection style properties was not set correctly in some cases.
+* Renaming a worksheet could causes formulas to become corrupt, if the name contained spaces or other reserved characters.
+* Inserting into a cell range, shifting right, could cause conditional formatting to move incorrectly.
+* The LoadFromCollection method did not load ExcelHyperLink types as hyperlinks, if the 'members' argument was used.
+* Formula did not calculate when using named ranges to access a spreadsheet.
+* Fixed incorrect handling of multi-char delimiters and escape characters in TEXTBEFORE and TEXTAFTER
+* The VLOOKUP and HLOOKUP function did not return #REF! if the lookup address was out of bounds.
+* Inserting a row in a shared formula sometimes updated the addresses incorrectly.
+* Fixed an issue with the Save dialog in Excel showing when closing an unchanged workbook.
+* When inserting rows/columns, EPPlus incorrectly set a #REF! value if a function was used with a colon to create an address.
+
+## Version 7.5.2
+* Pivot tables with blanks could cause the pivot table to become corrupt.
+* Fixed error handling in the TEXTJOIN, TEXTSPLIT and CONCAT functions.
+* EPPlus throw an Exception when trying to delete the last column in a worksheet.
+* ExcelColor.LookupColor() returned an unexpected color code for empty colors. LookupColor()  will now returns an empty string for empty colors. 
+* DimensionByValue throw an System.ArgumentException: 'Column out of range' in some cases.
+* When having a column style on a column that spans multiple columns only the first is considered when reading a package.
+* XLOOKUP now returns emtpy string instead of #N/A when the third argument is an empty string.
+* ToDataTable did no return rich text cells correctly
+* ExcelWorksheets.MoveToStart did not always work correctly if IsWorksheets1Based was set.
+* Reading boolean properties of data validations saved in LibreOffice was not correctly read.
+* Adding a pivot table page field could crash in some cases.
+* Linked images crashed on read if the link attribute was empty.
+* Fixed "Worksheet position out of range" exception when calculating a formula having IsWorksheets1Based set.
+
+## Version 7.5.1
+* Style set on column/row level did not save on cells with a value and styleId is 0.
+* Fix for inserting rows after array formulas when referring to worksheets with '#' as part of the worksheet name.
+* Pivottable Field.Names on a field with rich text now returns the text content instead of OfficeOpenXml.Style.ExcelRichTextCollection
+* Fixed .ToDataTable not reading rich text correctly in rare cases.
+* ExcelPicture.Image.SetImage(" can now correctly be set to a .svg even if the original ExcelPicture was not created with a .svg file. And vice versa for other file formats.
+* Fixed reference mismatches in some cases after removing and adding a picture multiple times. When referring to the same picture with multiple ExcelPicture's.
+* Files created in the /media zipped subfolder now have the correct name index for a given workbook. Even if other workbooks in the same session reference the same image/images.
+* Shared formulas failed to calculate if a worksheet was copied.
+* Formulas referencing a deleted worksheet was not calculated correctly.
+
+## Version 7.5.0
+### Fixed issues and minor features
+ * Added signatures to the EPPlus.dll's and the EPPlus Nuget package.
+ * Added new properties RepeatItemLabels and InsertBlankRow to ExcelPivotTableField
+ * A NullReferenceException was sometimes thrown when saving line charts with droplines.
+ * Fix for cells with null values and no style id getting incorrect styling.
+ * Fixed an issue where two VLOOKUPs on the same worksheet intersected the same range. (kolla ev. #1671 för bättre beskrivning, tror det var du som fixade den).
+ * Added AllowDuplicateColumnNames to ToDataTableOptions. This allows the exported range in the ToDataTable method to have duplicate column names.
+ * EPPlus encoded CR and TAB characters in the shared string to _0x000D_ and _0x000A_, which was not necessary. 
+ * NullReferenceException thrown in some cases when saving a line chart with droplines
+
+## Version 7.4.2
+* Added support the array attribute on table column formulas.
+	* Added new property 'ExcelTableColumn.IsCalculatedFormulaArray'
+	* EPPlus automatically updates the IsCalculatedFormulaArray if a table formula is identified as an array formula in the calculation.
+* Allows adding mappings for error values as string in the ToDataTableOptions.
+* Rich text strings in the shared strings xml did not support both text and RichText elements in the same item.
+* The dynamic array formula flag was not set for single cell results containing range operations. 
+* Fixed inacurate relative addresses in cloned formulas in rare cases.
+* Deleting and adding a table with multiple worksheets no longer gives the added table an invalid id. 
+* Ensured ExcelPictures are sized correctly when copying worksheets
+* Fixed issue where adding rows to a Table that contained error values would throw error or generate a corrupt workbook. When the table was the source range of a pivot table.
+* Fixed ExcelErrorValues GetHashCode and Equals methods to return appropriate Type value.
+* Fixed incorrect datatype flags for ExcelPivotTableCacheField.
+* One-cell anchored, and absolute positioned drawings failed to copy when copying ranges.
+* Pivot tables with a page field, item filter or a slicer added new items as visible when refreshing the pivot table. EPPlus will now keep the filter when refreshing the pivot table, hiding values not matched by the filter.
+* Fixes for preserving geo, stock and currency data types.
+
+## Version 7.4.1
+* Updated for vulnerability in System.Text.Json 8.0.4 - Microsoft.Extensions.Configuration.Json 8.0.0 -> 8.0.1
+
+## Version 7.4.0
+### Features
+* Support for Conditional Formattings in Pivot tables via Pivot Areas.
+* Added support for multiple addresses in function arguments, i.e Sum((A1:A2,A4:A5)) should be handled as a single argument.
+* Added support for linked pictures in the ExcelDrawings.AddPicture method using the 'PictureLocation' argument.
+* Added new function
+	* AREAS
+	* TDIST
+
+### Fixed issues
+* Loading a vml drawing without the Anchor element caused EPPlus to throw an Exception.
+* Removed unused classes ParsingScope and ParsingScopes and the interface IParsingLifetimeEventHandler
+
+## Version 7.3.2
+### Fixed issues
+* Upgraded System.Text.Json to version 8.0.4 and System.Formats.Asn1 to version 8.0.1 to address vulnerabilities in previous versions of these libraries. See our [Security Policy](https://github.com/EPPlusSoftware/EPPlus/blob/develop7/SECURITY.md)
+* Upgraded Microsoft.IO.RecyclableMemoryStream from version 3.0.0 to 3.0.1. 
+* Fixed an issue with the MATCH function when a range was sorted in descending order.
+* When inserting columns, shifting right into a range, an Exception was thrown in rare cases.
+
+## Version 7.3.1
+### Fixed issues
+* Fixed duplication of conditional formatting’s which could occur on repeated saves in some cases.
+* Fixed issues with Boolean values in functions COUNTIFS, SUMIFS and AVERAGEIFS.
+* ExcelWorksheet.DimensionByValue sometimes gave an incorrect address.
+* EPPlus crashed on loading a workbook, if style Fills contained less than 2 items.
+* ExcelRange.Insert did not shift formula address on other worksheets.
+* The formula tokenizer failed when having a minus before an Error value (i.e. #REF!) in some cases.
+* Accessing PivotTables when "Save source data with file" was off caused a NullReferenceException.
+* The Dec2Hex, Dec2Oct and Dec2Bin functions rounded values instead of truncating them.
+
+## Version 7.3.0
+### Features
+* Add support for Precision As Displayed when calculating formulas, via the 'ExcelWorkbook.FullPrecision' property.
+* Added new functions 
+	* GROWTH 
+	* DPRODUCT
+	* DSTDEV
+	* DSTDEVP
+
+### Fixed issues
+* EPPlus now supports reading workbooks encoded with other encodings than UTF8.
+* Added new parameter to ExcelRangeBase.CreateArrayFormula for dynamic array formulas, to set meta data for the cell. 
+* Deleting all pivot tables in a workbook caused the workbook to become corrupt as the pivotCache element was not deleted.
+* MinIfs and MaxIfs returned an incorrect value if the criteria's was an error like #NUM! or #REF!.
+* EPPlus failed to load a workbook containing a worksheet with a space as name.
+* Loading a workbook with a part exceeding 2GB failed to load.
+* EPPlus failed to load a workbook when the worksheet xml had a xml prefix for the default namespace and had conditional formatting's or data validations.
+* Loading pivot tables with date grouping sometimes did not convert the grouped values to dates.
+* Fixed issue were EPPlus only allowed 253 characters in Data Validation List, We now allow 255 characters.
+ 
+## Version 7.2.2
+### Fixed issues and minor features
+* Worksheet references in formulas proceeded by `-` now work as expected.
+* Theme templates now appropriately apply theme colors to charts.
+* LoadFromCollections with CamelCased attributes did not apply HeaderParsingTypes.CamelCaseToSpace in some cases.
+* Refreshing a pivot table could sometimes incorrectly clear the selected item in a page field.
+* The pivot table cache HashSet did not match numeric values, if they were of different data types (for example int and double).
+* The 'ExcelRangeBase.Text' property did not handle the General format if additional formatting was added. 
+* Pivot tables fail to save when having dates with milliseconds and date grouping on a field.
+* Calculated fields in Pivot tables did not always calculate depending fields, causing the calculation to throw an unhandled exception.
+* Having empty rPr-elements (rich text properties) in a shared string item, caused the reading of shared string to be ignored and get the shared string indexes to get out of sync.
+* Selected items in pivot table slicers was not always retained, it the field has a page field with a single selected item.
+* Add new functions to calculate multiple pivot tables. Using these methods will make sure any shared pivot cache is only refreshed once.
+	* ExcelWorkbook.CalculateAllPivotTables(refresh)
+	* ExcelPivotTableCollection.Calculate(refresh)
+* New functions supported in formula calculations.
+	* LINEST
+	* LOGEST
+	* TREND
+
+## Version 7.2.1
+### Fixed issues and minor features
+* Fixed several issues with the ExcelRangeBase.Text function.
+* Added new static property `ExcelPackageSettings.CultureSpecificBuildInNumberFormats` to specify culture specific number formats for individual cultures.
+* Added new call-back function `ExcelWorkbook.NumberFormatToTextHandler` to override the default Text value.
+* Pivot Table Calculation throwed an exception if a field was sorted and contained empty cells.
+* Using implicit intersection (@) between two ranges did not work correctly in the formula parser.
+* Added support for DateOnly and TimeOnly (supported from .NET 6 and later). 
+* Fixed some conditional formatting's not automatically extending when a row was inserted underneath them.
+* Fixed issue where conditional formatting on pivot tables would cause corrupt worksheet when read and saved in some cases.
+* Changed thread locking object in the cell store.
+* New functions supported in formula calculations.
+	* YIELDDISC
+	* LOGINV
+	* CHITEST
+	* TDIST
+	* GAMMAINV
+	* GAMMA.INV
+
+## Version 7.2
+### Features
+* Added support for calculating pivot tables - See https://github.com/EPPlusSoftware/EPPlus/wiki/Calculating-Pivot-tables
+	* Supports calculation of data fields on column and row fields. 
+		* Page field filtering
+		* Filters
+                * Slicers
+	        * Show data as on data fields 
+                * Calculated fields.
+	* Access calculated pivot table data via the ExcelPivotTable.CalculatedData property of the ExcelPivotTable.GetPivotData function
+	* GetPivotData function.
+* Added support for copying drawings.
+ 	* Many types of drawings:
+	   	* Shapes
+	   	* Charts
+	   	* Pictures
+	   	* Controls
+	   	* Slicers
+	   	* Group Shapes
+    	* Copy individual drawings.
+	* Copying a range will include drawings.
+  		* Set flag to ignore drawings.
+* Added support for importing and exporting Fixed Width text files.
+* Transpose
+  	* Transpose ranges in import and export functions.
+        * Transpose i range Copy.
+* New functions supported in formula calculations.
+	* GETPIVOTDATA
+	* MMULT
+  	* MINVERSE
+  	* MDETERM
+  	* MUNIT
+  	* TEXTSPLIT
+	* TEXTAFTER
+  	* TEXTBEFORE
+	* LET       
+* Added Full-fledged support for icon sets and databar conditional formattings in HTML-exporter, New features include:
+	* Exporting full visuals of positive and negative databars with borders and axis colors, position and bar direction
+	* Custom-made embedded .svgs similar to each icon excel supports.
+	* Custom icon sets displaying appropriately and in order.
+	* Icons moving with text when aligned top, middle or bottom as in excel.
+	* Theme colors for color scales now works correctly in the HTML exporter
+
+### Minor Features and fixed issues
+* Cell text/content now default to vertical-align bottom as data in excel cells are bottom-aligned by default.
+* Added new properties `FirstValueCell`, `LastValueCell` and `DimensionByValue` to ExcelWorksheet to manage cell value boundries for a worksheet.
+* Added ManualLayout property for data labels on charts. Labels can now be positioned, and their textbox resized directly. It is accessed via e.g `Chart.Series[0].DataLabel.DataLabels[0].Layout.ManualLayout`
+* Conditional formatting color scales now support theme color correctly.
+* Multiple data labels can now be added to the same series.
+* Formula calculation sometimes incorrectly returns #VALUE! if `IsWorksheets1Based = true`
+* Line breaks were not handled correctly on saving the workbook if multiple CR where used in combination with CRLF or LF.
+
+## Version 7.1.3
+### Fixed issues 
+* Dxf styles on tables got corrupt if a style contained an alignment and border element.
+* When calculating formulas, you could get a CirculareReferenceException, if a formula referenced a non-existing worksheet.
+* Conditional formatting’s with the pivot flag set was incorrectly handled if they had no worksheet address set.
+* Clearing data validations on cells, could cause an exception when trying to add new data validations to these cells.
+* Conditional formatting icon sets now handles all operators and types appropriately ...
+* ExcelRange.Text returned an invalid formatting on formats with "?" in some cases.
+* Name indexer on group drawings did not work.
+* Data validation lists did not handle the `showDropDown` attribute.
+* Loading a workbook with rich text elements with no style element could hang.
+* The rich text `Text` property was not decode for restricted characters.
+
+* Table Column Names
+	* ShowHeaders = True property on tables no longer causes crash in rare cases. It also no longer updates column names.
+	* Table.SyncColumnNames method added to ensures column names and cell-values in header are equal. Applying this method should cover any potential issues caused by above fix not updating column names.
+	* Adding a table column to a table no longer creates a column name that can conflict with existing names.
+
 ## Version 7.1.2
 ### Fixed issues 
-* Reading in RichText data on in-line strings now works as expected.
+* Defined Names with `"` symbols no longer get extraneous `"` added when saving in EPPlus.
+* Reading RichText data on in-line strings now works as expected.
+* Negations of Defined Names and Ranges in shared formulas sometimes received the wrong sign in the calculation as the negation flag was not cleared.
+* 'ExcelRangeBase.ToCollection()' auto-mapping sometimes threw an exception as the wrong property type was used.
+* Using 'ExcelRangeBse.LoadFromCollection' with Nullable property members in a collection now returns columns as expected.
+* DataValidationList no longer fails to read in rare cases. 
+* Data validations that are cleared deleted or removed now clears the Range Dictonary correctly
 
 ## Version 7.1.1
 ### Minor Features and fixed issues

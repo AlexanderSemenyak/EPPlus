@@ -51,6 +51,8 @@ using OfficeOpenXml.FormulaParsing.Excel.Functions.Text;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.MathFunctions;
 using OfficeOpenXml.FormulaParsing.Ranges;
 using OfficeOpenXml.FormulaParsing;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.Finance.Implementations;
+using System.Collections;
 
 namespace OfficeOpenXml
 {
@@ -363,6 +365,7 @@ namespace OfficeOpenXml
             _names = new ExcelNamedRangeCollection(Workbook, this);
 
             _rangeSorter = new RangeSorter(this);
+            FullPrecision = Workbook.FullPrecision;
 
             CreateXml();
             TopNode = _worksheetXml.DocumentElement;
@@ -380,6 +383,7 @@ namespace OfficeOpenXml
         }
 
         #endregion
+
         /// <summary>
         /// The Uri to the worksheet within the package
         /// </summary>
@@ -396,6 +400,37 @@ namespace OfficeOpenXml
         /// The unique identifier for the worksheet.
         /// </summary>
         internal int SheetId { get { return (_sheetID); } set { _sheetID = value; } }
+
+        /// <summary>
+        /// A <see cref="Guid" /> used by Office 365. It is not mandatory and used when muliple users are working on the same worksheet simultaniously.
+        /// EPPlus primarily needs to deal with this attribute when creating copies of existing worksheets.
+        /// </summary>
+        internal Guid? SheetUid
+        {
+            get
+            {
+                var val = GetXmlNodeString("@xr:uid");
+                if(!string.IsNullOrEmpty(val))
+                {
+                    val = val.Trim('{').Trim('}');
+                    try
+                    {
+                        return new Guid(val);
+                    }
+                    catch { }
+                }
+                return default;
+            }
+            set
+            {
+                var sVal = value?.ToString();
+                if(!string.IsNullOrEmpty(sVal))
+                {
+                    sVal = "{" + sVal.ToUpperInvariant() + "}";
+                }
+                SetXmlNodeString("@xr:uid", sVal, true);
+            }
+        }
         internal bool IsChartSheet { get; set; } = false;
         internal static bool NameNeedsApostrophes(string ws)
         {
@@ -520,7 +555,7 @@ namespace OfficeOpenXml
                 return _sortState;
             }
         }
-        
+        internal bool FullPrecision { get; set; }
         internal void CheckSheetTypeAndNotDisposed()
         {
             if (this is ExcelChartsheet)
@@ -941,27 +976,46 @@ namespace OfficeOpenXml
                 SetXmlNodeString(outLineApplyStylePath, value ? "1" : "0");
             }
         }
-        const string tabColorPath = "d:sheetPr/d:tabColor/@rgb";
+        const string tabColorPath = "d:sheetPr/d:tabColor";
         /// <summary>
-        /// Color of the sheet tab
+        /// Color of the sheet tab. To remove color, set TabColor to Color.Empty.
         /// </summary>
         public Color TabColor
         {
             get
             {
-                string col = GetXmlNodeString(tabColorPath);
+                string col = GetXmlNodeString(tabColorPath + "/@rgb");
                 if (col == "")
                 {
-                    return Color.Empty;
+                    double tint = GetXmlNodeDouble(tabColorPath + "/@tint");
+                    eThemeSchemeColor theme = (eThemeSchemeColor)GetXmlNodeInt(tabColorPath + "/@theme");
+                    int indexed = GetXmlNodeInt(tabColorPath + "/@indexed");
+                    bool auto = GetXmlNodeBool(tabColorPath + "/@auto");
+                    if (tint == double.NaN)
+                    {
+                        return Color.Empty;
+                    }
+                    col = ExcelColor.LookupColor(col, theme, tint, indexed, auto, Workbook);
                 }
-                else
+                if (col.StartsWith("#"))
                 {
-                    return Color.FromArgb(int.Parse(col, System.Globalization.NumberStyles.AllowHexSpecifier));
+                    col = col.Substring(1);
                 }
+                var argb = int.Parse(col, System.Globalization.NumberStyles.HexNumber);
+                return Color.FromArgb((argb >> 24) & 0xFF, (argb >> 16) & 0xFF, (argb >> 8) & 0xFF, argb & 0xFF);
             }
             set
             {
-                SetXmlNodeString(tabColorPath, value.ToArgb().ToString("X"));
+                DeleteNode(tabColorPath + "/@tint");
+                DeleteNode(tabColorPath + "/@theme");
+                DeleteNode(tabColorPath + "/@indexed");
+                DeleteNode(tabColorPath + "/@auto");
+                if (value == Color.Empty)
+                {
+                    DeleteNode(tabColorPath, true);
+                    return;
+                }
+                SetXmlNodeString(tabColorPath + "/@rgb", value.ToArgb().ToString("X"));
             }
         }
         const string codeModuleNamePath = "d:sheetPr/@codeName";
@@ -1122,15 +1176,16 @@ namespace OfficeOpenXml
             {
                 stream = new WorksheetZipStream(packPart.GetStream(), true);
             }
+            var sr = new StreamReader(stream);
 #if Core
-            var xr = XmlReader.Create(stream, new XmlReaderSettings()
+            var xr = XmlReader.Create(sr, new XmlReaderSettings()
             {
                 DtdProcessing = DtdProcessing.Prohibit,
                 IgnoreWhitespace = true,
             });
             
 #else
-            var xr = new XmlTextReader(stream);
+            var xr = new XmlTextReader(sr);
 #if NET35
             xr.ProhibitDtd = true;
 #else
@@ -1142,6 +1197,7 @@ namespace OfficeOpenXml
             LoadColumns(xr);    //columnXml
             var lastXmlElement = "sheetData";
             xr.ReadUntil(1, lastXmlElement);
+            var mainPrefix = xr.Prefix;
             xml = stream.GetBufferAsStringRemovingElement(false, lastXmlElement);
             long start = stream.Position;
             LoadCells(xr);
@@ -1150,13 +1206,14 @@ namespace OfficeOpenXml
             LoadMergeCells(xr);
 
             var nextElement = "conditionalFormatting";
+
             if (xr.ReadUntil(1, NodeOrders.WorksheetTopElementOrder, nextElement))
             {
                 xml = stream.ReadFromEndElement(lastXmlElement, xml, nextElement, false, xr.Prefix);
 
                 LoadConditionalFormatting(xr);
                 stream.SetWriteToBuffer();
-                lastXmlElement = nextElement;    
+                lastXmlElement = nextElement;
             }
 
             nextElement = "dataValidations";
@@ -1178,7 +1235,8 @@ namespace OfficeOpenXml
             
             if(!string.IsNullOrEmpty(lastXmlElement))
             {
-                xml = stream.ReadFromEndElement(lastXmlElement, xml);
+                //xml = stream.ReadFromEndElement(lastXmlElement, xml);
+                xml = stream.ReadFromEndElement(lastXmlElement, xml, null, true, mainPrefix);
             }
 
             // now release stream buffer (already converted whole Xml into XmlDocument Object and String)
@@ -1216,6 +1274,7 @@ namespace OfficeOpenXml
                 e = zip.GetNextEntry();
             }
             while (e.FileDataPosition != entry.FileDataPosition);
+            zip.Position = entry.FileDataPosition;
         }
 
         /// <summary>
@@ -1541,7 +1600,6 @@ namespace OfficeOpenXml
                     if (xr.GetAttribute("t") != null)
                     {
                         type = xr.GetAttribute("t");
-                        //_types.SetValue(address._fromRow, address._fromCol, type); 
                     }
                     else
                     {
@@ -1552,11 +1610,11 @@ namespace OfficeOpenXml
                     {
                         style = int.Parse(xr.GetAttribute("s"));
                         SetStyleInner(address._fromRow, address._fromCol, style < 0 ? 0 : style);
-                        //SetValueInner(address._fromRow, address._fromCol, null); //TODO:Better Performance ??
                     }
                     else
                     {
                         style = 0;
+                        SetStyleInner(address._fromRow, address._fromCol, style < 0 ? 0 : style);
                     }
                     //Meta data. Meta data is only preserved by EPPlus at this point
                     var cm = xr.GetAttribute("cm");
@@ -1620,7 +1678,7 @@ namespace OfficeOpenXml
                             _formulas.SetValue(address._fromRow, address._fromCol, sfIndex);
                             SetValueInner(address._fromRow, address._fromCol, null);
                             string fAddress = xr.GetAttribute("ref");
-                            string formula = ConvertUtil.ExcelDecodeString(xr.ReadElementContentAsString());
+                            string formula =xr.ReadElementContentAsString();
                             if (formula != "")
                             {
                                 _sharedFormulas.Add(sfIndex, new SharedFormula(this, row, col, fAddress, formula) { Index = sfIndex, FormulaType=FormulaType.Shared });
@@ -1788,7 +1846,7 @@ namespace OfficeOpenXml
             var v = ConvertUtil.GetValueFromType(xr, type, styleID, Workbook);
             if (type == "s" && v is int ix)
             {
-                SetValueInner(row, col, _package.Workbook.GetSharedString(ix, out bool isRichText));
+                _values.SetValue(row, col, _package.Workbook.GetSharedString(ix, out bool isRichText), styleID); // Style is set later on from the s attribute                
                 if (isRichText)
                 {
                     _flags.SetFlagValue(row, col, true, CellFlags.RichText);
@@ -1804,7 +1862,7 @@ namespace OfficeOpenXml
                         v = GetErrorFromMetaData(md, v);
                     }
                 }
-                SetValueInner(row, col, v);
+                _values.SetValue(row, col, v, styleID); // Style is set later on from the s attribute
             }
         }
 
@@ -2245,6 +2303,32 @@ namespace OfficeOpenXml
                 return null;
             }
         }
+        /// <summary>
+        /// Fetches the value adapted for the pivot cache. 
+        /// The value is converted depending on the data type. 
+        /// </summary>
+        /// <param name="Row">The row number</param>
+        /// <param name="Column">The row number</param>
+        /// <returns>The value</returns>
+        internal object GetValueForPivotTable(int Row, int Column)
+        {
+            var v = GetCoreValueInner(Row, Column);
+            if (v._value != null)
+            {
+                if (_flags.GetFlagValue(Row, Column, CellFlags.RichText))
+                {
+                    return (object)Cells[Row, Column].RichText.Text;
+                }
+                else
+                {
+                    return Workbook.Styles.GetValueForPivotCache(v._value, v._styleId);
+                }
+            }
+            else
+            {
+                return null;
+            }
+        }
 
         /// <summary>
         /// Get a strongly typed cell value from the worksheet
@@ -2360,32 +2444,32 @@ namespace OfficeOpenXml
           if (string.IsNullOrEmpty(oldName) || string.IsNullOrEmpty(newName))
             throw new ArgumentNullException("Sheet name can't be empty");
 
-          lock (this)
-          {
-            foreach (var sf in _sharedFormulas.Values)
+            lock (this)
             {
-              sf.Formula = ExcelCellBase.UpdateSheetNameInFormula(sf.Formula, oldName, newName);
-            }
-            using (var cse = new CellStoreEnumerator<object>(_formulas))
-            {
-                while (cse.Next())
+                foreach (var sf in _sharedFormulas.Values)
                 {
-              if (cse.Value is string v) //Non shared Formulas 
+                    sf.Formula = ExcelCellBase.UpdateSheetNameInFormula(sf.Formula, oldName, newName);
+                }
+                using (var cse = new CellStoreEnumerator<object>(_formulas))
+                {
+                    while (cse.Next())
                     {
-                cse.Value = ExcelCellBase.UpdateSheetNameInFormula(v, oldName, newName);
+                        if (cse.Value is string v) //Non shared Formulas 
+                        {
+                            cse.Value = ExcelCellBase.UpdateSheetNameInFormula(v, oldName, newName);
+                        }
                     }
                 }
             }
-          }
         }
 #region Worksheet Save
-        internal void Save()
+        internal void Save(bool hasLoadedPivotTables)
         {
             DeletePrinterSettings();
 
             if (_worksheetXml != null)
             {
-                SaveDrawings();
+                SaveDrawings(hasLoadedPivotTables);
                 if (!(this is ExcelChartsheet))
                 {
                     // save the header & footer (if defined)
@@ -2414,7 +2498,7 @@ namespace OfficeOpenXml
                     SaveThreadedComments();
                     HeaderFooter.SaveHeaderFooterImages();
                     SaveTables();
-                    if(HasLoadedPivotTables) SavePivotTables();
+                    if(hasLoadedPivotTables) SavePivotTables();
                     SaveSlicers();
 
                     //Meta data and rich data is currently used for #spill! and #calc! errors.
@@ -2427,7 +2511,7 @@ namespace OfficeOpenXml
             }
         }
 
-        private void SaveDrawings()
+        private void SaveDrawings(bool hasLoadedPivotTables)
         {
             if (Drawings.UriDrawing != null)
             {
@@ -2443,7 +2527,7 @@ namespace OfficeOpenXml
                     {
                         d.AdjustPositionAndSize();
                         d.UpdatePositionAndSizeXml();
-                        HandleSaveForIndividualDrawings(d);
+                        HandleSaveForIndividualDrawings(d, hasLoadedPivotTables);
                     }
                     Packaging.ZipPackagePart partPack = Drawings.Part;
                     var stream = partPack.GetStream(FileMode.Create, FileAccess.Write);
@@ -2455,7 +2539,7 @@ namespace OfficeOpenXml
             }
         }
 
-        private static void HandleSaveForIndividualDrawings(ExcelDrawing d)
+        private static void HandleSaveForIndividualDrawings(ExcelDrawing d, bool hasLoadedPivotTables)
         {
             if (d is ExcelChart c)
             {
@@ -2470,7 +2554,10 @@ namespace OfficeOpenXml
             else if (d is ExcelSlicer<ExcelPivotTableSlicerCache> p)
             {
                 if (p.Cache == null) return;
-                p.Cache.UpdateItemsXml();
+                if(hasLoadedPivotTables)
+                {
+                    p.Cache.UpdateItemsXml();
+                }
                 p.Cache.SlicerCacheXml.Save(p.Cache.Part.GetStream(FileMode.Create, FileAccess.Write));
             }
             else if (d is ExcelControl ctrl)
@@ -2482,7 +2569,7 @@ namespace OfficeOpenXml
             {
                 foreach (var sd in grp.Drawings)
                 {
-                    HandleSaveForIndividualDrawings(sd);
+                    HandleSaveForIndividualDrawings(sd, hasLoadedPivotTables);
                 }
             }
         }
@@ -2656,7 +2743,8 @@ namespace OfficeOpenXml
                             }
                             else if (col.Name != n)
                             {
-                                col.Name = n;
+                                col.Name = tbl.UpdateAndReturnValidName(tbl.Columns.GetIndexOfColName(col.Name), n, col.Name, tbl.Columns.GetColNamesList());
+                                n = col.Name.ToLowerInvariant();
                                 SetValueInner(tbl.Address._fromRow, colNum, ConvertUtil.ExcelDecodeString(col.Name));
                                 if (tbl.WorkSheet.IsRichText(tbl.Address._fromRow, colNum))
                                 {
@@ -2866,14 +2954,12 @@ namespace OfficeOpenXml
             }
             return "";
         }
-
-
         /// <summary>
-        /// Dimension address for the worksheet. 
+        /// Dimension address for the worksheet for cells with a value or a style set. 
         /// Top left cell to Bottom right.
-        /// If the worksheet has no cells, null is returned
+        /// If the worksheet has no cells, null is returned        
         /// </summary>
-        public ExcelAddressBase Dimension
+        public ExcelRangeBase Dimension
         {
             get
             {
@@ -2881,9 +2967,7 @@ namespace OfficeOpenXml
                 int fromRow, fromCol, toRow, toCol;
                 if (_values.GetDimension(out fromRow, out fromCol, out toRow, out toCol))
                 {
-                    var addr = new ExcelAddressBase(fromRow, fromCol, toRow, toCol);
-                    addr._ws = Name;
-                    return addr;
+                    return Cells[fromRow, fromCol, toRow, toCol];
                 }
                 else
                 {
@@ -2891,7 +2975,119 @@ namespace OfficeOpenXml
                 }
             }
         }
-        ExcelSheetProtection _protection=null;
+        /// <summary>
+        /// Dimension address for the worksheet for cells with a value different than null. 
+        /// Top left cell to Bottom right.
+        /// If the worksheet has no cells, null is returned        
+        /// </summary>
+        public ExcelRangeBase DimensionByValue
+        {
+            get
+            {
+                CheckSheetTypeAndNotDisposed();
+                if (_values.GetDimension(out int fr, out int fc, out int tr, out int tc))
+                {
+                    var fvc = FirstValueCell;
+                    var lvc = LastValueCell;
+
+                    var fromRow = fvc._fromRow;
+                    var toRow = lvc._toRow;
+                    int fromCol,toCol;
+
+                    if(fvc._fromCol==fc)
+                    {
+                        fromCol = fvc._fromCol;
+                    }
+                    else
+                    {
+                        int r=fromRow, c=fc;
+                        while(_values.NextCellByColumn(ref r, ref c, fromRow, toRow, _values.ColumnCount-1))
+                        {
+                            if(_values.GetValue(r, c)._value != null)
+                            {
+                                break;
+                            }
+                            r++;
+                        }
+                        fromCol = c;
+                    }
+
+                    if (lvc._toCol == tc)
+                    {
+                        toCol = lvc._toCol;
+                    }
+                    else
+                    {
+                        int r = toRow, c = tc;
+                        while (_values.PrevCellByColumn(ref r, ref c, fromRow, toRow, _values.ColumnCount - 1))
+                        {
+                            if (_values.GetValue(r, c)._value != null)
+                            {
+                                break;
+                            }
+                            r--;
+                        }
+                        toCol = c;
+                    }
+
+                    return Cells[Math.Min(fromRow, toRow), Math.Min(fromCol, toCol) , Math.Max(fromRow, toRow), Math.Max(fromCol, toCol)];
+                }
+                return null;
+            }
+        }
+        /// <summary>
+        /// The first cell with a value in the worksheet that differs from null. 
+        /// Normally this is the top-left cell, unless the worksheet is set to RightToLeft mode. 
+        /// <seealso cref="ExcelWorksheetView.RightToLeft"/>
+        /// </summary>
+        public ExcelRangeBase FirstValueCell
+        {
+            get
+            {
+                CheckSheetTypeAndNotDisposed();
+                var fromRow = Dimension._fromRow;
+                var fromCol = Dimension._fromCol;
+                if (_values.GetValue(fromRow, fromCol)._value == null)
+                {
+                    while (_values.NextCell(ref fromRow, ref fromCol))
+                    {
+                        if (_values.GetValue(fromRow, fromCol)._value != null)
+                        {
+                            return Cells[fromRow, fromCol];
+                        }
+                    }
+                    return null;
+                }
+                return Cells[fromRow, fromCol];
+            }
+        }
+        /// <summary>
+        /// The last cell with a value in the worksheet that differs from null. 
+        /// Normally this is the bottom-right cell, unless the worksheet is set to RightToLeft mode. 
+        /// <seealso cref="ExcelWorksheetView.RightToLeft"/>
+        /// </summary>
+        public ExcelRangeBase LastValueCell
+        {
+            get
+            {
+                CheckSheetTypeAndNotDisposed();
+                var toRow = Dimension._toRow;
+                var toCol = Dimension._toCol;
+                if (_values.GetValue(toRow, toCol)._value == null)
+                {
+                    while (_values.PrevCell(ref toRow, ref toCol) && toRow > 0)
+                    {
+                        if (toCol > 0 && _values.GetValue(toRow, toCol)._value != null)
+                        {
+                            return Cells[toRow, toCol];
+                        }
+                    }
+                    return null;
+                }
+                return Cells[toRow, toCol];
+            }
+        }
+        ExcelSheetProtection _protection =null;
         /// <summary>
         /// Access to sheet protection properties
         /// </summary>
@@ -3423,7 +3619,16 @@ namespace OfficeOpenXml
         /// <param name="value">value</param>
         internal void SetValueInner(int row, int col, object value)
         {
-            _values.SetValue_Value(row, col, value);
+            var styleId = GetStyleId(row, col);
+            if (FullPrecision)
+            {
+                _values.SetValue(row, col, value, styleId);
+            }
+            else
+            {
+                var val = Workbook.Styles.RoundValueFromNumberFormat(value, styleId);
+                _values.SetValue(row, col, val, styleId);
+            }
         }
         internal void SetValueInner(int fromRow, int fromCol, int toRow, int toCol, object value)
         {
@@ -3431,10 +3636,31 @@ namespace OfficeOpenXml
             {
                 for (var r = fromRow; r <= toRow; r++)
                 {
-                    _values.SetValue_Value(r, c, value);
+                    SetValueInner(r, c, value);
                 }
             }
         }
+
+        internal int GetStyleId(int row, int col)
+        {
+            int s = 0;
+            if (!ExistsStyleInner(row, col, ref s))
+            {
+                if (!ExistsStyleInner(row, 0, ref s))
+                {
+                    if (!ExistsStyleInner(0, col, ref s) && col > 1)
+                    {
+                        var c=GetColumn(col);
+                        if(c!= null)
+                        {
+                            return c.StyleID;
+                        }
+                    }                        
+                }
+            }
+            return s;
+        }
+
         /// <summary>
         /// Set accessor of sheet styleId
         /// </summary>
@@ -3443,8 +3669,72 @@ namespace OfficeOpenXml
         /// <param name="styleId">styleId</param>
         internal void SetStyleInner(int row, int col, int styleId)
         {
-            _values.SetValue_Style(row, col, styleId);
+            if (FullPrecision)
+            {
+                _values.SetValue_Style(row, col, styleId);
+            }
+            else
+            {
+                var v = GetCoreValueInner(row, col);
+                v._value = Workbook.Styles.RoundValueFromNumberFormat(v._value, styleId);
+                v._styleId = styleId;
+                _values.SetValue(row, col, v);
+            }
         }
+        internal void SetValueRow_Value(int row, int col, object[] array)
+        {
+            _formulas.Clear(row, col, row, col + array.Length - 1);
+            for (int c = 0; c < array.Length; c++)
+            {
+                if (array[c] == DBNull.Value)
+                {
+                    _values.SetValue_Value(row, col + c, null);
+                }
+                else
+                {
+                    SetValueInner(row, col + c, array[c]);
+                }
+            }
+        }
+        internal void SetValueRow_ValueTransposed(int row, int col, object[] array)
+        {
+            _formulas.Clear(row, col, row+array.Length-1, col);
+            for (int c = 0; c < array.Length; c++)
+            {
+                if (array[c] == DBNull.Value)
+                {
+                    _values.SetValue_Value(row + c, col, null);
+                }
+                else
+                {
+                    SetValueInner(row + c, col, array[c]);
+                }
+            }
+        }
+        internal void SetValueRow_Value(int row, int col, IEnumerable collection)
+        {
+            int offset = 0;
+            
+            foreach (var v in collection)
+            {
+                var c = col + offset;
+                _formulas.Clear(row, c, row, c);
+                SetValueInner(row, c, v);
+                offset++;
+            }
+        }
+        internal void SetValueRow_ValueTranspose(int row, int col, IEnumerable collection)
+        {
+            int offset = 0;
+            foreach (var v in collection)
+            {
+                var r = row + offset;
+                _formulas.Clear(r, col, r, col);
+                SetValueInner(r, col, v);
+                offset++;
+            }
+        }
+
         /// <summary>
         /// Set accessor of sheet styleId
         /// </summary>
@@ -3454,7 +3744,16 @@ namespace OfficeOpenXml
         /// <param name="styleId">styleId</param>
         internal void SetValueStyleIdInner(int row, int col, object value, int styleId)
         {
-            _values.SetValue(row, col, value, styleId);
+            if (FullPrecision)
+            {
+                _values.SetValue(row, col, value, styleId);
+            }
+            else
+            {
+                var v = new ExcelValue() { _styleId=styleId };
+                v._value = Workbook.Styles.RoundValueFromNumberFormat(value, styleId);
+                _values.SetValue(row, col, v);
+            }
         }
         /// <summary>
         /// Bulk(Range) set accessor of sheet value, for value array
@@ -3474,7 +3773,23 @@ namespace OfficeOpenXml
             }
             else
             {
-                _values.SetValueRange_Value(fromRow, fromColumn, values);
+                if (FullPrecision)
+                {
+                    _values.SetValueRange_Value(fromRow, fromColumn, values);
+                }
+                else
+                {
+                    var rowBound = values.GetUpperBound(0);
+                    var colBound = values.GetUpperBound(1);
+
+                    for (int r = 0; r <= rowBound; r++)
+                    {
+                        for (int c = 0; c <= colBound; c++)
+                        {
+                            SetValueInner(fromRow + r, fromColumn + c, values[r, c]);
+                        }
+                    }
+                }
             }
             //Clearout formulas and flags, for example the rich text flag.
             _formulas.Clear(fromRow, fromColumn, values.GetUpperBound(0) + 1, values.GetUpperBound(1) + 1); 
@@ -3597,7 +3912,18 @@ namespace OfficeOpenXml
             }
             SlicerXmlSources.Remove(xmlSource);
         }
-
+        ExcelPhoneticProperties _phoneticProperties = null;
+        internal ExcelPhoneticProperties PhoneticProperties
+        {
+            get
+            {
+                if(_phoneticProperties == null)
+                {
+                    _phoneticProperties = new ExcelPhoneticProperties(NameSpaceManager, TopNode);
+                }
+                return _phoneticProperties;
+            }
+        }
         internal XmlNode CreateControlContainerNode()
         {
             var node = GetNode("mc:AlternateContent/mc:Choice[@Requires='x14']");
@@ -3682,6 +4008,24 @@ namespace OfficeOpenXml
                 }
             }
             return null;
+        }
+
+        internal void ReCalculateFullPrecision()
+        {
+            var cse = new CellStoreEnumerator<ExcelValue>(_values);
+            foreach(var c in cse)
+            {
+                if(ConvertUtil.IsExcelNumeric(c._value))
+                {                    
+                    var v=GetDisplayedValue(c);
+                    _values.SetValue_Value(cse.Row, cse.Column, v);
+                }                    
+            }
+        }
+
+        private object GetDisplayedValue(ExcelValue c)
+        {
+            return Workbook.Styles.RoundValueFromNumberFormat(c);
         }
         #endregion
     }  // END class Worksheet

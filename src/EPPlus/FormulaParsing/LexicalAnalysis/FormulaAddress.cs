@@ -5,13 +5,10 @@ using System.Collections.Generic;
 using System.Text;
 using static OfficeOpenXml.ExcelAddressBase;
 using OfficeOpenXml.Core.CellStore;
-using OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup;
 using System.Globalization;
-using OfficeOpenXml.FormulaParsing.Excel.Functions.MathFunctions;
 using OfficeOpenXml.FormulaParsing.Excel.Functions;
 using System.Linq;
 using OfficeOpenXml.Utils;
-using System.Net;
 using OfficeOpenXml.FormulaParsing.Ranges;
 
 namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
@@ -20,7 +17,7 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
     {
         internal ExcelWorksheet _ws;
         internal int StartRow, StartCol;
-        internal int StartRowOffset, StartColOffset;
+        internal int StartRowOffset, StartColOffset; //If the shared formula does not begin on the top-left cell, this contains the offset to the row/column to the top left cell.
         internal static ISourceCodeTokenizer _tokenizer = SourceCodeTokenizer.Default;
         internal static ISourceCodeTokenizer _tokenizerNWS = new SourceCodeTokenizer(FunctionNameProvider.Empty, NameValueProvider.Empty, false, true);
         internal IList<Token> Tokens;
@@ -125,6 +122,7 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
             {
                 _formula = value;
                 _hasUpdatedNamespace = false;
+                _compiledExpressions = null;
                 SetFormula(_ws, value);
             }
         }
@@ -206,23 +204,34 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
             }
         }
 
+        public bool IsSingleCell 
+        { 
+            get
+            {
+                return StartRow==EndRow && StartCol==EndCol;
+            }
+        }
+
         internal SharedFormula Clone()
         {
-            return new SharedFormula(_ws, StartRow, StartCol, EndRow, EndCol, Formula)
-            {
-                Index = Index,
-                FormulaType = FormulaType,
-                Tokens = Tokens,
-                RpnTokens = RpnTokens,
-                Address = Address,
-                DataTableIsTwoDimesional = DataTableIsTwoDimesional,
-                IsDataTableRow = IsDataTableRow,
-                R1CellAddress = R1CellAddress,
-                R2CellAddress = R2CellAddress,
-                FirstCellDeleted = FirstCellDeleted,
-                SecondCellDeleted = SecondCellDeleted,
-                _ws = _ws,                
-            };
+            var sh = new SharedFormula(_ws, StartRow, StartCol, EndRow, EndCol, Formula);
+
+            sh.Index = Index;
+            sh.FormulaType = FormulaType;
+            sh.Tokens = null;
+            sh.RpnTokens = null;
+            //sh.Address = Address;
+            sh.StartColOffset = StartColOffset;
+            sh.StartRowOffset = StartRowOffset;
+            //sh.StartCol = StartCol;
+            sh.DataTableIsTwoDimesional = DataTableIsTwoDimesional;
+            sh.IsDataTableRow = IsDataTableRow;
+            sh.R1CellAddress = R1CellAddress;
+            sh.R2CellAddress = R2CellAddress;
+            sh.FirstCellDeleted = FirstCellDeleted;
+            sh.SecondCellDeleted = SecondCellDeleted;
+            sh._ws = _ws;
+            return sh;
         }
         internal Formula GetFormula(int row, int col)
         {
@@ -231,17 +240,18 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
                 AddressExpressionIndex = 0,
                 Tokens = Tokens,
                 RpnTokens = RpnTokens,                
-                //ExpressionTree = GetExpressionTree(row, col),
                 StartRow = row,
                 StartCol = col,
-                //_compiler = _compiler,
             };
         }
-        //RpnCompiledFormula _compiledExpressions = null;
         private Dictionary<int, Expression> _compiledExpressions;
         internal RpnFormula GetRpnFormula(RpnOptimizedDependencyChain depChain, int row, int col)
         {
             depChain._parsingContext.CurrentCell = new FormulaCellAddress(_ws.IndexInList, row, col);
+            if(RpnTokens==null)
+            {
+                SetFormula(_ws, Formula);
+            }
             if (_compiledExpressions == null)
             {
                 _compiledExpressions = FormulaExecutor.CompileExpressions(ref RpnTokens, depChain._parsingContext);
@@ -276,7 +286,8 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
             foreach(var expression in _compiledExpressions)
             {
                 if(expression.Value.ExpressionType == ExpressionType.CellAddress ||
-                   expression.Value.ExpressionType == ExpressionType.TableAddress)
+                   expression.Value.ExpressionType == ExpressionType.TableAddress ||
+                   expression.Value.ExpressionType == ExpressionType.NameValue)
                 {
                     l.Add(expression.Key, expression.Value.CloneWithOffset(row - StartRow, col - StartCol));
                 }
@@ -442,8 +453,17 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
         ToColFixed = 0x8,
         All = 0xF,
     }
+    /// <summary>
+    /// Formula Cell address
+    /// </summary>
     public struct FormulaCellAddress
     {
+        /// <summary>
+        /// Constructor cell address
+        /// </summary>
+        /// <param name="wsIx"></param>
+        /// <param name="row"></param>
+        /// <param name="column"></param>
         public FormulaCellAddress(int wsIx, int row, int column)
         {
             WorksheetIx = wsIx;
@@ -491,6 +511,9 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
             } 
         }
     }
+    /// <summary>
+    /// Formula address base
+    /// </summary>
     public class FormulaAddressBase
     {
         /// <summary>
@@ -583,6 +606,11 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
             FixedFlag |= fixedToRow ? FixedFlag.ToRowFixed : 0;
             FixedFlag |= fixedToCol ? FixedFlag.ToColFixed : 0;
         }
+        /// <summary>
+        /// Formula range address
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <param name="address"></param>
         public FormulaRangeAddress(ParsingContext ctx, ExcelAddressBase address) : this(ctx)
         {
             FromRow = address._fromRow;
@@ -599,6 +627,15 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
                 WorksheetIx = ctx.GetWorksheetIndex(address.WorkSheetName);
             }
         }
+        /// <summary>
+        /// Formula range address
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="wsIx"></param>
+        /// <param name="fromRow"></param>
+        /// <param name="fromCol"></param>
+        /// <param name="toRow"></param>
+        /// <param name="toCol"></param>
         public FormulaRangeAddress(ParsingContext context,int wsIx, int fromRow, int fromCol, int toRow, int toCol) : this(context)
         {
             WorksheetIx= wsIx;
@@ -607,10 +644,14 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
             ToRow = toRow;
             ToCol = toCol;
         }
-
+        /// <summary>
+        /// From row and column. To row and to column
+        /// </summary>
         public int FromRow, FromCol, ToRow, ToCol;
         internal FixedFlag FixedFlag;
-
+        /// <summary>
+        /// Is single cell
+        /// </summary>
         public bool IsSingleCell
         {
             get
@@ -618,6 +659,9 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
                 return FromRow == ToRow && FromCol == ToCol;
             }
         }
+        /// <summary>
+        /// Empty
+        /// </summary>
         public static FormulaRangeAddress Empty
         {
             get { return new FormulaRangeAddress(); }
@@ -737,7 +781,11 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
             }
             return new ExcelAddressBase(WorksheetName, FromRow, FromCol, ToRow, ToCol);
         }
-
+        /// <summary>
+        /// Compare to
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
         public int CompareTo(FormulaRangeAddress other)
         {
             if(FromRow < other.FromRow)
@@ -761,6 +809,10 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
                 return 0;
             }
         }
+        /// <summary>
+        /// Clone
+        /// </summary>
+        /// <returns></returns>
         public virtual FormulaRangeAddress Clone()
         {
             return new FormulaRangeAddress(_context)
@@ -865,14 +917,59 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
             }
         }
 
+        internal FormulaRangeAddress GetIntersectingRowOrColumns(FormulaRangeAddress address)
+        {
+            if (address == null || WorksheetIx != address.WorksheetIx) return null;
+
+            var fromRow = FromRow > address.FromRow ? FromRow : address.FromRow;
+            var toRow = ToRow < address.ToRow ? ToRow : address.ToRow;
+            var fromCol = FromCol > address.FromCol ? FromCol : address.FromCol;
+            var toCol = ToCol < address.ToCol ? ToCol : address.ToCol;
+
+            if (fromCol > toCol)
+            {
+                return new FormulaRangeAddress(_context, WorksheetIx, fromRow, 0, toRow, 0); // return intersect on columns. Rows does not intersect so return 0 for the row 
+            }
+            else if (fromRow > toRow)
+            {
+                return new FormulaRangeAddress(_context, WorksheetIx, 0, fromCol, 0, toCol); // return intersect on rows. Columns does not intersect so return 0 for the row 
+            }
+            else if (fromCol > toCol && fromRow > toRow)
+            {
+                return null;
+            }
+
+            return new FormulaRangeAddress(_context, WorksheetIx, fromRow, fromCol, toRow, toCol);
+        }
+
+        /// <summary>
+        /// Address
+        /// </summary>
         public FormulaRangeAddress Address => this;
+
+        /// <summary>
+        /// If the address contains multiple comma separated addresses, the individual addresses are stored here.
+        /// </summary>
+        public FormulaRangeAddress[] Addresses => [this];
     }
+    /// <summary>
+    /// Formula table address
+    /// </summary>
     public class FormulaTableAddress : FormulaRangeAddress
     {
+        /// <summary>
+        /// Formula table address constructor
+        /// </summary>
+        /// <param name="ctx"></param>
         public FormulaTableAddress(ParsingContext ctx) : base(ctx)
         {
             
         }
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <param name="tableAddress"></param>
         public FormulaTableAddress(ParsingContext ctx, string tableAddress) : base(ctx)
         {
             foreach (var t in SourceCodeTokenizer.Default.Tokenize(tableAddress))
@@ -907,6 +1004,9 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
             }
             SetTableAddress(ctx.Package);
         }
+        /// <summary>
+        /// Names
+        /// </summary>
         public string TableName = "", ColumnName1 = "", ColumnName2 = "", TablePart1 = "", TablePart2="";
         internal void SetTableAddress(ExcelPackage package)
         {

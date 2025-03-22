@@ -1,4 +1,5 @@
-﻿using OfficeOpenXml.Constants;
+﻿using EPPlusTest.Table.PivotTable;
+using OfficeOpenXml.Constants;
 using OfficeOpenXml.Packaging;
 using OfficeOpenXml.Utils;
 using System;
@@ -8,6 +9,7 @@ using System.Linq;
 using System.Security;
 using System.Text;
 using System.Xml;
+using OfficeOpenXml.Style;
 
 namespace OfficeOpenXml.Table.PivotTable
 {
@@ -87,6 +89,7 @@ namespace OfficeOpenXml.Table.PivotTable
                 SetXmlNodeString(_sourceRIdPath, value);
             }
         }
+
         internal ExcelRangeBase SourceRange 
         { 
             get
@@ -112,6 +115,7 @@ namespace OfficeOpenXml.Table.PivotTable
                                     return sourceRange;
                                 }
                             }
+
                             foreach (var w in _wb.Worksheets)
                             {
                                 sourceRange = GetRangeByName(w, name);
@@ -185,6 +189,7 @@ namespace OfficeOpenXml.Table.PivotTable
             get;
             set;
         }
+        internal PivotTableCacheRecords Records { get; private set; }
         internal Packaging.ZipPackageRelationship RecordRelationship
         {
             get;
@@ -220,14 +225,24 @@ namespace OfficeOpenXml.Table.PivotTable
             //Add fields.
             var index = 0;
             _fields = new List<ExcelPivotTableCacheField>();
-            foreach (XmlNode node in CacheDefinitionXml.DocumentElement.SelectNodes("d:cacheFields/d:cacheField", NameSpaceManager))
+            var cacheNodes = CacheDefinitionXml.DocumentElement.SelectNodes("d:cacheFields/d:cacheField", NameSpaceManager);
+            foreach (XmlNode node in cacheNodes)
             {
                 _fields.Add(new ExcelPivotTableCacheField(NameSpaceManager, node, this, index++));
+            }
+            if(SaveData)
+            {
+                Records = new PivotTableCacheRecords(this);
+            }
+            else
+            {
+                Records = null;
             }
         }
 
         internal void RefreshFields()
         {
+            UpdatePageFieldValues();
             var tableFields = GetTableFields();
             var fields = new List<ExcelPivotTableCacheField>();
             var r = SourceRange;
@@ -262,7 +277,7 @@ namespace OfficeOpenXml.Table.PivotTable
                     {
                         field=_fields[ix];
                         field.SharedItems.Clear();
-
+                        if(field._cacheLookup!=null) field._cacheLookup.Clear();
                         if (cacheUpdated == false && string.IsNullOrEmpty(name)==false && !field.Name.StartsWith(name, StringComparison.CurrentCultureIgnoreCase)) cacheUpdated=true;
                     }
 
@@ -284,35 +299,25 @@ namespace OfficeOpenXml.Table.PivotTable
             }
 
             if (cacheUpdated) UpdateRowColumnPageFields(tableFields);
-
+            
             RefreshPivotTableItems();
+            if (Records == null) Records = new PivotTableCacheRecords(this);
+            Records.CreateRecords();
         }
 
-        //private void SyncFields(List<ExcelPivotTableCacheField> fields)
-        //{
-            
-        //}
-
-        //private void SyncFields()
-        //{
-        //    var r = SourceRange;
-        //    foreach(var pt in _pivotTables)
-        //    {       
-        //        var newList = new List<ExcelPivotTableField>();
-        //        foreach (var f in pt.Fields)
-        //        {                    
-        //            if (pt.CacheDefinition._cacheReference.Fields.Any(x=>x.Name.Equals(f.Name))
-        //            {
-        //                f.TopNode.RemoveChild(f.TopNode);                            
-        //            }
-        //            else
-        //            {
-        //                newList.Add(f);
-        //            }
-        //        }
-        //        pt.Fields._list = newList;
-        //    }
-        //}
+        private void UpdatePageFieldValues()
+        {
+            foreach(var pt in _pivotTables)
+            {
+                foreach(var pf in pt.PageFields)
+                {
+                    if (pf.PageFieldSettings.SelectedItem>=0 && pf.PageFieldSettings.SelectedItem < pf.Items.Count)
+                    {
+                        pf.PageFieldSettings.SelectedValue = pf.Items[pf.PageFieldSettings.SelectedItem].Value;
+                    }
+                }
+            }
+        }
 
         private void RemoveDeletedFields(ExcelRangeBase r)
         {
@@ -486,7 +491,12 @@ namespace OfficeOpenXml.Table.PivotTable
 
                     for(int i=0;i < fieldCount;i++)
                     {
-                        pt.Fields[i].Items.Refresh();
+                        var field = pt.Fields[i];
+                        field.Items.Refresh();
+                        if(field.IsPageField && field.PageFieldSettings.SelectedItem > -1)
+                        {
+                            field.PageFieldSettings.SelectedItem = field.Items.GetIndexByValue(field.PageFieldSettings.SelectedValue);
+                        }
                     }
                 }
             }
@@ -583,7 +593,17 @@ namespace OfficeOpenXml.Table.PivotTable
             xml += string.Format("<cacheFields count=\"{0}\">", sourceRange._toCol - sourceRange._fromCol + 1);
             for (int col = sourceRange._fromCol; col <= sourceRange._toCol; col++)
             {
-                var name = sourceWorksheet?.GetValueInner(sourceRange._fromRow, col);
+                var innerValue = sourceWorksheet?.GetValueInner(sourceRange._fromRow, col);
+                string name = "";
+                if (sourceWorksheet._flags.GetFlagValue(sourceRange._fromRow, col, CellFlags.RichText))
+                {
+                    name = sourceWorksheet.GetRichText(sourceRange._fromRow, col, sourceWorksheet.Cells[sourceRange._fromRow, col]).Text;
+                }
+                else
+                {
+                    name = innerValue.ToString();
+                }
+
                 if (name == null || name.ToString() == "")
                 {
                     xml += string.Format("<cacheField name=\"Column{0}\" numFmtId=\"0\">", col - sourceRange._fromCol + 1);
@@ -747,7 +767,7 @@ namespace OfficeOpenXml.Table.PivotTable
         internal ExcelPivotTableCacheField AddDateGroupField(ExcelPivotTableField field, eDateGroupBy groupBy, DateTime startDate, DateTime endDate, int interval)
         {
             ExcelPivotTableCacheField cacheField = CreateField(groupBy.ToString(), field.Index, false);
-            cacheField.SetDateGroup(field, groupBy, startDate, endDate, interval);
+            cacheField.SetDateGroup(field, groupBy, startDate, endDate, interval, false);
 
             Fields.Add(cacheField);
             return cacheField;
@@ -829,5 +849,14 @@ namespace OfficeOpenXml.Table.PivotTable
                 return null;
             }
         }
-    }
+
+		internal int GetMaxRow()
+		{
+            var range = SourceRange;
+
+			var dimensionToRow = range.Worksheet?.Dimension?._toRow + 1 ?? range._fromRow + 1; //We add 1 to dimension to row so we get one row with null values.
+			var toRow = range._toRow < dimensionToRow ? range._toRow : dimensionToRow;
+			return toRow;
+		}
+	}
 }

@@ -25,8 +25,13 @@ using System.IO;
 using OfficeOpenXml.Table;
 using OfficeOpenXml.Drawing.Slicer;
 using OfficeOpenXml.Drawing.Controls;
-using OfficeOpenXml.FormulaParsing.Excel.Functions.Text;
-using System.Xml.Linq;
+using System.Linq;
+using System.Drawing;
+using System.Security.Cryptography;
+
+
+
+
 #if !NET35 && !NET40
 using System.Threading.Tasks;
 #endif
@@ -68,7 +73,7 @@ namespace OfficeOpenXml.Drawing
         }
         internal ExcelPackage _package;
         internal Packaging.ZipPackageRelationship _drawingRelation = null;
-        internal string _seriesTemplateXml;
+        internal List<string> _seriesTemplateXml;
         internal ExcelDrawings(ExcelPackage xlPackage, ExcelWorksheet sheet)
         {
             xlPackage.Workbook.LoadAllDrawings(sheet.Name);
@@ -112,7 +117,6 @@ namespace OfficeOpenXml.Drawing
 
             foreach (XmlNode node in list)
             {
-
                 ExcelDrawing dr;
                 switch (node.LocalName)
                 {
@@ -127,15 +131,39 @@ namespace OfficeOpenXml.Drawing
                 }
                 if (dr != null)
                 {
-                    _drawingsList.Add(dr);
-                    if (!_drawingNames.ContainsKey(dr.Name))
-                    {
-                        _drawingNames.Add(dr.Name, _drawingsList.Count - 1);
-                    }
+                    AddDrawingInternal(dr);
                 }
             }
         }
 
+        internal void AddDrawingInternal(ExcelDrawing dr)
+        {
+            _drawingsList.Add(dr);
+            if (!_drawingNames.ContainsKey(dr.Name))
+            {
+                _drawingNames.Add(dr.Name, _drawingsList.Count - 1);
+            }
+        }
+
+        internal string GetUniqueDrawingName(string name)
+        {
+            var newName = name;
+            var index = 1;
+            while (_drawingNames.ContainsKey(newName))
+            {
+                var split = newName.Split(' ');
+                if( int.TryParse(split[split.Length - 1], out int number))
+                {
+                    split[split.Length - 1] = (++number).ToString();
+                    newName = string.Join(" ", split);
+                }
+                else
+                {
+                    newName = name + index++;
+                }
+            }
+            return newName;
+        }
 
         #region NamespaceManager
         /// <summary>
@@ -264,7 +292,7 @@ namespace OfficeOpenXml.Drawing
         #region Add functions
         /// <summary>
         /// Adds a new chart to the worksheet.
-        /// Stock charts cannot be added by this method. See <see cref="ExcelDrawings.AddStockChart(string, eStockChartType, ExcelRangeBase)"/>
+        /// Stock charts cannot be added by this method. See <see cref="AddStockChart(string, eStockChartType, ExcelRangeBase, bool)"/>
         /// </summary>
         /// <param name="Name"></param>
         /// <param name="ChartType">Type of chart</param>
@@ -836,31 +864,98 @@ namespace OfficeOpenXml.Drawing
         {
             return (ExcelSurfaceChart)AddAllChartTypes(Name, (eChartType)ChartType, null);
         }
+
+        bool VerifyPath(string path)
+        {
+            if (string.IsNullOrEmpty(path) == false)
+            {
+                if (path.IndexOfAny(Path.GetInvalidPathChars()) > -1)
+                {
+                    throw (new ArgumentException("AddPicture: Image path can't contain invalid chars"));
+                }
+
+                var fileName = Path.GetFileName(path);
+
+                if (fileName.IndexOfAny(Path.GetInvalidFileNameChars()) > -1)
+                {
+                    throw (new ArgumentException("AddPicture: Filename can't contain invalid chars"));
+                }
+                return true;
+            }
+            throw (new NullReferenceException("AddPicture: Image path can't be null"));
+        }
+
         /// <summary>
         /// Adds a picture to the worksheet
         /// </summary>
-        /// <param name="Name"></param>
-        /// <param name="ImageFile">The image file</param>
+        /// <param name="Name">The name of the drawing object</param>
+        /// <param name="ImagePath">The path to the image file</param>
+        /// <param name="Location">Location to access the image from</param>
         /// <returns>A picture object</returns>
-        public ExcelPicture AddPicture(string Name, FileInfo ImageFile)
+        public ExcelPicture AddPicture(string Name, string ImagePath, PictureLocation Location = PictureLocation.Embed)
         {
-            return AddPicture(Name, ImageFile, null);
+            VerifyPath(ImagePath);
+            return AddPicture(Name, new FileInfo(ImagePath), null, Location);
+        }
+        /// <summary>
+        /// Adds a picture to the worksheet
+        /// </summary>
+        /// <param name="Name">The name of the drawing object</param>
+        /// <param name="ImagePath">The path to the image file</param>
+        /// <param name="Hyperlink">Picture Hyperlink</param>
+        /// <param name="Location">Location to access the image from</param>
+        /// <returns>A picture object</returns>
+        public ExcelPicture AddPicture(string Name, string ImagePath, ExcelHyperLink Hyperlink, PictureLocation Location = PictureLocation.Embed)
+        {
+            VerifyPath(ImagePath);
+            return AddPicture(Name, new FileInfo(ImagePath), Hyperlink, Location);
         }
         /// <summary>
         /// Adds a picture to the worksheet
         /// </summary>
         /// <param name="Name"></param>
         /// <param name="ImageFile">The image file</param>
-        /// <param name="Hyperlink">Picture Hyperlink</param>
+        /// <param name="Location">Location to access the image from</param>
         /// <returns>A picture object</returns>
-        public ExcelPicture AddPicture(string Name, FileInfo ImageFile, Uri Hyperlink)
+        public ExcelPicture AddPicture(string Name, FileInfo ImageFile, PictureLocation Location = PictureLocation.Embed)
         {
-            ValidatePictureFile(Name, ImageFile);
+            return AddPicture(Name, ImageFile, null, Location);
+        }
+
+        private ExcelPicture BaseAddPicture(string Name, FileInfo ImageFile, Uri Hyperlink, PictureLocation Location = PictureLocation.Embed)
+        {
             XmlElement drawNode = CreateDrawingXml(eEditAs.OneCell);
             var type = PictureStore.GetPictureType(ImageFile.Extension);
-            var pic = new ExcelPicture(this, drawNode, Hyperlink, type);
-            pic.LoadImage(new FileStream(ImageFile.FullName, FileMode.Open, FileAccess.Read), type);
+
+            bool hasLink = (Location & PictureLocation.Link) == PictureLocation.Link;
+
+            var pic = new ExcelPicture(this, drawNode, Hyperlink, type, Location);
+
+            if(hasLink)
+            {
+                pic.LoadImageLinked(ImageFile);
+            }
+            return pic;
+        }
+
+        /// <summary>
+        /// Adds a picture to the worksheet
+        /// </summary>
+        /// <param name="Name"></param>
+        /// <param name="ImageFile">The image file</param>
+        /// <param name="Hyperlink">Picture Hyperlink</param>
+        /// <param name="Location">Location to access the image from</param>
+        /// <returns>A picture object</returns>
+        public ExcelPicture AddPicture(string Name, FileInfo ImageFile, Uri Hyperlink, PictureLocation Location = PictureLocation.Embed)
+        {
+            var pic = BaseAddPicture(Name, ImageFile, Hyperlink, Location);
+            if(Location != PictureLocation.Link)
+            {
+                ValidatePictureFile(Name, ImageFile);
+                pic.LoadImage(new FileStream(ImageFile.FullName, FileMode.Open, FileAccess.Read), pic.Image.Type.Value);
+            }
             AddPicture(Name, pic);
+
             return pic;
         }
         /// <summary>
@@ -945,10 +1040,11 @@ namespace OfficeOpenXml.Drawing
         /// </summary>
         /// <param name="Name"></param>
         /// <param name="ImageFile">The image file</param>
+        /// <param name="Location">Location to access the image from</param>
         /// <returns>A picture object</returns>
-        public async Task<ExcelPicture> AddPictureAsync(string Name, FileInfo ImageFile)
+        public async Task<ExcelPicture> AddPictureAsync(string Name, FileInfo ImageFile, PictureLocation Location = PictureLocation.Embed)
         {
-            return await AddPictureAsync(Name, ImageFile, null);
+            return await AddPictureAsync(Name, ImageFile, null, Location);
         }
         /// <summary>
         /// Adds a picture to the worksheet
@@ -956,15 +1052,22 @@ namespace OfficeOpenXml.Drawing
         /// <param name="Name"></param>
         /// <param name="ImageFile">The image file</param>
         /// <param name="Hyperlink">Picture Hyperlink</param>
+        /// <param name="Location">Location to access the image from</param>
         /// <returns>A picture object</returns>
-        public async Task<ExcelPicture> AddPictureAsync(string Name, FileInfo ImageFile, Uri Hyperlink)
+        public async Task<ExcelPicture> AddPictureAsync(string Name, FileInfo ImageFile, Uri Hyperlink, PictureLocation Location = PictureLocation.Embed)
         {
-            ValidatePictureFile(Name, ImageFile);
-            XmlElement drawNode = CreateDrawingXml(eEditAs.OneCell);
-            var type = PictureStore.GetPictureType(ImageFile.Extension);
-            var pic = new ExcelPicture(this, drawNode, Hyperlink, type);
-            await pic.LoadImageAsync(new FileStream(ImageFile.FullName, FileMode.Open, FileAccess.Read), type);
+            var pic = BaseAddPicture(Name, ImageFile, Hyperlink, Location);
+            if (Location != PictureLocation.Link)
+            {
+                ValidatePictureFile(Name, ImageFile);
+                await pic.LoadImageAsync(new FileStream(ImageFile.FullName, FileMode.Open, FileAccess.Read), pic.Image.Type.Value);
+            }
             AddPicture(Name, pic);
+            //XmlElement drawNode = CreateDrawingXml(eEditAs.OneCell);
+            //var type = PictureStore.GetPictureType(ImageFile.Extension);
+            //var pic = new ExcelPicture(this, drawNode, Hyperlink, type);
+            //await pic.LoadImageAsync(new FileStream(ImageFile.FullName, FileMode.Open, FileAccess.Read), type);
+            //AddPicture(Name, pic);
             return pic;
         }
         /// <summary>
@@ -972,10 +1075,12 @@ namespace OfficeOpenXml.Drawing
         /// </summary>
         /// <param name="Name"></param>
         /// <param name="ImagePath">The path to the image file</param>
+        /// <param name="Location">Location to access the image from</param>
         /// <returns>A picture object</returns>
-        public async Task<ExcelPicture> AddPictureAsync(string Name, string ImagePath)
+        public async Task<ExcelPicture> AddPictureAsync(string Name, string ImagePath, PictureLocation Location = PictureLocation.Embed)
         {
-            return await AddPictureAsync(Name, new FileInfo(ImagePath), null);
+            VerifyPath(ImagePath);
+            return await AddPictureAsync(Name, new FileInfo(ImagePath), null, Location);
         }
         /// <summary>
         /// Adds a picture to the worksheet
@@ -983,9 +1088,11 @@ namespace OfficeOpenXml.Drawing
         /// <param name="Name"></param>
         /// <param name="ImagePath">The path to the image file</param>
         /// <param name="Hyperlink">Picture Hyperlink</param>
+        /// <param name="Location">Location to access the image from</param>
         /// <returns>A picture object</returns>
-        public async Task<ExcelPicture> AddPictureAsync(string Name, string ImagePath, Uri Hyperlink)
+        public async Task<ExcelPicture> AddPictureAsync(string Name, string ImagePath, Uri Hyperlink, PictureLocation Location = PictureLocation.Embed)
         {
+            VerifyPath(ImagePath);
             return await AddPictureAsync(Name, new FileInfo(ImagePath), Hyperlink);
         }
         /// <summary>
@@ -1060,35 +1167,6 @@ namespace OfficeOpenXml.Drawing
             pic.Name = Name;
             _drawingsList.Add(pic);
             _drawingNames.Add(Name, _drawingsList.Count - 1);
-        }
-        /// <summary>
-        /// Adds a picture to the worksheet
-        /// </summary>
-        /// <param name="Name">The name of the drawing object</param>
-        /// <param name="ImagePath">The path to the image file</param>
-        /// <returns>A picture object</returns>
-        public ExcelPicture AddPicture(string Name, string ImagePath)
-        {
-            if (string.IsNullOrEmpty(ImagePath) == false)
-            {
-                return AddPicture(Name, new FileInfo(ImagePath), null);
-            }
-            throw (new Exception("AddPicture: Image path can't be null"));
-        }
-        /// <summary>
-        /// Adds a picture to the worksheet
-        /// </summary>
-        /// <param name="Name">The name of the drawing object</param>
-        /// <param name="ImagePath">The path to the image file</param>
-        /// <param name="Hyperlink">Picture Hyperlink</param>
-        /// <returns>A picture object</returns>
-        public ExcelPicture AddPicture(string Name, string ImagePath, ExcelHyperLink Hyperlink)
-        {
-            if (string.IsNullOrEmpty(ImagePath) == false)
-            {
-                return AddPicture(Name, new FileInfo(ImagePath), Hyperlink);
-            }
-            throw (new Exception("AddPicture: Image path can't be null"));
         }
         private void ValidatePictureFile(string Name, FileInfo ImageFile)
         {
@@ -1180,11 +1258,17 @@ namespace OfficeOpenXml.Drawing
                 throw new InvalidDataException("Crtx file is corrupt.");
             }
             var chartXmlHelper = XmlHelperFactory.Create(NameSpaceManager, chartXml.DocumentElement);
-            var serNode = chartXmlHelper.GetNode("/c:chartSpace/c:chart/c:plotArea/*[substring(name(), string-length(name()) - 4) = 'Chart']/c:ser");
-            if (serNode != null)
+            var serNodes = chartXmlHelper.GetNodes("/c:chartSpace/c:chart/c:plotArea/*[substring(name(), string-length(name()) - 4) = 'Chart']/c:ser");
+
+            _seriesTemplateXml = new List<string>();
+
+            foreach(XmlNode serNode in serNodes)
             {
-                _seriesTemplateXml = serNode.InnerXml;
-                serNode.ParentNode.RemoveChild(serNode);
+                if (serNode != null)
+                {
+                    _seriesTemplateXml.Add(serNode.InnerXml);
+                    serNode.ParentNode.RemoveChild(serNode);
+                }
             }
             XmlElement drawNode = CreateDrawingXml(eEditAs.TwoCell);
             var chartType = ExcelChart.GetChartTypeFromNodeName(GetChartNodeName(chartXmlHelper));
@@ -1202,7 +1286,8 @@ namespace OfficeOpenXml.Drawing
             {
                 chart.StyleManager.LoadThemeOverrideXml(themePart);
             }
-            chart.StyleManager.LoadStyleXml(styleXml, chartStyle, colorsXml);
+
+            chart.StyleManager.LoadStyleAndColorsXml(styleXml, chartStyle, colorsXml);
 
             return chart;
         }
@@ -1219,12 +1304,49 @@ namespace OfficeOpenXml.Drawing
             return "";
         }
         /// <summary>
+        /// Add a textbox to the worksheet
+        /// </summary>
+        /// <param name="Name"></param>
+        /// <param name="text"></param>
+        /// <returns></returns>
+        public ExcelShape AddTextbox(string Name, string text = "")
+        {
+            var shape = Worksheet.Drawings.AddShape("txtDesc", eShapeStyle.Rect);
+            var node = (XmlElement)shape.TopNode.SelectSingleNode("xdr:sp/xdr:nvSpPr/xdr:cNvSpPr", shape.NameSpaceManager);
+            node.SetAttribute("txBox", "1");
+
+            shape.From.Column = 0;
+            shape.From.Row = 0;
+            shape.To.Column = 1;
+            shape.To.Row = 5;
+            shape.Text = text;
+
+            var pixelSize = ExcelColumn.ColumnWidthToPixels((decimal)Worksheet.DefaultColWidth, Worksheet.Workbook.MaxFontWidth);
+            int halfColumnInPixel = Convert.ToInt32((pixelSize * 0.5d));
+
+            shape.To.ColumnOff = halfColumnInPixel * 9525;
+
+            shape.EditAs = eEditAs.Absolute;
+            shape.Fill.Style = eFillStyle.SolidFill;
+            shape.Fill.Color = Color.White;
+            shape.Font.Fill.Color = Color.Black;
+
+            shape.TextAnchoring = eTextAnchoringType.Top;
+            shape.TextVertical = eTextVerticalType.Horizontal;
+            shape.TextAnchoringControl = false;
+
+            shape.Border.Width = 0.75f;
+            shape.Border.Fill.Color = Color.LightGray;
+
+            return shape;
+        }
+
+        /// <summary>
         /// Adds a new shape to the worksheet
         /// </summary>
         /// <param name="Name">Name</param>
         /// <param name="Style">Shape style</param>
         /// <returns>The shape object</returns>
-
         public ExcelShape AddShape(string Name, eShapeStyle Style)
         {
             if (Worksheet is ExcelChartsheet && _drawingsList.Count > 0)
@@ -1469,49 +1591,8 @@ namespace OfficeOpenXml.Drawing
         #endregion
         private XmlElement CreateDrawingXml(eEditAs topNodeType = eEditAs.TwoCell, bool asAlterniveContent = false)
         {
-            if (DrawingXml.DocumentElement == null)
-            {
-                DrawingXml.LoadXml(string.Format("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><xdr:wsDr xmlns:xdr=\"{0}\" xmlns:a=\"{1}\" />", ExcelPackage.schemaSheetDrawings, ExcelPackage.schemaDrawings));
-                Packaging.ZipPackage package = Worksheet._package.ZipPackage;
+            XmlElement drawNode= CreateDocumentAndTopNode(topNodeType, asAlterniveContent);
 
-                //Check for existing part, issue #100
-                var id = Worksheet.SheetId;
-                do
-                {
-                    _uriDrawing = new Uri(string.Format("/xl/drawings/drawing{0}.xml", id++), UriKind.Relative);
-                }
-                while (package.PartExists(_uriDrawing));
-
-                _part = package.CreatePart(_uriDrawing, "application/vnd.openxmlformats-officedocument.drawing+xml", _package.Compression);
-
-                StreamWriter streamChart = new StreamWriter(_part.GetStream(FileMode.Create, FileAccess.Write));
-                DrawingXml.Save(streamChart);
-                streamChart.Close();
-                package.Flush();
-
-                _drawingRelation = Worksheet.Part.CreateRelationship(UriHelper.GetRelativeUri(Worksheet.WorksheetUri, _uriDrawing), Packaging.TargetMode.Internal, ExcelPackage.schemaRelationships + "/drawing");
-                XmlElement e = (XmlElement)Worksheet.CreateNode("d:drawing");
-                e.SetAttribute("id", ExcelPackage.schemaRelationships, _drawingRelation.Id);
-
-                package.Flush();
-            }
-            XmlNode colNode = _drawingsXml.SelectSingleNode("//xdr:wsDr", NameSpaceManager);
-            XmlElement drawNode;
-
-            var topElementname = $"{topNodeType.ToEnumString()}Anchor";
-            drawNode = _drawingsXml.CreateElement("xdr", topElementname, ExcelPackage.schemaSheetDrawings);
-            if (asAlterniveContent)
-            {
-                var acNode = (XmlElement)_drawingsXml.CreateElement("mc", "AlternateContent", ExcelPackage.schemaMarkupCompatibility);
-                acNode.SetAttribute("xmlns:mc", ExcelPackage.schemaMarkupCompatibility);
-                acNode.InnerXml = "<mc:Choice Requires=\"a14\" xmlns:a14=\"http://schemas.microsoft.com/office/drawing/2010/main\"></mc:Choice><mc:Fallback/>";
-                acNode.FirstChild.AppendChild(drawNode);
-                colNode.AppendChild(acNode);
-            }
-            else
-            {
-                colNode.AppendChild(drawNode);
-            }
             if (topNodeType == eEditAs.OneCell || topNodeType == eEditAs.TwoCell)
             {
                 //Add from position Element;
@@ -1544,6 +1625,53 @@ namespace OfficeOpenXml.Drawing
                 drawNode.AppendChild(posNode);
             }
 
+            return drawNode;
+        }
+
+        internal XmlElement CreateDocumentAndTopNode(eEditAs topNodeType, bool asAlterniveContent)
+        {
+            if (DrawingXml.DocumentElement == null)
+            {
+                DrawingXml.LoadXml(string.Format("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><xdr:wsDr xmlns:xdr=\"{0}\" xmlns:a=\"{1}\" />", ExcelPackage.schemaSheetDrawings, ExcelPackage.schemaDrawings));
+                Packaging.ZipPackage package = Worksheet._package.ZipPackage;
+
+                //Check for existing part, issue #100
+                var id = Worksheet.SheetId;
+                do
+                {
+                    _uriDrawing = new Uri(string.Format("/xl/drawings/drawing{0}.xml", id++), UriKind.Relative);
+                }
+                while (package.PartExists(_uriDrawing));
+
+                _part = package.CreatePart(_uriDrawing, "application/vnd.openxmlformats-officedocument.drawing+xml", _package.Compression);
+
+                StreamWriter streamChart = new StreamWriter(_part.GetStream(FileMode.Create, FileAccess.Write));
+                DrawingXml.Save(streamChart);
+                streamChart.Close();
+                package.Flush();
+
+                _drawingRelation = Worksheet.Part.CreateRelationship(UriHelper.GetRelativeUri(Worksheet.WorksheetUri, _uriDrawing), Packaging.TargetMode.Internal, ExcelPackage.schemaRelationships + "/drawing");
+                XmlElement e = (XmlElement)Worksheet.CreateNode("d:drawing");
+                e.SetAttribute("id", ExcelPackage.schemaRelationships, _drawingRelation.Id);
+
+                package.Flush();
+            }
+            var topElementname = $"{topNodeType.ToEnumString()}Anchor";
+            var drawNode = _drawingsXml.CreateElement("xdr", topElementname, ExcelPackage.schemaSheetDrawings);
+            var colNode = _drawingsXml.SelectSingleNode("//xdr:wsDr", NameSpaceManager);
+
+            if (asAlterniveContent)
+            {
+                var acNode = (XmlElement)_drawingsXml.CreateElement("mc", "AlternateContent", ExcelPackage.schemaMarkupCompatibility);
+                acNode.SetAttribute("xmlns:mc", ExcelPackage.schemaMarkupCompatibility);
+                acNode.InnerXml = "<mc:Choice Requires=\"a14\" xmlns:a14=\"http://schemas.microsoft.com/office/drawing/2010/main\"></mc:Choice><mc:Fallback/>";
+                acNode.FirstChild.AppendChild(drawNode);
+                colNode.AppendChild(acNode);
+            }
+            else
+            {
+                colNode.AppendChild(drawNode);
+            }
             return drawNode;
         }
         #endregion

@@ -10,6 +10,8 @@
  *************************************************************************************************
   01/27/2020         EPPlus Software AB       Initial release EPPlus 5
  *************************************************************************************************/
+using OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.Text;
 using System;
 using System.Collections;
 
@@ -38,29 +40,6 @@ namespace OfficeOpenXml.Core.CellStore
             }
         }
 
-        internal void SetValueRow_Value(int row, int col, object[] array)
-        {
-            for (int c = 0; c < array.Length; c++)
-            {
-                if(array[c] == DBNull.Value)
-                {
-                    SetValue_Value(row, col + c, null);
-                }
-                else
-                {
-                    SetValue_Value(row, col + c, array[c]);
-                }
-            }
-        }
-        internal void SetValueRow_Value(int row, int col, IEnumerable collection)
-        {
-            int offset=0;
-            foreach (var v in collection)
-            {
-                SetValue_Value(row, col + offset, v);
-                offset++;
-            }
-        }
         internal void SetValue_Value(int Row, int Column, object value)
         {
             var c = GetColumnIndex(Column);
@@ -73,9 +52,45 @@ namespace OfficeOpenXml.Core.CellStore
                     return;
                 }
             }
-            var v = new ExcelValue { _value = value };
+            var v = new ExcelValue { _value = value, _styleId = GetStyleIdFromRowCol(Row, Column) };
             SetValue(Row, Column, v);
         }
+
+        private int GetStyleIdFromRowCol(int row, int column)
+        {
+             var s = 0;
+            if(row > 0)
+            {
+                s=GetValue(row, 0)._styleId;
+            }
+            if(s == 0 && column>0)
+            {
+                if (Exists(0, column))
+                {
+                    s= GetValue(0, column)._styleId;
+                }
+                else
+                {
+                    var r = 0;
+                    var cp = GetColumnPosition(column);
+                    if(GetPrevCell(ref r, ref cp, 0, 0, ColumnCount - 1))
+                    {
+                        var i=_columnIndex[cp].GetPointer(r);
+                        if (i >= 0)
+                        {
+                            var prevCol = _columnIndex[cp]._values[i]._value as ExcelColumn;
+                            if(prevCol!=null && prevCol.ColumnMax>=column)
+                            {
+                                s = prevCol.StyleID;
+                            }
+                        }
+                    }
+
+                }
+            }
+            return s;
+        }
+
         internal void SetValue_Style(int Row, int Column, int styleId)
         {
             var c = GetColumnIndex(Column);
@@ -137,5 +152,6 @@ namespace OfficeOpenXml.Core.CellStore
             }
             return 0;
         }
+
     }
 }

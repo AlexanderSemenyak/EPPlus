@@ -93,10 +93,10 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup
                 {
                     break;
                 }
-                var boolValue = ConvertUtil.GetValueDouble(arg2.GetOffset(r, 0), false, true);
+                var boolValue = ConvertUtil.GetValueDouble(arg2.GetOffset(r, 0)??false, false, true);
                 if (double.IsNaN(boolValue))
                 {
-                    return CompileResult.GetDynamicArrayResultError(eErrorType.Value);
+                     return CompileResult.GetDynamicArrayResultError(eErrorType.Value);
                 }
                 if (boolValue != 0)
                 {
@@ -120,7 +120,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup
                     return new DynamicArrayCompileResult(emptyValue.Value, emptyValue.DataType);
                 }
             }
-            return new DynamicArrayCompileResult(new InMemoryRange(filteredData), DataType.ExcelRange);
+            return new DynamicArrayCompileResult(new InMemoryRange(filteredData), DataType.ExcelRange, null, CompileResultType.DynamicArray_AlwaysSetCellAsDynamic);
         }
         private static CompileResult FilterOnColumn(IRangeInfo arg1, IRangeInfo arg2, FunctionArgument emptyValue)
         {
@@ -169,7 +169,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup
                     return new DynamicArrayCompileResult(emptyValue.Value, emptyValue.DataType);
                 }
             }
-            return new DynamicArrayCompileResult(new InMemoryRange(filteredData), DataType.ExcelRange);
+            return new DynamicArrayCompileResult(new InMemoryRange(filteredData), DataType.ExcelRange, null, CompileResultType.DynamicArray_AlwaysSetCellAsDynamic);
         }
 
         public override string NamespacePrefix
@@ -179,5 +179,9 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup
                 return "_xlfn._xlws.";
             }
         }
-    }
+		/// <summary>
+		/// If the function is allowed in a pivot table calculated field
+		/// </summary>
+		public override bool IsAllowedInCalculatedPivotTableField => false;
+	}
 }

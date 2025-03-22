@@ -219,6 +219,23 @@ namespace OfficeOpenXml
             SchemaNodeOrder = new string[] { "numFmts", "fonts", "fills", "borders", "cellStyleXfs", "cellXfs", "cellStyles", "dxfs" };
             LoadFromDocument();
         }
+
+        private void EnsureValidFills()
+        {
+            if (Fills.Count == 0)
+            {
+                var patternFill1 = new ExcelFillXml(_nameSpaceManager);
+                patternFill1.PatternType = ExcelFillStyle.None;
+                Fills.Add(patternFill1.Id, patternFill1);
+            }
+            if (Fills.Count < 2 && Fills[0].PatternType == ExcelFillStyle.None)
+            {
+                var patternFill2 = new ExcelFillXml(_nameSpaceManager);
+                patternFill2.PatternType = ExcelFillStyle.Gray125;
+                Fills.Add(patternFill2.Id, patternFill2);
+            }
+        }
+
         /// <summary>
         /// Loads the style XML to memory
         /// </summary>
@@ -273,6 +290,7 @@ namespace OfficeOpenXml
                 }
                 Fills.Add(f.Id, f);
             }
+            EnsureValidFills();
 
             //Borders
             XmlNode borderNode = GetNode(BordersPath);
@@ -465,6 +483,20 @@ namespace OfficeOpenXml
             else
             {
                 SetStyleCells(sender, e, address, ws, styleCashe);
+            }
+            //If full precision is false, round values depending on the format.
+            if(e.StyleClass==eStyleClass.Numberformat && ws.FullPrecision==false)
+            {
+                FullPrecisionRoundRange(ws, address, e.Value);
+            }
+        }
+
+        private void FullPrecisionRoundRange(ExcelWorksheet ws, ExcelAddressBase address, object value)
+        {
+            var cse = new CellStoreEnumerator<ExcelValue>(ws._values, address._fromRow, address._fromCol, address._toRow, address._toCol);
+            foreach(var c in cse)
+            {
+                ws.SetStyleInner(cse.Row, cse.Column, c._styleId);
             }
         }
 
@@ -660,7 +692,6 @@ namespace OfficeOpenXml
             while (cse2.Next())
             {
                 var s = cse2.Value._styleId;
-                if (s == 0) continue;
                 if (styleCashe.ContainsKey(s))
                 {
                     ws.SetStyleInner(cse2.Row, cse2.Column, styleCashe[s]);
@@ -678,7 +709,6 @@ namespace OfficeOpenXml
             cse2 = new CellStoreEnumerator<ExcelValue>(ws._values, 0, 1, 0, address._toCol);
             while (cse2.Next())
             {
-                if (cse2.Value._styleId == 0) continue;
                 for (int r = address._fromRow; r <= address._toRow; r++)
                 {
                     if (!ws.ExistsStyleInner(r, cse2.Column))
@@ -788,8 +818,7 @@ namespace OfficeOpenXml
             while (cse.Next())
             {
                 if (cse.Column >= address.Start.Column &&
-                    cse.Column <= address.End.Column &&
-                    cse.Value._styleId != 0)
+                    cse.Column <= address.End.Column)
                 {
                     if (styleCashe.ContainsKey(cse.Value._styleId))
                     {
@@ -811,7 +840,6 @@ namespace OfficeOpenXml
                 cse = new CellStoreEnumerator<ExcelValue>(ws._values, 1, 0, address._toRow, 0);
                 while (cse.Next())
                 {
-                    if (cse.Value._styleId == 0) continue;
                     for (int c = address._fromCol; c <= address._toCol; c++)
                     {
                         if (!ws.ExistsStyleInner(cse.Row, c))
@@ -1465,7 +1493,7 @@ namespace OfficeOpenXml
             int ix = 0;
             foreach (ExcelFontXml fnt in Fonts)
             {
-                if (fnt.useCnt > 0 && ix!=nfIx)
+                if ((fnt.useCnt > 0 && ix != nfIx) || (count==0 && Fonts.Count==1))
                 {
                     fntNode.AppendChild(fnt.CreateXmlNode(_styleXml.CreateElement("font", ExcelPackage.schemaMain)));
                     fnt.newID = count;
@@ -1885,5 +1913,39 @@ namespace OfficeOpenXml
                 return new ExcelDxfSlicerStyle(NameSpaceManager, null, this, null);
             }
         }
-	}
+
+        internal object RoundValueFromNumberFormat(ExcelValue c)
+        {
+            if (c._styleId > 0 && c._styleId < CellXfs.Count)
+            {
+                return CellXfs[c._styleId].Numberformat.FormatTranslator.GetRoundedValue(c._value);
+            }
+            else
+            {
+                return c._value;
+            }
+        }
+        internal object RoundValueFromNumberFormat(object value, int styleId)
+        {
+            if (styleId > 0 && styleId < CellXfs.Count)
+            {
+                return CellXfs[styleId].Numberformat.FormatTranslator.GetRoundedValue(value);
+            }
+            else
+            {
+                return value;
+            }
+        }
+        internal object GetValueForPivotCache(object value, int styleId)
+        {
+            if (styleId > 0 && styleId < CellXfs.Count)
+            {
+                return CellXfs[styleId].Numberformat.FormatTranslator.GetPivotTableValue(value);
+            }
+            else
+            {
+                return value;
+            }
+        }
+    }
 }

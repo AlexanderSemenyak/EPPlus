@@ -35,22 +35,22 @@ items:
   - OfficeOpenXml.Drawing.ExcelDrawings.AddListBoxControl(System.String)
   - OfficeOpenXml.Drawing.ExcelDrawings.AddOfPieChart(System.String,OfficeOpenXml.Drawing.Chart.eOfPieChartType)
   - OfficeOpenXml.Drawing.ExcelDrawings.AddOfPieChart(System.String,OfficeOpenXml.Drawing.Chart.eOfPieChartType,OfficeOpenXml.Table.PivotTable.ExcelPivotTable)
-  - OfficeOpenXml.Drawing.ExcelDrawings.AddPicture(System.String,System.IO.FileInfo)
-  - OfficeOpenXml.Drawing.ExcelDrawings.AddPicture(System.String,System.IO.FileInfo,System.Uri)
+  - OfficeOpenXml.Drawing.ExcelDrawings.AddPicture(System.String,System.IO.FileInfo,OfficeOpenXml.Drawing.PictureLocation)
+  - OfficeOpenXml.Drawing.ExcelDrawings.AddPicture(System.String,System.IO.FileInfo,System.Uri,OfficeOpenXml.Drawing.PictureLocation)
   - OfficeOpenXml.Drawing.ExcelDrawings.AddPicture(System.String,System.IO.Stream)
   - OfficeOpenXml.Drawing.ExcelDrawings.AddPicture(System.String,System.IO.Stream,System.Nullable{OfficeOpenXml.Drawing.ePictureType})
   - OfficeOpenXml.Drawing.ExcelDrawings.AddPicture(System.String,System.IO.Stream,System.Nullable{OfficeOpenXml.Drawing.ePictureType},System.Uri)
   - OfficeOpenXml.Drawing.ExcelDrawings.AddPicture(System.String,System.IO.Stream,System.Uri)
-  - OfficeOpenXml.Drawing.ExcelDrawings.AddPicture(System.String,System.String)
-  - OfficeOpenXml.Drawing.ExcelDrawings.AddPicture(System.String,System.String,OfficeOpenXml.ExcelHyperLink)
-  - OfficeOpenXml.Drawing.ExcelDrawings.AddPictureAsync(System.String,System.IO.FileInfo)
-  - OfficeOpenXml.Drawing.ExcelDrawings.AddPictureAsync(System.String,System.IO.FileInfo,System.Uri)
+  - OfficeOpenXml.Drawing.ExcelDrawings.AddPicture(System.String,System.String,OfficeOpenXml.Drawing.PictureLocation)
+  - OfficeOpenXml.Drawing.ExcelDrawings.AddPicture(System.String,System.String,OfficeOpenXml.ExcelHyperLink,OfficeOpenXml.Drawing.PictureLocation)
+  - OfficeOpenXml.Drawing.ExcelDrawings.AddPictureAsync(System.String,System.IO.FileInfo,OfficeOpenXml.Drawing.PictureLocation)
+  - OfficeOpenXml.Drawing.ExcelDrawings.AddPictureAsync(System.String,System.IO.FileInfo,System.Uri,OfficeOpenXml.Drawing.PictureLocation)
   - OfficeOpenXml.Drawing.ExcelDrawings.AddPictureAsync(System.String,System.IO.Stream)
   - OfficeOpenXml.Drawing.ExcelDrawings.AddPictureAsync(System.String,System.IO.Stream,System.Nullable{OfficeOpenXml.Drawing.ePictureType})
   - OfficeOpenXml.Drawing.ExcelDrawings.AddPictureAsync(System.String,System.IO.Stream,System.Nullable{OfficeOpenXml.Drawing.ePictureType},System.Uri)
   - OfficeOpenXml.Drawing.ExcelDrawings.AddPictureAsync(System.String,System.IO.Stream,System.Uri)
-  - OfficeOpenXml.Drawing.ExcelDrawings.AddPictureAsync(System.String,System.String)
-  - OfficeOpenXml.Drawing.ExcelDrawings.AddPictureAsync(System.String,System.String,System.Uri)
+  - OfficeOpenXml.Drawing.ExcelDrawings.AddPictureAsync(System.String,System.String,OfficeOpenXml.Drawing.PictureLocation)
+  - OfficeOpenXml.Drawing.ExcelDrawings.AddPictureAsync(System.String,System.String,System.Uri,OfficeOpenXml.Drawing.PictureLocation)
   - OfficeOpenXml.Drawing.ExcelDrawings.AddPieChart(System.String,OfficeOpenXml.Drawing.Chart.ePieChartType)
   - OfficeOpenXml.Drawing.ExcelDrawings.AddPieChart(System.String,OfficeOpenXml.Drawing.Chart.ePieChartType,OfficeOpenXml.Table.PivotTable.ExcelPivotTable)
   - OfficeOpenXml.Drawing.ExcelDrawings.AddRadarChart(System.String,OfficeOpenXml.Drawing.Chart.eRadarChartType)
@@ -70,6 +70,7 @@ items:
   - OfficeOpenXml.Drawing.ExcelDrawings.AddSurfaceChart(System.String,OfficeOpenXml.Drawing.Chart.eSurfaceChartType)
   - OfficeOpenXml.Drawing.ExcelDrawings.AddSurfaceChart(System.String,OfficeOpenXml.Drawing.Chart.eSurfaceChartType,OfficeOpenXml.Table.PivotTable.ExcelPivotTable)
   - OfficeOpenXml.Drawing.ExcelDrawings.AddTableSlicer(OfficeOpenXml.Table.ExcelTableColumn)
+  - OfficeOpenXml.Drawing.ExcelDrawings.AddTextbox(System.String,System.String)
   - OfficeOpenXml.Drawing.ExcelDrawings.AddTreemapChart(System.String)
   - OfficeOpenXml.Drawing.ExcelDrawings.AddWaterfallChart(System.String)
   - OfficeOpenXml.Drawing.ExcelDrawings.Clear
@@ -97,7 +98,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: ExcelDrawings
     path: ../src/EPPlus/Drawing/ExcelDrawings.cs
-    startLine: 39
+    startLine: 44
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing
@@ -146,7 +147,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: DrawingXml
     path: ../src/EPPlus/Drawing/ExcelDrawings.cs
-    startLine: 101
+    startLine: 106
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing
@@ -184,7 +185,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: System.Collections.IEnumerable.GetEnumerator
     path: ../src/EPPlus/Drawing/ExcelDrawings.cs
-    startLine: 173
+    startLine: 201
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing
@@ -220,7 +221,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: System.Collections.Generic.IEnumerable<OfficeOpenXml.Drawing.ExcelDrawing>.GetEnumerator
     path: ../src/EPPlus/Drawing/ExcelDrawings.cs
-    startLine: 179
+    startLine: 207
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing
@@ -252,7 +253,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: this[]
     path: ../src/EPPlus/Drawing/ExcelDrawings.cs
-    startLine: 191
+    startLine: 219
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing
@@ -296,7 +297,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: this[]
     path: ../src/EPPlus/Drawing/ExcelDrawings.cs
-    startLine: 204
+    startLine: 232
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing
@@ -340,7 +341,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: Count
     path: ../src/EPPlus/Drawing/ExcelDrawings.cs
-    startLine: 221
+    startLine: 249
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing
@@ -377,11 +378,11 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: AddChart
     path: ../src/EPPlus/Drawing/ExcelDrawings.cs
-    startLine: 273
+    startLine: 301
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing
-  summary: "\nAdds a new chart to the worksheet.\nStock charts cannot be added by this method. See <see cref=\"!:ExcelDrawings.AddStockChart(string, eStockChartType, ExcelRangeBase)\"></see>\n"
+  summary: "\nAdds a new chart to the worksheet.\nStock charts cannot be added by this method. See <xref href=\"OfficeOpenXml.Drawing.ExcelDrawings.AddStockChart(System.String%2cOfficeOpenXml.Drawing.Chart.eStockChartType%2cOfficeOpenXml.ExcelRangeBase%2cSystem.Boolean)\" data-throw-if-not-resolved=\"false\"></xref>\n"
   example: []
   syntax:
     content: public ExcelChart AddChart(string Name, eChartType ChartType, ExcelPivotTable PivotTableSource, eEditAs DrawingType = eEditAs.TwoCell)
@@ -425,7 +426,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: AddChart
     path: ../src/EPPlus/Drawing/ExcelDrawings.cs
-    startLine: 311
+    startLine: 339
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing
@@ -467,7 +468,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: AddExtendedChart
     path: ../src/EPPlus/Drawing/ExcelDrawings.cs
-    startLine: 321
+    startLine: 349
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing
@@ -509,7 +510,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: AddSunburstChart
     path: ../src/EPPlus/Drawing/ExcelDrawings.cs
-    startLine: 330
+    startLine: 358
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing
@@ -548,7 +549,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: AddTreemapChart
     path: ../src/EPPlus/Drawing/ExcelDrawings.cs
-    startLine: 339
+    startLine: 367
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing
@@ -587,7 +588,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: AddBoxWhiskerChart
     path: ../src/EPPlus/Drawing/ExcelDrawings.cs
-    startLine: 348
+    startLine: 376
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing
@@ -626,7 +627,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: AddHistogramChart
     path: ../src/EPPlus/Drawing/ExcelDrawings.cs
-    startLine: 358
+    startLine: 386
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing
@@ -668,7 +669,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: AddWaterfallChart
     path: ../src/EPPlus/Drawing/ExcelDrawings.cs
-    startLine: 367
+    startLine: 395
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing
@@ -707,7 +708,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: AddFunnelChart
     path: ../src/EPPlus/Drawing/ExcelDrawings.cs
-    startLine: 376
+    startLine: 404
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing
@@ -746,7 +747,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: AddRegionMapChart
     path: ../src/EPPlus/Drawing/ExcelDrawings.cs
-    startLine: 386
+    startLine: 414
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing
@@ -785,7 +786,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: AddExtendedChart
     path: ../src/EPPlus/Drawing/ExcelDrawings.cs
-    startLine: 398
+    startLine: 426
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing
@@ -830,7 +831,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: AddStockChart
     path: ../src/EPPlus/Drawing/ExcelDrawings.cs
-    startLine: 414
+    startLine: 442
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing
@@ -878,7 +879,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: AddStockChart
     path: ../src/EPPlus/Drawing/ExcelDrawings.cs
-    startLine: 553
+    startLine: 581
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing
@@ -935,7 +936,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: AddStockChart
     path: ../src/EPPlus/Drawing/ExcelDrawings.cs
-    startLine: 599
+    startLine: 627
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing
@@ -992,7 +993,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: AddLineChart
     path: ../src/EPPlus/Drawing/ExcelDrawings.cs
-    startLine: 634
+    startLine: 662
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing
@@ -1034,7 +1035,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: AddLineChart
     path: ../src/EPPlus/Drawing/ExcelDrawings.cs
-    startLine: 645
+    startLine: 673
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing
@@ -1079,7 +1080,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: AddAreaChart
     path: ../src/EPPlus/Drawing/ExcelDrawings.cs
-    startLine: 655
+    startLine: 683
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing
@@ -1121,7 +1122,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: AddAreaChart
     path: ../src/EPPlus/Drawing/ExcelDrawings.cs
-    startLine: 666
+    startLine: 694
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing
@@ -1166,7 +1167,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: AddBarChart
     path: ../src/EPPlus/Drawing/ExcelDrawings.cs
-    startLine: 676
+    startLine: 704
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing
@@ -1208,7 +1209,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: AddBarChart
     path: ../src/EPPlus/Drawing/ExcelDrawings.cs
-    startLine: 687
+    startLine: 715
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing
@@ -1253,7 +1254,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: AddPieChart
     path: ../src/EPPlus/Drawing/ExcelDrawings.cs
-    startLine: 697
+    startLine: 725
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing
@@ -1295,7 +1296,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: AddPieChart
     path: ../src/EPPlus/Drawing/ExcelDrawings.cs
-    startLine: 708
+    startLine: 736
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing
@@ -1340,7 +1341,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: AddDoughnutChart
     path: ../src/EPPlus/Drawing/ExcelDrawings.cs
-    startLine: 719
+    startLine: 747
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing
@@ -1385,7 +1386,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: AddDoughnutChart
     path: ../src/EPPlus/Drawing/ExcelDrawings.cs
-    startLine: 729
+    startLine: 757
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing
@@ -1427,7 +1428,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: AddOfPieChart
     path: ../src/EPPlus/Drawing/ExcelDrawings.cs
-    startLine: 739
+    startLine: 767
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing
@@ -1469,7 +1470,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: AddOfPieChart
     path: ../src/EPPlus/Drawing/ExcelDrawings.cs
-    startLine: 750
+    startLine: 778
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing
@@ -1514,7 +1515,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: AddBubbleChart
     path: ../src/EPPlus/Drawing/ExcelDrawings.cs
-    startLine: 760
+    startLine: 788
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing
@@ -1556,7 +1557,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: AddBubbleChart
     path: ../src/EPPlus/Drawing/ExcelDrawings.cs
-    startLine: 771
+    startLine: 799
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing
@@ -1601,7 +1602,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: AddScatterChart
     path: ../src/EPPlus/Drawing/ExcelDrawings.cs
-    startLine: 782
+    startLine: 810
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing
@@ -1646,7 +1647,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: AddScatterChart
     path: ../src/EPPlus/Drawing/ExcelDrawings.cs
-    startLine: 792
+    startLine: 820
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing
@@ -1688,7 +1689,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: AddRadarChart
     path: ../src/EPPlus/Drawing/ExcelDrawings.cs
-    startLine: 803
+    startLine: 831
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing
@@ -1733,7 +1734,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: AddRadarChart
     path: ../src/EPPlus/Drawing/ExcelDrawings.cs
-    startLine: 813
+    startLine: 841
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing
@@ -1775,7 +1776,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: AddSurfaceChart
     path: ../src/EPPlus/Drawing/ExcelDrawings.cs
-    startLine: 824
+    startLine: 852
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing
@@ -1820,7 +1821,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: AddSurfaceChart
     path: ../src/EPPlus/Drawing/ExcelDrawings.cs
-    startLine: 834
+    startLine: 862
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing
@@ -1844,16 +1845,16 @@ items:
   - public
   modifiers.vb:
   - Public
-- uid: OfficeOpenXml.Drawing.ExcelDrawings.AddPicture(System.String,System.IO.FileInfo)
-  commentId: M:OfficeOpenXml.Drawing.ExcelDrawings.AddPicture(System.String,System.IO.FileInfo)
-  id: AddPicture(System.String,System.IO.FileInfo)
+- uid: OfficeOpenXml.Drawing.ExcelDrawings.AddPicture(System.String,System.String,OfficeOpenXml.Drawing.PictureLocation)
+  commentId: M:OfficeOpenXml.Drawing.ExcelDrawings.AddPicture(System.String,System.String,OfficeOpenXml.Drawing.PictureLocation)
+  id: AddPicture(System.String,System.String,OfficeOpenXml.Drawing.PictureLocation)
   parent: OfficeOpenXml.Drawing.ExcelDrawings
   langs:
   - csharp
   - vb
-  name: AddPicture(String, FileInfo)
-  nameWithType: ExcelDrawings.AddPicture(String, FileInfo)
-  fullName: OfficeOpenXml.Drawing.ExcelDrawings.AddPicture(System.String, System.IO.FileInfo)
+  name: AddPicture(String, String, PictureLocation)
+  nameWithType: ExcelDrawings.AddPicture(String, String, PictureLocation)
+  fullName: OfficeOpenXml.Drawing.ExcelDrawings.AddPicture(System.String, System.String, OfficeOpenXml.Drawing.PictureLocation)
   type: Method
   source:
     remote:
@@ -1862,14 +1863,107 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: AddPicture
     path: ../src/EPPlus/Drawing/ExcelDrawings.cs
-    startLine: 844
+    startLine: 894
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing
   summary: "\nAdds a picture to the worksheet\n"
   example: []
   syntax:
-    content: public ExcelPicture AddPicture(string Name, FileInfo ImageFile)
+    content: public ExcelPicture AddPicture(string Name, string ImagePath, PictureLocation Location = PictureLocation.Embed)
+    parameters:
+    - id: Name
+      type: System.String
+      description: The name of the drawing object
+    - id: ImagePath
+      type: System.String
+      description: The path to the image file
+    - id: Location
+      type: OfficeOpenXml.Drawing.PictureLocation
+      description: Location to access the image from
+    return:
+      type: OfficeOpenXml.Drawing.ExcelPicture
+      description: A picture object
+    content.vb: Public Function AddPicture(Name As String, ImagePath As String, Location As PictureLocation = PictureLocation.Embed) As ExcelPicture
+  overload: OfficeOpenXml.Drawing.ExcelDrawings.AddPicture*
+  modifiers.csharp:
+  - public
+  modifiers.vb:
+  - Public
+- uid: OfficeOpenXml.Drawing.ExcelDrawings.AddPicture(System.String,System.String,OfficeOpenXml.ExcelHyperLink,OfficeOpenXml.Drawing.PictureLocation)
+  commentId: M:OfficeOpenXml.Drawing.ExcelDrawings.AddPicture(System.String,System.String,OfficeOpenXml.ExcelHyperLink,OfficeOpenXml.Drawing.PictureLocation)
+  id: AddPicture(System.String,System.String,OfficeOpenXml.ExcelHyperLink,OfficeOpenXml.Drawing.PictureLocation)
+  parent: OfficeOpenXml.Drawing.ExcelDrawings
+  langs:
+  - csharp
+  - vb
+  name: AddPicture(String, String, ExcelHyperLink, PictureLocation)
+  nameWithType: ExcelDrawings.AddPicture(String, String, ExcelHyperLink, PictureLocation)
+  fullName: OfficeOpenXml.Drawing.ExcelDrawings.AddPicture(System.String, System.String, OfficeOpenXml.ExcelHyperLink, OfficeOpenXml.Drawing.PictureLocation)
+  type: Method
+  source:
+    remote:
+      path: src/EPPlus/Drawing/ExcelDrawings.cs
+      branch: develop7
+      repo: https://github.com/EPPlusSoftware/EPPlus.git
+    id: AddPicture
+    path: ../src/EPPlus/Drawing/ExcelDrawings.cs
+    startLine: 907
+  assemblies:
+  - EPPlus
+  namespace: OfficeOpenXml.Drawing
+  summary: "\nAdds a picture to the worksheet\n"
+  example: []
+  syntax:
+    content: public ExcelPicture AddPicture(string Name, string ImagePath, ExcelHyperLink Hyperlink, PictureLocation Location = PictureLocation.Embed)
+    parameters:
+    - id: Name
+      type: System.String
+      description: The name of the drawing object
+    - id: ImagePath
+      type: System.String
+      description: The path to the image file
+    - id: Hyperlink
+      type: OfficeOpenXml.ExcelHyperLink
+      description: Picture Hyperlink
+    - id: Location
+      type: OfficeOpenXml.Drawing.PictureLocation
+      description: Location to access the image from
+    return:
+      type: OfficeOpenXml.Drawing.ExcelPicture
+      description: A picture object
+    content.vb: Public Function AddPicture(Name As String, ImagePath As String, Hyperlink As ExcelHyperLink, Location As PictureLocation = PictureLocation.Embed) As ExcelPicture
+  overload: OfficeOpenXml.Drawing.ExcelDrawings.AddPicture*
+  modifiers.csharp:
+  - public
+  modifiers.vb:
+  - Public
+- uid: OfficeOpenXml.Drawing.ExcelDrawings.AddPicture(System.String,System.IO.FileInfo,OfficeOpenXml.Drawing.PictureLocation)
+  commentId: M:OfficeOpenXml.Drawing.ExcelDrawings.AddPicture(System.String,System.IO.FileInfo,OfficeOpenXml.Drawing.PictureLocation)
+  id: AddPicture(System.String,System.IO.FileInfo,OfficeOpenXml.Drawing.PictureLocation)
+  parent: OfficeOpenXml.Drawing.ExcelDrawings
+  langs:
+  - csharp
+  - vb
+  name: AddPicture(String, FileInfo, PictureLocation)
+  nameWithType: ExcelDrawings.AddPicture(String, FileInfo, PictureLocation)
+  fullName: OfficeOpenXml.Drawing.ExcelDrawings.AddPicture(System.String, System.IO.FileInfo, OfficeOpenXml.Drawing.PictureLocation)
+  type: Method
+  source:
+    remote:
+      path: src/EPPlus/Drawing/ExcelDrawings.cs
+      branch: develop7
+      repo: https://github.com/EPPlusSoftware/EPPlus.git
+    id: AddPicture
+    path: ../src/EPPlus/Drawing/ExcelDrawings.cs
+    startLine: 919
+  assemblies:
+  - EPPlus
+  namespace: OfficeOpenXml.Drawing
+  summary: "\nAdds a picture to the worksheet\n"
+  example: []
+  syntax:
+    content: public ExcelPicture AddPicture(string Name, FileInfo ImageFile, PictureLocation Location = PictureLocation.Embed)
     parameters:
     - id: Name
       type: System.String
@@ -1877,25 +1971,28 @@ items:
     - id: ImageFile
       type: System.IO.FileInfo
       description: The image file
+    - id: Location
+      type: OfficeOpenXml.Drawing.PictureLocation
+      description: Location to access the image from
     return:
       type: OfficeOpenXml.Drawing.ExcelPicture
       description: A picture object
-    content.vb: Public Function AddPicture(Name As String, ImageFile As FileInfo) As ExcelPicture
+    content.vb: Public Function AddPicture(Name As String, ImageFile As FileInfo, Location As PictureLocation = PictureLocation.Embed) As ExcelPicture
   overload: OfficeOpenXml.Drawing.ExcelDrawings.AddPicture*
   modifiers.csharp:
   - public
   modifiers.vb:
   - Public
-- uid: OfficeOpenXml.Drawing.ExcelDrawings.AddPicture(System.String,System.IO.FileInfo,System.Uri)
-  commentId: M:OfficeOpenXml.Drawing.ExcelDrawings.AddPicture(System.String,System.IO.FileInfo,System.Uri)
-  id: AddPicture(System.String,System.IO.FileInfo,System.Uri)
+- uid: OfficeOpenXml.Drawing.ExcelDrawings.AddPicture(System.String,System.IO.FileInfo,System.Uri,OfficeOpenXml.Drawing.PictureLocation)
+  commentId: M:OfficeOpenXml.Drawing.ExcelDrawings.AddPicture(System.String,System.IO.FileInfo,System.Uri,OfficeOpenXml.Drawing.PictureLocation)
+  id: AddPicture(System.String,System.IO.FileInfo,System.Uri,OfficeOpenXml.Drawing.PictureLocation)
   parent: OfficeOpenXml.Drawing.ExcelDrawings
   langs:
   - csharp
   - vb
-  name: AddPicture(String, FileInfo, Uri)
-  nameWithType: ExcelDrawings.AddPicture(String, FileInfo, Uri)
-  fullName: OfficeOpenXml.Drawing.ExcelDrawings.AddPicture(System.String, System.IO.FileInfo, System.Uri)
+  name: AddPicture(String, FileInfo, Uri, PictureLocation)
+  nameWithType: ExcelDrawings.AddPicture(String, FileInfo, Uri, PictureLocation)
+  fullName: OfficeOpenXml.Drawing.ExcelDrawings.AddPicture(System.String, System.IO.FileInfo, System.Uri, OfficeOpenXml.Drawing.PictureLocation)
   type: Method
   source:
     remote:
@@ -1904,14 +2001,14 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: AddPicture
     path: ../src/EPPlus/Drawing/ExcelDrawings.cs
-    startLine: 855
+    startLine: 948
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing
   summary: "\nAdds a picture to the worksheet\n"
   example: []
   syntax:
-    content: public ExcelPicture AddPicture(string Name, FileInfo ImageFile, Uri Hyperlink)
+    content: public ExcelPicture AddPicture(string Name, FileInfo ImageFile, Uri Hyperlink, PictureLocation Location = PictureLocation.Embed)
     parameters:
     - id: Name
       type: System.String
@@ -1922,10 +2019,13 @@ items:
     - id: Hyperlink
       type: System.Uri
       description: Picture Hyperlink
+    - id: Location
+      type: OfficeOpenXml.Drawing.PictureLocation
+      description: Location to access the image from
     return:
       type: OfficeOpenXml.Drawing.ExcelPicture
       description: A picture object
-    content.vb: Public Function AddPicture(Name As String, ImageFile As FileInfo, Hyperlink As Uri) As ExcelPicture
+    content.vb: Public Function AddPicture(Name As String, ImageFile As FileInfo, Hyperlink As Uri, Location As PictureLocation = PictureLocation.Embed) As ExcelPicture
   overload: OfficeOpenXml.Drawing.ExcelDrawings.AddPicture*
   modifiers.csharp:
   - public
@@ -1949,7 +2049,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: AddPicture
     path: ../src/EPPlus/Drawing/ExcelDrawings.cs
-    startLine: 871
+    startLine: 966
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing
@@ -1991,7 +2091,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: AddPicture
     path: ../src/EPPlus/Drawing/ExcelDrawings.cs
-    startLine: 882
+    startLine: 977
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing
@@ -2036,7 +2136,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: AddPicture
     path: ../src/EPPlus/Drawing/ExcelDrawings.cs
-    startLine: 893
+    startLine: 988
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing
@@ -2096,7 +2196,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: AddPicture
     path: ../src/EPPlus/Drawing/ExcelDrawings.cs
-    startLine: 906
+    startLine: 1001
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing
@@ -2141,16 +2241,16 @@ items:
   - Public
   fullName.vb: OfficeOpenXml.Drawing.ExcelDrawings.AddPicture(System.String, System.IO.Stream, System.Nullable(Of OfficeOpenXml.Drawing.ePictureType), System.Uri)
   name.vb: AddPicture(String, Stream, Nullable(Of ePictureType), Uri)
-- uid: OfficeOpenXml.Drawing.ExcelDrawings.AddPictureAsync(System.String,System.IO.FileInfo)
-  commentId: M:OfficeOpenXml.Drawing.ExcelDrawings.AddPictureAsync(System.String,System.IO.FileInfo)
-  id: AddPictureAsync(System.String,System.IO.FileInfo)
+- uid: OfficeOpenXml.Drawing.ExcelDrawings.AddPictureAsync(System.String,System.IO.FileInfo,OfficeOpenXml.Drawing.PictureLocation)
+  commentId: M:OfficeOpenXml.Drawing.ExcelDrawings.AddPictureAsync(System.String,System.IO.FileInfo,OfficeOpenXml.Drawing.PictureLocation)
+  id: AddPictureAsync(System.String,System.IO.FileInfo,OfficeOpenXml.Drawing.PictureLocation)
   parent: OfficeOpenXml.Drawing.ExcelDrawings
   langs:
   - csharp
   - vb
-  name: AddPictureAsync(String, FileInfo)
-  nameWithType: ExcelDrawings.AddPictureAsync(String, FileInfo)
-  fullName: OfficeOpenXml.Drawing.ExcelDrawings.AddPictureAsync(System.String, System.IO.FileInfo)
+  name: AddPictureAsync(String, FileInfo, PictureLocation)
+  nameWithType: ExcelDrawings.AddPictureAsync(String, FileInfo, PictureLocation)
+  fullName: OfficeOpenXml.Drawing.ExcelDrawings.AddPictureAsync(System.String, System.IO.FileInfo, OfficeOpenXml.Drawing.PictureLocation)
   type: Method
   source:
     remote:
@@ -2159,14 +2259,14 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: AddPictureAsync
     path: ../src/EPPlus/Drawing/ExcelDrawings.cs
-    startLine: 948
+    startLine: 1044
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing
   summary: "\nAdds a picture to the worksheet\n"
   example: []
   syntax:
-    content: public async Task<ExcelPicture> AddPictureAsync(string Name, FileInfo ImageFile)
+    content: public async Task<ExcelPicture> AddPictureAsync(string Name, FileInfo ImageFile, PictureLocation Location = PictureLocation.Embed)
     parameters:
     - id: Name
       type: System.String
@@ -2174,26 +2274,29 @@ items:
     - id: ImageFile
       type: System.IO.FileInfo
       description: The image file
+    - id: Location
+      type: OfficeOpenXml.Drawing.PictureLocation
+      description: Location to access the image from
     return:
       type: System.Threading.Tasks.Task{OfficeOpenXml.Drawing.ExcelPicture}
       description: A picture object
-    content.vb: Public Function AddPictureAsync(Name As String, ImageFile As FileInfo) As Task(Of ExcelPicture)
+    content.vb: Public Function AddPictureAsync(Name As String, ImageFile As FileInfo, Location As PictureLocation = PictureLocation.Embed) As Task(Of ExcelPicture)
   overload: OfficeOpenXml.Drawing.ExcelDrawings.AddPictureAsync*
   modifiers.csharp:
   - public
   - async
   modifiers.vb:
   - Public
-- uid: OfficeOpenXml.Drawing.ExcelDrawings.AddPictureAsync(System.String,System.IO.FileInfo,System.Uri)
-  commentId: M:OfficeOpenXml.Drawing.ExcelDrawings.AddPictureAsync(System.String,System.IO.FileInfo,System.Uri)
-  id: AddPictureAsync(System.String,System.IO.FileInfo,System.Uri)
+- uid: OfficeOpenXml.Drawing.ExcelDrawings.AddPictureAsync(System.String,System.IO.FileInfo,System.Uri,OfficeOpenXml.Drawing.PictureLocation)
+  commentId: M:OfficeOpenXml.Drawing.ExcelDrawings.AddPictureAsync(System.String,System.IO.FileInfo,System.Uri,OfficeOpenXml.Drawing.PictureLocation)
+  id: AddPictureAsync(System.String,System.IO.FileInfo,System.Uri,OfficeOpenXml.Drawing.PictureLocation)
   parent: OfficeOpenXml.Drawing.ExcelDrawings
   langs:
   - csharp
   - vb
-  name: AddPictureAsync(String, FileInfo, Uri)
-  nameWithType: ExcelDrawings.AddPictureAsync(String, FileInfo, Uri)
-  fullName: OfficeOpenXml.Drawing.ExcelDrawings.AddPictureAsync(System.String, System.IO.FileInfo, System.Uri)
+  name: AddPictureAsync(String, FileInfo, Uri, PictureLocation)
+  nameWithType: ExcelDrawings.AddPictureAsync(String, FileInfo, Uri, PictureLocation)
+  fullName: OfficeOpenXml.Drawing.ExcelDrawings.AddPictureAsync(System.String, System.IO.FileInfo, System.Uri, OfficeOpenXml.Drawing.PictureLocation)
   type: Method
   source:
     remote:
@@ -2202,14 +2305,14 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: AddPictureAsync
     path: ../src/EPPlus/Drawing/ExcelDrawings.cs
-    startLine: 959
+    startLine: 1056
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing
   summary: "\nAdds a picture to the worksheet\n"
   example: []
   syntax:
-    content: public async Task<ExcelPicture> AddPictureAsync(string Name, FileInfo ImageFile, Uri Hyperlink)
+    content: public async Task<ExcelPicture> AddPictureAsync(string Name, FileInfo ImageFile, Uri Hyperlink, PictureLocation Location = PictureLocation.Embed)
     parameters:
     - id: Name
       type: System.String
@@ -2220,26 +2323,29 @@ items:
     - id: Hyperlink
       type: System.Uri
       description: Picture Hyperlink
+    - id: Location
+      type: OfficeOpenXml.Drawing.PictureLocation
+      description: Location to access the image from
     return:
       type: System.Threading.Tasks.Task{OfficeOpenXml.Drawing.ExcelPicture}
       description: A picture object
-    content.vb: Public Function AddPictureAsync(Name As String, ImageFile As FileInfo, Hyperlink As Uri) As Task(Of ExcelPicture)
+    content.vb: Public Function AddPictureAsync(Name As String, ImageFile As FileInfo, Hyperlink As Uri, Location As PictureLocation = PictureLocation.Embed) As Task(Of ExcelPicture)
   overload: OfficeOpenXml.Drawing.ExcelDrawings.AddPictureAsync*
   modifiers.csharp:
   - public
   - async
   modifiers.vb:
   - Public
-- uid: OfficeOpenXml.Drawing.ExcelDrawings.AddPictureAsync(System.String,System.String)
-  commentId: M:OfficeOpenXml.Drawing.ExcelDrawings.AddPictureAsync(System.String,System.String)
-  id: AddPictureAsync(System.String,System.String)
+- uid: OfficeOpenXml.Drawing.ExcelDrawings.AddPictureAsync(System.String,System.String,OfficeOpenXml.Drawing.PictureLocation)
+  commentId: M:OfficeOpenXml.Drawing.ExcelDrawings.AddPictureAsync(System.String,System.String,OfficeOpenXml.Drawing.PictureLocation)
+  id: AddPictureAsync(System.String,System.String,OfficeOpenXml.Drawing.PictureLocation)
   parent: OfficeOpenXml.Drawing.ExcelDrawings
   langs:
   - csharp
   - vb
-  name: AddPictureAsync(String, String)
-  nameWithType: ExcelDrawings.AddPictureAsync(String, String)
-  fullName: OfficeOpenXml.Drawing.ExcelDrawings.AddPictureAsync(System.String, System.String)
+  name: AddPictureAsync(String, String, PictureLocation)
+  nameWithType: ExcelDrawings.AddPictureAsync(String, String, PictureLocation)
+  fullName: OfficeOpenXml.Drawing.ExcelDrawings.AddPictureAsync(System.String, System.String, OfficeOpenXml.Drawing.PictureLocation)
   type: Method
   source:
     remote:
@@ -2248,14 +2354,14 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: AddPictureAsync
     path: ../src/EPPlus/Drawing/ExcelDrawings.cs
-    startLine: 975
+    startLine: 1079
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing
   summary: "\nAdds a picture to the worksheet\n"
   example: []
   syntax:
-    content: public async Task<ExcelPicture> AddPictureAsync(string Name, string ImagePath)
+    content: public async Task<ExcelPicture> AddPictureAsync(string Name, string ImagePath, PictureLocation Location = PictureLocation.Embed)
     parameters:
     - id: Name
       type: System.String
@@ -2263,26 +2369,29 @@ items:
     - id: ImagePath
       type: System.String
       description: The path to the image file
+    - id: Location
+      type: OfficeOpenXml.Drawing.PictureLocation
+      description: Location to access the image from
     return:
       type: System.Threading.Tasks.Task{OfficeOpenXml.Drawing.ExcelPicture}
       description: A picture object
-    content.vb: Public Function AddPictureAsync(Name As String, ImagePath As String) As Task(Of ExcelPicture)
+    content.vb: Public Function AddPictureAsync(Name As String, ImagePath As String, Location As PictureLocation = PictureLocation.Embed) As Task(Of ExcelPicture)
   overload: OfficeOpenXml.Drawing.ExcelDrawings.AddPictureAsync*
   modifiers.csharp:
   - public
   - async
   modifiers.vb:
   - Public
-- uid: OfficeOpenXml.Drawing.ExcelDrawings.AddPictureAsync(System.String,System.String,System.Uri)
-  commentId: M:OfficeOpenXml.Drawing.ExcelDrawings.AddPictureAsync(System.String,System.String,System.Uri)
-  id: AddPictureAsync(System.String,System.String,System.Uri)
+- uid: OfficeOpenXml.Drawing.ExcelDrawings.AddPictureAsync(System.String,System.String,System.Uri,OfficeOpenXml.Drawing.PictureLocation)
+  commentId: M:OfficeOpenXml.Drawing.ExcelDrawings.AddPictureAsync(System.String,System.String,System.Uri,OfficeOpenXml.Drawing.PictureLocation)
+  id: AddPictureAsync(System.String,System.String,System.Uri,OfficeOpenXml.Drawing.PictureLocation)
   parent: OfficeOpenXml.Drawing.ExcelDrawings
   langs:
   - csharp
   - vb
-  name: AddPictureAsync(String, String, Uri)
-  nameWithType: ExcelDrawings.AddPictureAsync(String, String, Uri)
-  fullName: OfficeOpenXml.Drawing.ExcelDrawings.AddPictureAsync(System.String, System.String, System.Uri)
+  name: AddPictureAsync(String, String, Uri, PictureLocation)
+  nameWithType: ExcelDrawings.AddPictureAsync(String, String, Uri, PictureLocation)
+  fullName: OfficeOpenXml.Drawing.ExcelDrawings.AddPictureAsync(System.String, System.String, System.Uri, OfficeOpenXml.Drawing.PictureLocation)
   type: Method
   source:
     remote:
@@ -2291,14 +2400,14 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: AddPictureAsync
     path: ../src/EPPlus/Drawing/ExcelDrawings.cs
-    startLine: 986
+    startLine: 1092
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing
   summary: "\nAdds a picture to the worksheet\n"
   example: []
   syntax:
-    content: public async Task<ExcelPicture> AddPictureAsync(string Name, string ImagePath, Uri Hyperlink)
+    content: public async Task<ExcelPicture> AddPictureAsync(string Name, string ImagePath, Uri Hyperlink, PictureLocation Location = PictureLocation.Embed)
     parameters:
     - id: Name
       type: System.String
@@ -2309,10 +2418,13 @@ items:
     - id: Hyperlink
       type: System.Uri
       description: Picture Hyperlink
+    - id: Location
+      type: OfficeOpenXml.Drawing.PictureLocation
+      description: Location to access the image from
     return:
       type: System.Threading.Tasks.Task{OfficeOpenXml.Drawing.ExcelPicture}
       description: A picture object
-    content.vb: Public Function AddPictureAsync(Name As String, ImagePath As String, Hyperlink As Uri) As Task(Of ExcelPicture)
+    content.vb: Public Function AddPictureAsync(Name As String, ImagePath As String, Hyperlink As Uri, Location As PictureLocation = PictureLocation.Embed) As Task(Of ExcelPicture)
   overload: OfficeOpenXml.Drawing.ExcelDrawings.AddPictureAsync*
   modifiers.csharp:
   - public
@@ -2337,7 +2449,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: AddPictureAsync
     path: ../src/EPPlus/Drawing/ExcelDrawings.cs
-    startLine: 996
+    startLine: 1103
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing
@@ -2380,7 +2492,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: AddPictureAsync
     path: ../src/EPPlus/Drawing/ExcelDrawings.cs
-    startLine: 1007
+    startLine: 1114
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing
@@ -2426,7 +2538,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: AddPictureAsync
     path: ../src/EPPlus/Drawing/ExcelDrawings.cs
-    startLine: 1018
+    startLine: 1125
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing
@@ -2487,7 +2599,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: AddPictureAsync
     path: ../src/EPPlus/Drawing/ExcelDrawings.cs
-    startLine: 1031
+    startLine: 1138
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing
@@ -2533,93 +2645,6 @@ items:
   - Public
   fullName.vb: OfficeOpenXml.Drawing.ExcelDrawings.AddPictureAsync(System.String, System.IO.Stream, System.Nullable(Of OfficeOpenXml.Drawing.ePictureType), System.Uri)
   name.vb: AddPictureAsync(String, Stream, Nullable(Of ePictureType), Uri)
-- uid: OfficeOpenXml.Drawing.ExcelDrawings.AddPicture(System.String,System.String)
-  commentId: M:OfficeOpenXml.Drawing.ExcelDrawings.AddPicture(System.String,System.String)
-  id: AddPicture(System.String,System.String)
-  parent: OfficeOpenXml.Drawing.ExcelDrawings
-  langs:
-  - csharp
-  - vb
-  name: AddPicture(String, String)
-  nameWithType: ExcelDrawings.AddPicture(String, String)
-  fullName: OfficeOpenXml.Drawing.ExcelDrawings.AddPicture(System.String, System.String)
-  type: Method
-  source:
-    remote:
-      path: src/EPPlus/Drawing/ExcelDrawings.cs
-      branch: develop7
-      repo: https://github.com/EPPlusSoftware/EPPlus.git
-    id: AddPicture
-    path: ../src/EPPlus/Drawing/ExcelDrawings.cs
-    startLine: 1069
-  assemblies:
-  - EPPlus
-  namespace: OfficeOpenXml.Drawing
-  summary: "\nAdds a picture to the worksheet\n"
-  example: []
-  syntax:
-    content: public ExcelPicture AddPicture(string Name, string ImagePath)
-    parameters:
-    - id: Name
-      type: System.String
-      description: The name of the drawing object
-    - id: ImagePath
-      type: System.String
-      description: The path to the image file
-    return:
-      type: OfficeOpenXml.Drawing.ExcelPicture
-      description: A picture object
-    content.vb: Public Function AddPicture(Name As String, ImagePath As String) As ExcelPicture
-  overload: OfficeOpenXml.Drawing.ExcelDrawings.AddPicture*
-  modifiers.csharp:
-  - public
-  modifiers.vb:
-  - Public
-- uid: OfficeOpenXml.Drawing.ExcelDrawings.AddPicture(System.String,System.String,OfficeOpenXml.ExcelHyperLink)
-  commentId: M:OfficeOpenXml.Drawing.ExcelDrawings.AddPicture(System.String,System.String,OfficeOpenXml.ExcelHyperLink)
-  id: AddPicture(System.String,System.String,OfficeOpenXml.ExcelHyperLink)
-  parent: OfficeOpenXml.Drawing.ExcelDrawings
-  langs:
-  - csharp
-  - vb
-  name: AddPicture(String, String, ExcelHyperLink)
-  nameWithType: ExcelDrawings.AddPicture(String, String, ExcelHyperLink)
-  fullName: OfficeOpenXml.Drawing.ExcelDrawings.AddPicture(System.String, System.String, OfficeOpenXml.ExcelHyperLink)
-  type: Method
-  source:
-    remote:
-      path: src/EPPlus/Drawing/ExcelDrawings.cs
-      branch: develop7
-      repo: https://github.com/EPPlusSoftware/EPPlus.git
-    id: AddPicture
-    path: ../src/EPPlus/Drawing/ExcelDrawings.cs
-    startLine: 1084
-  assemblies:
-  - EPPlus
-  namespace: OfficeOpenXml.Drawing
-  summary: "\nAdds a picture to the worksheet\n"
-  example: []
-  syntax:
-    content: public ExcelPicture AddPicture(string Name, string ImagePath, ExcelHyperLink Hyperlink)
-    parameters:
-    - id: Name
-      type: System.String
-      description: The name of the drawing object
-    - id: ImagePath
-      type: System.String
-      description: The path to the image file
-    - id: Hyperlink
-      type: OfficeOpenXml.ExcelHyperLink
-      description: Picture Hyperlink
-    return:
-      type: OfficeOpenXml.Drawing.ExcelPicture
-      description: A picture object
-    content.vb: Public Function AddPicture(Name As String, ImagePath As String, Hyperlink As ExcelHyperLink) As ExcelPicture
-  overload: OfficeOpenXml.Drawing.ExcelDrawings.AddPicture*
-  modifiers.csharp:
-  - public
-  modifiers.vb:
-  - Public
 - uid: OfficeOpenXml.Drawing.ExcelDrawings.AddChartFromTemplate(System.IO.FileInfo,System.String)
   commentId: M:OfficeOpenXml.Drawing.ExcelDrawings.AddChartFromTemplate(System.IO.FileInfo,System.String)
   id: AddChartFromTemplate(System.IO.FileInfo,System.String)
@@ -2638,7 +2663,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: AddChartFromTemplate
     path: ../src/EPPlus/Drawing/ExcelDrawings.cs
-    startLine: 1119
+    startLine: 1197
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing
@@ -2680,7 +2705,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: AddChartFromTemplate
     path: ../src/EPPlus/Drawing/ExcelDrawings.cs
-    startLine: 1130
+    startLine: 1208
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing
@@ -2725,7 +2750,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: AddChartFromTemplate
     path: ../src/EPPlus/Drawing/ExcelDrawings.cs
-    startLine: 1159
+    startLine: 1237
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing
@@ -2767,7 +2792,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: AddChartFromTemplate
     path: ../src/EPPlus/Drawing/ExcelDrawings.cs
-    startLine: 1170
+    startLine: 1248
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing
@@ -2794,6 +2819,48 @@ items:
   - public
   modifiers.vb:
   - Public
+- uid: OfficeOpenXml.Drawing.ExcelDrawings.AddTextbox(System.String,System.String)
+  commentId: M:OfficeOpenXml.Drawing.ExcelDrawings.AddTextbox(System.String,System.String)
+  id: AddTextbox(System.String,System.String)
+  parent: OfficeOpenXml.Drawing.ExcelDrawings
+  langs:
+  - csharp
+  - vb
+  name: AddTextbox(String, String)
+  nameWithType: ExcelDrawings.AddTextbox(String, String)
+  fullName: OfficeOpenXml.Drawing.ExcelDrawings.AddTextbox(System.String, System.String)
+  type: Method
+  source:
+    remote:
+      path: src/EPPlus/Drawing/ExcelDrawings.cs
+      branch: develop7
+      repo: https://github.com/EPPlusSoftware/EPPlus.git
+    id: AddTextbox
+    path: ../src/EPPlus/Drawing/ExcelDrawings.cs
+    startLine: 1311
+  assemblies:
+  - EPPlus
+  namespace: OfficeOpenXml.Drawing
+  summary: "\nAdd a textbox to the worksheet\n"
+  example: []
+  syntax:
+    content: public ExcelShape AddTextbox(string Name, string text = "")
+    parameters:
+    - id: Name
+      type: System.String
+      description: ''
+    - id: text
+      type: System.String
+      description: ''
+    return:
+      type: OfficeOpenXml.Drawing.ExcelShape
+      description: ''
+    content.vb: Public Function AddTextbox(Name As String, text As String = "") As ExcelShape
+  overload: OfficeOpenXml.Drawing.ExcelDrawings.AddTextbox*
+  modifiers.csharp:
+  - public
+  modifiers.vb:
+  - Public
 - uid: OfficeOpenXml.Drawing.ExcelDrawings.AddShape(System.String,OfficeOpenXml.Drawing.eShapeStyle)
   commentId: M:OfficeOpenXml.Drawing.ExcelDrawings.AddShape(System.String,OfficeOpenXml.Drawing.eShapeStyle)
   id: AddShape(System.String,OfficeOpenXml.Drawing.eShapeStyle)
@@ -2812,7 +2879,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: AddShape
     path: ../src/EPPlus/Drawing/ExcelDrawings.cs
-    startLine: 1227
+    startLine: 1349
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing
@@ -2854,7 +2921,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: AddTableSlicer
     path: ../src/EPPlus/Drawing/ExcelDrawings.cs
-    startLine: 1251
+    startLine: 1373
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing
@@ -2893,7 +2960,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: AddShape
     path: ../src/EPPlus/Drawing/ExcelDrawings.cs
-    startLine: 1339
+    startLine: 1461
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing
@@ -2935,7 +3002,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: AddControl
     path: ../src/EPPlus/Drawing/ExcelDrawings.cs
-    startLine: 1368
+    startLine: 1490
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing
@@ -2984,7 +3051,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: AddButtonControl
     path: ../src/EPPlus/Drawing/ExcelDrawings.cs
-    startLine: 1392
+    startLine: 1514
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing
@@ -3023,7 +3090,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: AddCheckBoxControl
     path: ../src/EPPlus/Drawing/ExcelDrawings.cs
-    startLine: 1401
+    startLine: 1523
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing
@@ -3062,7 +3129,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: AddRadioButtonControl
     path: ../src/EPPlus/Drawing/ExcelDrawings.cs
-    startLine: 1410
+    startLine: 1532
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing
@@ -3101,7 +3168,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: AddListBoxControl
     path: ../src/EPPlus/Drawing/ExcelDrawings.cs
-    startLine: 1419
+    startLine: 1541
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing
@@ -3140,7 +3207,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: AddDropDownControl
     path: ../src/EPPlus/Drawing/ExcelDrawings.cs
-    startLine: 1428
+    startLine: 1550
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing
@@ -3179,7 +3246,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: AddGroupBoxControl
     path: ../src/EPPlus/Drawing/ExcelDrawings.cs
-    startLine: 1437
+    startLine: 1559
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing
@@ -3218,7 +3285,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: AddLabelControl
     path: ../src/EPPlus/Drawing/ExcelDrawings.cs
-    startLine: 1446
+    startLine: 1568
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing
@@ -3257,7 +3324,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: AddSpinButtonControl
     path: ../src/EPPlus/Drawing/ExcelDrawings.cs
-    startLine: 1455
+    startLine: 1577
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing
@@ -3296,7 +3363,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: AddScrollBarControl
     path: ../src/EPPlus/Drawing/ExcelDrawings.cs
-    startLine: 1464
+    startLine: 1586
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing
@@ -3335,7 +3402,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: Remove
     path: ../src/EPPlus/Drawing/ExcelDrawings.cs
-    startLine: 1554
+    startLine: 1682
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing
@@ -3371,7 +3438,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: Remove
     path: ../src/EPPlus/Drawing/ExcelDrawings.cs
-    startLine: 1587
+    startLine: 1715
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing
@@ -3407,7 +3474,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: Remove
     path: ../src/EPPlus/Drawing/ExcelDrawings.cs
-    startLine: 1595
+    startLine: 1723
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing
@@ -3443,7 +3510,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: Clear
     path: ../src/EPPlus/Drawing/ExcelDrawings.cs
-    startLine: 1602
+    startLine: 1730
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing
@@ -3475,7 +3542,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: Dispose
     path: ../src/EPPlus/Drawing/ExcelDrawings.cs
-    startLine: 1739
+    startLine: 1867
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing
@@ -4142,6 +4209,9 @@ references:
   name: Count
   nameWithType: ExcelDrawings.Count
   fullName: OfficeOpenXml.Drawing.ExcelDrawings.Count
+- uid: OfficeOpenXml.Drawing.ExcelDrawings.AddStockChart(System.String,OfficeOpenXml.Drawing.Chart.eStockChartType,OfficeOpenXml.ExcelRangeBase,System.Boolean)
+  commentId: M:OfficeOpenXml.Drawing.ExcelDrawings.AddStockChart(System.String,OfficeOpenXml.Drawing.Chart.eStockChartType,OfficeOpenXml.ExcelRangeBase,System.Boolean)
+  isExternal: true
 - uid: OfficeOpenXml.Drawing.ExcelDrawings.AddChart*
   commentId: Overload:OfficeOpenXml.Drawing.ExcelDrawings.AddChart
   name: AddChart
@@ -4496,6 +4566,24 @@ references:
   name: AddPicture
   nameWithType: ExcelDrawings.AddPicture
   fullName: OfficeOpenXml.Drawing.ExcelDrawings.AddPicture
+- uid: OfficeOpenXml.Drawing.PictureLocation
+  commentId: T:OfficeOpenXml.Drawing.PictureLocation
+  parent: OfficeOpenXml.Drawing
+  name: PictureLocation
+  nameWithType: PictureLocation
+  fullName: OfficeOpenXml.Drawing.PictureLocation
+- uid: OfficeOpenXml.Drawing.ExcelPicture
+  commentId: T:OfficeOpenXml.Drawing.ExcelPicture
+  parent: OfficeOpenXml.Drawing
+  name: ExcelPicture
+  nameWithType: ExcelPicture
+  fullName: OfficeOpenXml.Drawing.ExcelPicture
+- uid: OfficeOpenXml.ExcelHyperLink
+  commentId: T:OfficeOpenXml.ExcelHyperLink
+  parent: OfficeOpenXml
+  name: ExcelHyperLink
+  nameWithType: ExcelHyperLink
+  fullName: OfficeOpenXml.ExcelHyperLink
 - uid: System.IO.FileInfo
   commentId: T:System.IO.FileInfo
   parent: System.IO
@@ -4503,12 +4591,6 @@ references:
   name: FileInfo
   nameWithType: FileInfo
   fullName: System.IO.FileInfo
-- uid: OfficeOpenXml.Drawing.ExcelPicture
-  commentId: T:OfficeOpenXml.Drawing.ExcelPicture
-  parent: OfficeOpenXml.Drawing
-  name: ExcelPicture
-  nameWithType: ExcelPicture
-  fullName: OfficeOpenXml.Drawing.ExcelPicture
 - uid: System.IO
   commentId: N:System.IO
   isExternal: true
@@ -4702,17 +4784,22 @@ references:
   name: System.Threading.Tasks
   nameWithType: System.Threading.Tasks
   fullName: System.Threading.Tasks
-- uid: OfficeOpenXml.ExcelHyperLink
-  commentId: T:OfficeOpenXml.ExcelHyperLink
-  parent: OfficeOpenXml
-  name: ExcelHyperLink
-  nameWithType: ExcelHyperLink
-  fullName: OfficeOpenXml.ExcelHyperLink
 - uid: OfficeOpenXml.Drawing.ExcelDrawings.AddChartFromTemplate*
   commentId: Overload:OfficeOpenXml.Drawing.ExcelDrawings.AddChartFromTemplate
   name: AddChartFromTemplate
   nameWithType: ExcelDrawings.AddChartFromTemplate
   fullName: OfficeOpenXml.Drawing.ExcelDrawings.AddChartFromTemplate
+- uid: OfficeOpenXml.Drawing.ExcelDrawings.AddTextbox*
+  commentId: Overload:OfficeOpenXml.Drawing.ExcelDrawings.AddTextbox
+  name: AddTextbox
+  nameWithType: ExcelDrawings.AddTextbox
+  fullName: OfficeOpenXml.Drawing.ExcelDrawings.AddTextbox
+- uid: OfficeOpenXml.Drawing.ExcelShape
+  commentId: T:OfficeOpenXml.Drawing.ExcelShape
+  parent: OfficeOpenXml.Drawing
+  name: ExcelShape
+  nameWithType: ExcelShape
+  fullName: OfficeOpenXml.Drawing.ExcelShape
 - uid: OfficeOpenXml.Drawing.ExcelDrawings.AddShape*
   commentId: Overload:OfficeOpenXml.Drawing.ExcelDrawings.AddShape
   name: AddShape
@@ -4724,12 +4811,6 @@ references:
   name: eShapeStyle
   nameWithType: eShapeStyle
   fullName: OfficeOpenXml.Drawing.eShapeStyle
-- uid: OfficeOpenXml.Drawing.ExcelShape
-  commentId: T:OfficeOpenXml.Drawing.ExcelShape
-  parent: OfficeOpenXml.Drawing
-  name: ExcelShape
-  nameWithType: ExcelShape
-  fullName: OfficeOpenXml.Drawing.ExcelShape
 - uid: OfficeOpenXml.Drawing.ExcelDrawings.AddTableSlicer*
   commentId: Overload:OfficeOpenXml.Drawing.ExcelDrawings.AddTableSlicer
   name: AddTableSlicer

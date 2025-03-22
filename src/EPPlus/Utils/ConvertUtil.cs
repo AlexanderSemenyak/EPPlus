@@ -26,6 +26,8 @@ using OfficeOpenXml.FormulaParsing.Excel.Functions;
 using OfficeOpenXml.FormulaParsing.Exceptions;
 using OfficeOpenXml.FormulaParsing;
 using OfficeOpenXml.FormulaParsing.Utilities;
+using OfficeOpenXml.FormulaParsing.Excel.Operators;
+using OfficeOpenXml.ConditionalFormatting;
 namespace OfficeOpenXml.Utils
 {
     internal static class ConvertUtil
@@ -246,8 +248,15 @@ namespace OfficeOpenXml.Utils
                 }
                 else
                 {
-                    d = retNaN ? double.NaN : 0;
-                }
+					if (v is KahanSum ks)
+					{
+						d = ks.Get();
+					}
+                    else
+                    {
+						d = retNaN ? double.NaN : 0;
+					}
+				}
             }
 
             catch
@@ -408,18 +417,19 @@ namespace OfficeOpenXml.Utils
         {
             if (Regex.IsMatch(t, "(_x[0-9A-F]{4,4}_)"))
             {
-                var match = Regex.Match(t, "(_x[0-9A-F]{4,4}_)");
+                var matches = Regex.Matches(t, "(_x[0-9A-F]{4,4})");
                 int indexAdd = 0;
-                while (match.Success)
+                foreach(Match m in  matches) 
                 {
-                    t = t.Insert(match.Index + indexAdd, "_x005F");
+                    t = t.Insert(m.Index + indexAdd, "_x005F");
                     indexAdd += 6;
-                    match = match.NextMatch();
                 }
             }
             for (int i = 0; i < t.Length; i++)
             {
-                if (t[i] <= 0x1f && ((t[i] != '\n' && encodeTabLF == false) || encodeTabLF)) //Not Tab, CR or LF
+                if (t[i] <= 0x1f && 
+                    ((t[i] != '\n' && t[i] != '\r' && t[i] != '\t' && encodeTabLF == false) ||  //Not Tab, CR or LF
+                    encodeTabLF)) 
                 {
                     sb.AppendFormat("_x00{0}_", (t[i] <= 0xf ? "0" : "") + ((int)t[i]).ToString("X"));
                 }
@@ -457,6 +467,7 @@ namespace OfficeOpenXml.Utils
         }
         internal static string ExcelDecodeString(string t)
         {
+            if (string.IsNullOrEmpty(t)) return t;
             var match = Regex.Match(t, "(_x005F|_x[0-9A-Fa-f]{4,4}_)");
             if (!match.Success) return t;
 
@@ -519,7 +530,7 @@ namespace OfficeOpenXml.Utils
         {
             var conversion = new TypeConvertUtil<T>(value);
 
-            if(value == null || (conversion.ReturnType.IsNullable && conversion.Value.IsEmptyString))
+            if (value == null || (conversion.ReturnType.IsNullable && conversion.Value.IsEmptyString))
             {
                 return default;
             }
@@ -531,13 +542,72 @@ namespace OfficeOpenXml.Utils
             {
                 return (T)conversion.ConvertToReturnType();
             }
-            else if (conversion.ReturnType.IsDateTime && conversion.TryGetDateTime(out object returnDate))
+            else if (conversion.ReturnType.IsDateTime)
             {
-                return (T)returnDate;
+                DateTime? dt=null;
+                if(conversion.TryGetDateTime(out object returnDate))
+                {
+                    dt = (DateTime)returnDate;
+                }
+#if(NET8_0_OR_GREATER)
+                else if (value is DateOnly dateOnly)
+                {
+                    dt = dateOnly.ToDateTime(TimeOnly.MinValue);
+                }
+
+                if (conversion.ReturnType.Type == typeof(DateOnly))
+                {
+                    if (dt.HasValue)
+                    {
+                        return (T)(object)DateOnly.FromDateTime(dt.Value);
+                    }
+                    else
+                    {
+                        return (T)(object)DateOnly.FromDateTime((DateTime)value);
+                    }
+                }
+#endif  
+                if (dt != null)
+                {
+                    return (T)(object)dt;
+                }
             }
-            else if (conversion.ReturnType.IsTimeSpan && conversion.TryGetTimeSpan(out object ts))
+            else if (conversion.ReturnType.IsTimeSpan)
             {
-                return (T)ts;
+                TimeSpan? ts=null;
+                if (value is DateTime dt)
+                {                    
+                    ts = new TimeSpan((long)(dt.ToOADate() * TimeSpan.TicksPerDay));
+                }
+#if (NET8_0_OR_GREATER)
+                else if (value is TimeOnly timeOnly)
+                {
+                    ts = timeOnly.ToTimeSpan();
+                }
+                else if (value is DateOnly dateOnly)
+                {
+                    ts=new TimeSpan((long)dateOnly.ToDateTime(TimeOnly.MinValue).ToOADate() * TimeSpan.TicksPerDay);
+                }
+#endif
+                else if (conversion.TryGetTimeSpan(out object tso))
+                {
+                    ts = (TimeSpan)tso;
+                }
+
+#if (NET8_0_OR_GREATER)
+                if (conversion.ReturnType.Type == typeof(TimeOnly))
+                {
+                    if (ts.HasValue == false && value is TimeSpan tsc)
+                    {
+                        ts = tsc;
+                    }
+                    return (T)(object)TimeOnly.FromTimeSpan(new TimeSpan(ts.Value.Ticks - ts.Value.Days*TimeSpan.TicksPerDay));
+                }
+#endif
+                if (ts.HasValue)
+                {
+                    return (T)(object)ts;
+                }
             }
             if(returnDefaultIfException)
             {
@@ -574,7 +644,7 @@ namespace OfficeOpenXml.Utils
             string s;
             try
             {
-                if (v is DateTime dt)
+                if (IsDate(v, out DateTime dt))
                 {
                     double sdv = dt.ToOADate();
 
@@ -585,20 +655,42 @@ namespace OfficeOpenXml.Utils
 
                     s = sdv.ToString(CultureInfo.InvariantCulture);
                 }
-                else if (v is TimeSpan ts)
+                else if (IsTimeSpan(v, out TimeSpan ts))
                 {
                     s = ((double)ts.Ticks / TimeSpan.TicksPerDay).ToString(CultureInfo.InvariantCulture);
                 }
                 else if (TypeCompat.IsPrimitive(v) || v is double || v is decimal)
                 {
-                    if ((v is double && double.IsNaN((double)v)) ||
-                        (v is float && float.IsNaN((float)v)))
+                    if (v is double d) 
                     {
-                        s = "";
+                        if(double.IsNaN(d))
+                        {
+                            s = "";
+                        }
+                        else if (double.IsInfinity(d))
+                        {
+                            s = "#NUM!";
+                        }
+                        else
+                        {
+                            s = d.ToString("R15", CultureInfo.InvariantCulture);
+                        }
                     }
-                    else if (v is double && double.IsInfinity((double)v))
+                    else if(v is float f)
                     {
-                        s = "#NUM!";
+                        if(float.IsNaN(f))
+                        {
+                            s = "";
+                        }
+                        else if (float.IsInfinity(f))
+                        {
+                            s = "#NUM!";
+
+                        }
+                        else
+                        {
+                            s = f.ToString("R15", CultureInfo.InvariantCulture);
+                        }
                     }
                     else
                     {
@@ -617,6 +709,42 @@ namespace OfficeOpenXml.Utils
             }
             return s;
         }
+        private static bool IsDate(object v, out DateTime date)
+        {
+            if(v is DateTime dt)
+            {
+                date = dt;
+                return true;
+            }
+            #if(NET6_0_OR_GREATER)
+            if(v is DateOnly dto)
+            {
+                date = dto.ToDateTime(TimeOnly.MinValue);
+                return true;
+            }
+#endif
+            date = default;
+            return false;
+        }
+        private static bool IsTimeSpan(object v, out TimeSpan timeSpan)
+        {
+            if (v is TimeSpan ts)
+            {
+                timeSpan = ts;
+                return true;
+            }
+#if (NET6_0_OR_GREATER)
+            if (v is TimeOnly to)
+            {
+                timeSpan = to.ToTimeSpan();
+                return true;
+            }
+#endif
+            timeSpan=default;
+            return false;
+        }
+
+
         internal static string CropString(string s, int maxLength)
         {
             if (s == null) return s;
@@ -695,7 +823,7 @@ namespace OfficeOpenXml.Utils
             {
                 return " t=\"e\"";
             }
-            else if (allowStr && v != null && !(TypeCompat.IsPrimitive(v) || v is double || v is decimal || v is DateTime || v is TimeSpan))
+            else if (allowStr && v != null && !IsNumericOrDateDatatype(v))
             {
                 return " t=\"str\"";
             }
@@ -703,6 +831,26 @@ namespace OfficeOpenXml.Utils
             {
                 return "";
             }
+        }
+        internal static bool IsNumericOrDateDatatype(object v)
+        {
+#if (NET6_0_OR_GREATER)
+            return (TypeCompat.IsPrimitive(v) || v is double || v is decimal || v is DateTime || v is TimeSpan || v is DateOnly || v is TimeOnly) && v is not char;
+#else
+                return (TypeCompat.IsPrimitive(v) || v is double || v is decimal || v is DateTime || v is TimeSpan) && !(v is char);
+#endif
+        }
+
+        internal static string ParseXmlString(this string xmlString)
+        {
+            //Remove start and end "
+            xmlString = xmlString.Substring(1, xmlString.Length - 2);
+
+            xmlString = ExcelDecodeString(xmlString);
+
+            //Unescape string
+            xmlString = xmlString.Replace("\"\"","\"");
+            return xmlString;
         }
 
         internal static int ParseInt(object obj, RoundingMethod roundingMethod)

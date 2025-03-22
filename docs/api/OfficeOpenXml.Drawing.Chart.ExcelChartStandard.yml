@@ -132,6 +132,7 @@ items:
   - OfficeOpenXml.Drawing.ExcelDrawing.ParentGroup
   - OfficeOpenXml.Drawing.ExcelDrawing.Dispose
   - OfficeOpenXml.Drawing.ExcelDrawing.AdjustPositionAndSize
+  - OfficeOpenXml.Drawing.ExcelDrawing.Copy(OfficeOpenXml.ExcelWorksheet,System.Int32,System.Int32,System.Int32,System.Int32)
   - System.Object.Equals(System.Object)
   - System.Object.Equals(System.Object,System.Object)
   - System.Object.GetHashCode
@@ -163,7 +164,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: GetChartNodeText
     path: ../src/EPPlus/Drawing/Chart/ExcelChartStandard.cs
-    startLine: 622
+    startLine: 620
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing.Chart
@@ -198,7 +199,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: Title
     path: ../src/EPPlus/Drawing/Chart/ExcelChartStandard.cs
-    startLine: 777
+    startLine: 775
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing.Chart
@@ -235,7 +236,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: HasTitle
     path: ../src/EPPlus/Drawing/Chart/ExcelChartStandard.cs
-    startLine: 795
+    startLine: 793
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing.Chart
@@ -275,7 +276,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: HasLegend
     path: ../src/EPPlus/Drawing/Chart/ExcelChartStandard.cs
-    startLine: 805
+    startLine: 803
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing.Chart
@@ -315,7 +316,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: DeleteTitle
     path: ../src/EPPlus/Drawing/Chart/ExcelChartStandard.cs
-    startLine: 815
+    startLine: 813
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing.Chart
@@ -350,7 +351,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: Style
     path: ../src/EPPlus/Drawing/Chart/ExcelChartStandard.cs
-    startLine: 823
+    startLine: 821
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing.Chart
@@ -390,7 +391,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: RoundedCorners
     path: ../src/EPPlus/Drawing/Chart/ExcelChartStandard.cs
-    startLine: 874
+    startLine: 872
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing.Chart
@@ -430,7 +431,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: ShowHiddenData
     path: ../src/EPPlus/Drawing/Chart/ExcelChartStandard.cs
-    startLine: 889
+    startLine: 887
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing.Chart
@@ -470,7 +471,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: DisplayBlanksAs
     path: ../src/EPPlus/Drawing/Chart/ExcelChartStandard.cs
-    startLine: 906
+    startLine: 904
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing.Chart
@@ -510,7 +511,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: ShowDataLabelsOverMaximum
     path: ../src/EPPlus/Drawing/Chart/ExcelChartStandard.cs
-    startLine: 929
+    startLine: 927
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing.Chart
@@ -550,7 +551,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: PlotArea
     path: ../src/EPPlus/Drawing/Chart/ExcelChartStandard.cs
-    startLine: 985
+    startLine: 983
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing.Chart
@@ -590,7 +591,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: Legend
     path: ../src/EPPlus/Drawing/Chart/ExcelChartStandard.cs
-    startLine: 999
+    startLine: 997
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing.Chart
@@ -627,7 +628,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: Border
     path: ../src/EPPlus/Drawing/Chart/ExcelChartStandard.cs
-    startLine: 1015
+    startLine: 1013
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing.Chart
@@ -667,7 +668,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: Fill
     path: ../src/EPPlus/Drawing/Chart/ExcelChartStandard.cs
-    startLine: 1030
+    startLine: 1028
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing.Chart
@@ -707,7 +708,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: Effect
     path: ../src/EPPlus/Drawing/Chart/ExcelChartStandard.cs
-    startLine: 1045
+    startLine: 1043
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing.Chart
@@ -747,7 +748,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: ThreeD
     path: ../src/EPPlus/Drawing/Chart/ExcelChartStandard.cs
-    startLine: 1060
+    startLine: 1058
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing.Chart
@@ -787,7 +788,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: Font
     path: ../src/EPPlus/Drawing/Chart/ExcelChartStandard.cs
-    startLine: 1075
+    startLine: 1073
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing.Chart
@@ -827,7 +828,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: TextBody
     path: ../src/EPPlus/Drawing/Chart/ExcelChartStandard.cs
-    startLine: 1090
+    startLine: 1088
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing.Chart
@@ -867,7 +868,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: View3D
     path: ../src/EPPlus/Drawing/Chart/ExcelChartStandard.cs
-    startLine: 1105
+    startLine: 1103
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing.Chart
@@ -907,7 +908,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: Grouping
     path: ../src/EPPlus/Drawing/Chart/ExcelChartStandard.cs
-    startLine: 1124
+    startLine: 1122
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing.Chart
@@ -944,7 +945,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: VaryColors
     path: ../src/EPPlus/Drawing/Chart/ExcelChartStandard.cs
-    startLine: 1139
+    startLine: 1137
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing.Chart
@@ -984,10 +985,12 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: Axis
     path: ../src/EPPlus/Drawing/Chart/ExcelChartStandard.cs
-    startLine: 1212
+    startLine: 1216
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing.Chart
+  summary: "\nAxis array\n"
+  example: []
   syntax:
     content: public ExcelChartAxisStandard[] Axis { get; }
     parameters: []
@@ -1019,7 +1022,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: XAxis
     path: ../src/EPPlus/Drawing/Chart/ExcelChartStandard.cs
-    startLine: 1226
+    startLine: 1230
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing.Chart
@@ -1056,7 +1059,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: YAxis
     path: ../src/EPPlus/Drawing/Chart/ExcelChartStandard.cs
-    startLine: 1240
+    startLine: 1244
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing.Chart
@@ -2319,6 +2322,107 @@ references:
   - name: (
     nameWithType: (
     fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: OfficeOpenXml.Drawing.ExcelDrawing.Copy(OfficeOpenXml.ExcelWorksheet,System.Int32,System.Int32,System.Int32,System.Int32)
+  commentId: M:OfficeOpenXml.Drawing.ExcelDrawing.Copy(OfficeOpenXml.ExcelWorksheet,System.Int32,System.Int32,System.Int32,System.Int32)
+  parent: OfficeOpenXml.Drawing.ExcelDrawing
+  isExternal: true
+  name: Copy(ExcelWorksheet, Int32, Int32, Int32, Int32)
+  nameWithType: ExcelDrawing.Copy(ExcelWorksheet, Int32, Int32, Int32, Int32)
+  fullName: OfficeOpenXml.Drawing.ExcelDrawing.Copy(OfficeOpenXml.ExcelWorksheet, System.Int32, System.Int32, System.Int32, System.Int32)
+  spec.csharp:
+  - uid: OfficeOpenXml.Drawing.ExcelDrawing.Copy(OfficeOpenXml.ExcelWorksheet,System.Int32,System.Int32,System.Int32,System.Int32)
+    name: Copy
+    nameWithType: ExcelDrawing.Copy
+    fullName: OfficeOpenXml.Drawing.ExcelDrawing.Copy
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: OfficeOpenXml.ExcelWorksheet
+    name: ExcelWorksheet
+    nameWithType: ExcelWorksheet
+    fullName: OfficeOpenXml.ExcelWorksheet
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Int32
+    name: Int32
+    nameWithType: Int32
+    fullName: System.Int32
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Int32
+    name: Int32
+    nameWithType: Int32
+    fullName: System.Int32
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Int32
+    name: Int32
+    nameWithType: Int32
+    fullName: System.Int32
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Int32
+    name: Int32
+    nameWithType: Int32
+    fullName: System.Int32
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: OfficeOpenXml.Drawing.ExcelDrawing.Copy(OfficeOpenXml.ExcelWorksheet,System.Int32,System.Int32,System.Int32,System.Int32)
+    name: Copy
+    nameWithType: ExcelDrawing.Copy
+    fullName: OfficeOpenXml.Drawing.ExcelDrawing.Copy
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: OfficeOpenXml.ExcelWorksheet
+    name: ExcelWorksheet
+    nameWithType: ExcelWorksheet
+    fullName: OfficeOpenXml.ExcelWorksheet
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Int32
+    name: Int32
+    nameWithType: Int32
+    fullName: System.Int32
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Int32
+    name: Int32
+    nameWithType: Int32
+    fullName: System.Int32
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Int32
+    name: Int32
+    nameWithType: Int32
+    fullName: System.Int32
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Int32
+    name: Int32
+    nameWithType: Int32
+    fullName: System.Int32
+    isExternal: true
   - name: )
     nameWithType: )
     fullName: )

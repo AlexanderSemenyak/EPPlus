@@ -1018,7 +1018,7 @@ namespace OfficeOpenXml
                     if (t.TokenTypeIsAddressToken)
                     {
                         var address = GetFullAddressFromToken(tokens, ref i);
-                        if ((address.IsExternal || (!IsReferencesModifiedWorksheet(currentSheet, modifiedSheet, address)) && !setFixed)
+                        if ((address.IsExternal || (!IsReferencesModifiedWorksheet(currentSheet, modifiedSheet, address.WorkSheetName)) && !setFixed)
                             || address.Table != null)
                         {
                             f += address.Address;
@@ -1089,7 +1089,14 @@ namespace OfficeOpenXml
 
                         if (address == null || (!address.IsValidRowCol() && address.IsName==false))
                         {
-                            f += "#REF!";
+                            if(i > 0 && t.TokenType==TokenType.Operator && t.Value==":" && GetPrevToken(tokens,i).TokenType==TokenType.ClosingParenthesis) //Previous token is a function, add the colon.
+                            {
+                                f += t.Value;
+                            }
+                            else
+                            {
+                                f += "#REF!";
+                            }
                         }
                         else
                         {                            
@@ -1116,6 +1123,12 @@ namespace OfficeOpenXml
             {
                 return formula;
             }
+        }
+
+        private static Token GetPrevToken(IList<Token> tokens, int i)
+        {
+            while (i > 0 && tokens[--i].TokenType == TokenType.WhiteSpace);
+            return tokens[i];
         }
 
         private static ExcelAddressBase GetFullAddressFromToken(IList<Token> tokens, ref int i)
@@ -1205,10 +1218,10 @@ namespace OfficeOpenXml
                 {
                     if (t.TokenTypeIsAddress && 
                         string.IsNullOrEmpty(extRef) && 
-                        (string.IsNullOrEmpty(adrWs) || adrWs.Equals(currentSheet, StringComparison.InvariantCultureIgnoreCase)))
+                        (string.IsNullOrEmpty(adrWs) || adrWs.Equals(modifiedSheet, StringComparison.InvariantCultureIgnoreCase)))
                     {
                         var address = new ExcelAddressBase(t.Value);
-                        if (((!string.IsNullOrEmpty(address._wb) || !IsReferencesModifiedWorksheet(currentSheet, modifiedSheet, address)) && !setFixed) ||
+                        if (((!string.IsNullOrEmpty(address._wb) || !IsReferencesModifiedWorksheet(currentSheet, modifiedSheet, adrWs)) && !setFixed) ||
                                 address.Collide(effectedRange) == ExcelAddressBase.eAddressCollition.No)
                         {
                             f += address.Address;
@@ -1244,6 +1257,7 @@ namespace OfficeOpenXml
                                 }
                             }
                         }
+
                         if (address != null && !address.IsFullRow)
                         {
                             if (colIncrement > 0)
@@ -1307,10 +1321,10 @@ namespace OfficeOpenXml
             }
         }
 
-        private static bool IsReferencesModifiedWorksheet(string currentSheet, string modifiedSheet, ExcelAddressBase a)
+        private static bool IsReferencesModifiedWorksheet(string currentSheet, string modifiedSheet, string addressSheet)
         {
-            return (string.IsNullOrEmpty(a._ws) && currentSheet.Equals(modifiedSheet, StringComparison.CurrentCultureIgnoreCase)) ||
-                                         modifiedSheet.Equals(a._ws, StringComparison.CurrentCultureIgnoreCase);
+            return (string.IsNullOrEmpty(addressSheet) && currentSheet.Equals(modifiedSheet, StringComparison.CurrentCultureIgnoreCase)) ||
+                                         modifiedSheet.Equals(addressSheet, StringComparison.CurrentCultureIgnoreCase);
         }
 
         /// <summary>
@@ -1328,43 +1342,44 @@ namespace OfficeOpenXml
             try
             {
                 var sct = new SourceCodeTokenizer(FunctionNameProvider.Empty, NameValueProvider.Empty);
-                var retFormula = "";
-                foreach (var token in sct.Tokenize(formula))
+                var retFormula = new StringBuilder();
+                var tokens = sct.Tokenize(formula);
+                for (int i=0;i<tokens.Count;i++)
                 {
+                    var token = tokens[i];
                     if(token.TokenTypeIsSet(TokenType.WorksheetNameContent))
                     {
-                        if(token.Value.Equals(oldName, StringComparison.OrdinalIgnoreCase))
+                        string wsName;
+                        if (token.Value.Equals(oldName, StringComparison.CurrentCultureIgnoreCase))
                         {
-                            retFormula += newName;
+                            wsName = newName;
                         }
                         else
                         {
-                            retFormula += token.Value;
+                            wsName = token.Value;
                         }
+                        if (ExcelWorksheet.NameNeedsApostrophes(wsName))
+                        {
+                            retFormula.Append('\'');
+                            retFormula.Append(wsName);
+                            retFormula.Append('\'');
+                        }
+                        else
+                        {
+                            retFormula.Append(wsName);
+                        }                        
                     }
                     else
                     {
-                        retFormula += token.Value;
+                        if(!(token.TokenType==TokenType.SingleQuote &&
+                            ((i > 0 && tokens[i - 1].TokenType == TokenType.WorksheetNameContent) ||
+                            (i < tokens.Count - 1 && tokens[i + 1].TokenType == TokenType.WorksheetNameContent))))
+                        {
+                            retFormula.Append(token.Value);
+                        }
                     }
-                    //if (token.TokenTypeIsAddress) //Address
-                    //{
-                    //    var address = new ExcelAddressBase(token.Value);
-                    //    if (address == null || !address.IsValidRowCol())
-                    //    {
-                    //        retFormula += "#REF!";
-                    //    }
-                    //    else
-                    //    {
-                    //        address.ChangeWorksheet(oldName, newName);
-                    //        retFormula += address.Address;
-                    //    }
-                    //}
-                    //else
-                    //{
-                    //    retFormula += token.Value;
-                    //}
                 }
-                return retFormula;
+                return retFormula.ToString();
             }
             catch //if we have an exception, return the original formula.
             {

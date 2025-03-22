@@ -84,6 +84,12 @@ namespace OfficeOpenXml.FormulaParsing.Ranges
                 _address.WorksheetIx = (short)worksheetIx;
             }
         }
+        /// <summary>
+        /// Constructor with external workbook
+        /// </summary>
+        /// <param name="externalWb"></param>
+        /// <param name="address"></param>
+        /// <param name="ctx"></param>
         public EpplusExcelExternalRangeInfo(ExcelExternalWorkbook externalWb, FormulaRangeAddress address , ParsingContext ctx)
         {
             _address = address;
@@ -198,6 +204,9 @@ namespace OfficeOpenXml.FormulaParsing.Ranges
         {
             get { return null; }
         }        
+        /// <summary>
+        /// Dimension
+        /// </summary>
         public FormulaRangeAddress Dimension
         {
             get
@@ -270,10 +279,15 @@ namespace OfficeOpenXml.FormulaParsing.Ranges
         /// </summary>
         //public ExcelAddressBase Address
         //{
-        //    get { return _address; }
+        //    get { return _addresses; }
         //}
 
         public FormulaRangeAddress Address { get { return _address; } }
+
+        /// <summary>
+        /// If the address contains multiple comma separated addresses, the individual addresses are stored here.
+        /// </summary>
+        public FormulaRangeAddress[] Addresses => [_address];
 
         /// <summary>
         /// Gets the value 
@@ -303,7 +317,14 @@ namespace OfficeOpenXml.FormulaParsing.Ranges
                 return _externalWs?.CellValues.GetValue(_values.Row + rowOffset, _values.Column + colOffset);
             }
         }
-
+        /// <summary>
+        /// Get offset
+        /// </summary>
+        /// <param name="rowOffsetStart"></param>
+        /// <param name="colOffsetStart"></param>
+        /// <param name="rowOffsetEnd"></param>
+        /// <param name="colOffsetEnd"></param>
+        /// <returns></returns>
         public IRangeInfo GetOffset(int rowOffsetStart, int colOffsetStart, int rowOffsetEnd, int colOffsetEnd)
         {
             if (_values == null) return null;
@@ -330,7 +351,12 @@ namespace OfficeOpenXml.FormulaParsing.Ranges
                     _address._context);
             }
         }
-
+        /// <summary>
+        /// Is hidden
+        /// </summary>
+        /// <param name="rowOffset"></param>
+        /// <param name="colOffset"></param>
+        /// <returns></returns>
         public bool IsHidden(int rowOffset, int colOffset)
         {
             return false;

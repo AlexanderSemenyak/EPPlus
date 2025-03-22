@@ -23,7 +23,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: ZipPackageRelationshipCollection
     path: ../src/EPPlus/Packaging/ZipPackageRelationshipCollection.cs
-    startLine: 26
+    startLine: 24
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Packaging
@@ -71,7 +71,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: _rels
     path: ../src/EPPlus/Packaging/ZipPackageRelationshipCollection.cs
-    startLine: 31
+    startLine: 29
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Packaging
@@ -104,7 +104,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: GetEnumerator
     path: ../src/EPPlus/Packaging/ZipPackageRelationshipCollection.cs
-    startLine: 40
+    startLine: 38
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Packaging
@@ -142,7 +142,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: System.Collections.IEnumerable.GetEnumerator
     path: ../src/EPPlus/Packaging/ZipPackageRelationshipCollection.cs
-    startLine: 45
+    startLine: 43
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Packaging
@@ -174,7 +174,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: Count
     path: ../src/EPPlus/Packaging/ZipPackageRelationshipCollection.cs
-    startLine: 102
+    startLine: 100
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Packaging

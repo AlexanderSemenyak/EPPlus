@@ -5,11 +5,13 @@ items:
   id: ToDataTableOptions
   parent: OfficeOpenXml.Export.ToDataTable
   children:
+  - OfficeOpenXml.Export.ToDataTable.ToDataTableOptions.AllowDuplicateColumnNames
   - OfficeOpenXml.Export.ToDataTable.ToDataTableOptions.AlwaysAllowNull
   - OfficeOpenXml.Export.ToDataTable.ToDataTableOptions.ColumnNameParsingStrategy
   - OfficeOpenXml.Export.ToDataTable.ToDataTableOptions.ColumnNamePrefix
   - OfficeOpenXml.Export.ToDataTable.ToDataTableOptions.Create
   - OfficeOpenXml.Export.ToDataTable.ToDataTableOptions.Create(System.Action{OfficeOpenXml.Export.ToDataTable.ToDataTableOptions})
+  - OfficeOpenXml.Export.ToDataTable.ToDataTableOptions.DataIsTransposed
   - OfficeOpenXml.Export.ToDataTable.ToDataTableOptions.DataTableName
   - OfficeOpenXml.Export.ToDataTable.ToDataTableOptions.DataTableNamespace
   - OfficeOpenXml.Export.ToDataTable.ToDataTableOptions.EmptyRowStrategy
@@ -591,6 +593,80 @@ items:
   - set
   modifiers.vb:
   - Public
+- uid: OfficeOpenXml.Export.ToDataTable.ToDataTableOptions.DataIsTransposed
+  commentId: P:OfficeOpenXml.Export.ToDataTable.ToDataTableOptions.DataIsTransposed
+  id: DataIsTransposed
+  parent: OfficeOpenXml.Export.ToDataTable.ToDataTableOptions
+  langs:
+  - csharp
+  - vb
+  name: DataIsTransposed
+  nameWithType: ToDataTableOptions.DataIsTransposed
+  fullName: OfficeOpenXml.Export.ToDataTable.ToDataTableOptions.DataIsTransposed
+  type: Property
+  source:
+    remote:
+      path: src/EPPlus/Export/ToDataTable/ToDataTableOptions.cs
+      branch: develop7
+      repo: https://github.com/EPPlusSoftware/EPPlus.git
+    id: DataIsTransposed
+    path: ../src/EPPlus/Export/ToDataTable/ToDataTableOptions.cs
+    startLine: 144
+  assemblies:
+  - EPPlus
+  namespace: OfficeOpenXml.Export.ToDataTable
+  summary: "\nSet to true if the worksheet is contains transposed data.\n"
+  example: []
+  syntax:
+    content: public bool DataIsTransposed { get; set; }
+    parameters: []
+    return:
+      type: System.Boolean
+    content.vb: Public Property DataIsTransposed As Boolean
+  overload: OfficeOpenXml.Export.ToDataTable.ToDataTableOptions.DataIsTransposed*
+  modifiers.csharp:
+  - public
+  - get
+  - set
+  modifiers.vb:
+  - Public
+- uid: OfficeOpenXml.Export.ToDataTable.ToDataTableOptions.AllowDuplicateColumnNames
+  commentId: P:OfficeOpenXml.Export.ToDataTable.ToDataTableOptions.AllowDuplicateColumnNames
+  id: AllowDuplicateColumnNames
+  parent: OfficeOpenXml.Export.ToDataTable.ToDataTableOptions
+  langs:
+  - csharp
+  - vb
+  name: AllowDuplicateColumnNames
+  nameWithType: ToDataTableOptions.AllowDuplicateColumnNames
+  fullName: OfficeOpenXml.Export.ToDataTable.ToDataTableOptions.AllowDuplicateColumnNames
+  type: Property
+  source:
+    remote:
+      path: src/EPPlus/Export/ToDataTable/ToDataTableOptions.cs
+      branch: develop7
+      repo: https://github.com/EPPlusSoftware/EPPlus.git
+    id: AllowDuplicateColumnNames
+    path: ../src/EPPlus/Export/ToDataTable/ToDataTableOptions.cs
+    startLine: 150
+  assemblies:
+  - EPPlus
+  namespace: OfficeOpenXml.Export.ToDataTable
+  summary: "\nIf true, EPPlus will prepend duplicate column names from the exported worksheet with a number (2,3,4,..n).\nIf false, EPPlus will throw an <xref href=\"System.InvalidOperationException\" data-throw-if-not-resolved=\"false\"></xref> when processing a duplicate column name. Default value is false.\n"
+  example: []
+  syntax:
+    content: public bool AllowDuplicateColumnNames { get; set; }
+    parameters: []
+    return:
+      type: System.Boolean
+    content.vb: Public Property AllowDuplicateColumnNames As Boolean
+  overload: OfficeOpenXml.Export.ToDataTable.ToDataTableOptions.AllowDuplicateColumnNames*
+  modifiers.csharp:
+  - public
+  - get
+  - set
+  modifiers.vb:
+  - Public
 - uid: OfficeOpenXml.Export.ToDataTable.ToDataTableOptions.SetPrimaryKey(System.String[])
   commentId: M:OfficeOpenXml.Export.ToDataTable.ToDataTableOptions.SetPrimaryKey(System.String[])
   id: SetPrimaryKey(System.String[])
@@ -609,7 +685,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: SetPrimaryKey
     path: ../src/EPPlus/Export/ToDataTable/ToDataTableOptions.cs
-    startLine: 145
+    startLine: 156
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Export.ToDataTable
@@ -648,7 +724,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: SetPrimaryKey
     path: ../src/EPPlus/Export/ToDataTable/ToDataTableOptions.cs
-    startLine: 156
+    startLine: 167
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Export.ToDataTable
@@ -1208,6 +1284,23 @@ references:
   name: AlwaysAllowNull
   nameWithType: ToDataTableOptions.AlwaysAllowNull
   fullName: OfficeOpenXml.Export.ToDataTable.ToDataTableOptions.AlwaysAllowNull
+- uid: OfficeOpenXml.Export.ToDataTable.ToDataTableOptions.DataIsTransposed*
+  commentId: Overload:OfficeOpenXml.Export.ToDataTable.ToDataTableOptions.DataIsTransposed
+  name: DataIsTransposed
+  nameWithType: ToDataTableOptions.DataIsTransposed
+  fullName: OfficeOpenXml.Export.ToDataTable.ToDataTableOptions.DataIsTransposed
+- uid: System.InvalidOperationException
+  commentId: T:System.InvalidOperationException
+  parent: System
+  isExternal: true
+  name: InvalidOperationException
+  nameWithType: InvalidOperationException
+  fullName: System.InvalidOperationException
+- uid: OfficeOpenXml.Export.ToDataTable.ToDataTableOptions.AllowDuplicateColumnNames*
+  commentId: Overload:OfficeOpenXml.Export.ToDataTable.ToDataTableOptions.AllowDuplicateColumnNames
+  name: AllowDuplicateColumnNames
+  nameWithType: ToDataTableOptions.AllowDuplicateColumnNames
+  fullName: OfficeOpenXml.Export.ToDataTable.ToDataTableOptions.AllowDuplicateColumnNames
 - uid: OfficeOpenXml.Export.ToDataTable.ToDataTableOptions.SetPrimaryKey*
   commentId: Overload:OfficeOpenXml.Export.ToDataTable.ToDataTableOptions.SetPrimaryKey
   name: SetPrimaryKey

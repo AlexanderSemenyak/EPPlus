@@ -366,7 +366,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: Remove
     path: ../src/EPPlus/ExcelCommentCollection.cs
-    startLine: 209
+    startLine: 214
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml
@@ -403,7 +403,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: System.IDisposable.Dispose
     path: ../src/EPPlus/ExcelCommentCollection.cs
-    startLine: 313
+    startLine: 319
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml
@@ -433,7 +433,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: RemoveAt
     path: ../src/EPPlus/ExcelCommentCollection.cs
-    startLine: 320
+    startLine: 326
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml
@@ -470,7 +470,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: System.Collections.IEnumerable.GetEnumerator
     path: ../src/EPPlus/ExcelCommentCollection.cs
-    startLine: 327
+    startLine: 333
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml

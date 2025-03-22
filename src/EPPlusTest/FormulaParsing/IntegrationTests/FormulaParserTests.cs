@@ -68,10 +68,38 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests
                 Assert.IsNull(ws.Cells["A3"].Value);
             }
         }
+        [TestMethod]
+        public void CalculateMultipleNegationTests()
+        {
+            using (ExcelPackage package = new ExcelPackage())
+            {
+                var ws = package.Workbook.Worksheets.Add("Sheet1");
+                ws.SetValue(1, 1, 1);
+                ws.SetFormula(2, 1, "(-(-(---A1)))");
+                ws.Calculate();
+
+                Assert.AreEqual(-1D, ws.GetValue(2,1));
+            }
+        }
         string QStr(string s)
         {
             char quotechar = '\"';
             return $"{quotechar}{s}{quotechar}";
+        }
+        [TestMethod]
+        public void ReferencingWorksheetThatDoesNotExistShouldReturnRef()
+        {
+            using (ExcelPackage p = new ExcelPackage())
+            {
+                ExcelWorksheet ws = p.Workbook.Worksheets.Add("sheet1");
+
+                ws.Cells["A1"].Formula = "Sheet2!A1";
+
+                ws.Calculate();
+
+                var value = ws.Cells["A1"].Value;
+                Assert.AreEqual(ErrorValues.RefError, value);
+            }
         }
     }
 }

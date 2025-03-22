@@ -38,13 +38,16 @@ namespace OfficeOpenXml.FormulaParsing.FormulaExpressions
             return CompileResult.Empty;
         }
         internal override ExpressionStatus Status { get; set; }
+        public override Expression Negate()
+        {
+            return this;
+        }
     }
-    public abstract class Expression
+    internal abstract class Expression
     {
         internal CompileResult _cachedCompileResult;
         internal Operators Operator;
         internal static EmptyExpression Empty=new EmptyExpression();
-
         protected ParsingContext Context { get; private set; }
         internal abstract ExpressionType ExpressionType { get; }
         internal Expression()
@@ -55,21 +58,17 @@ namespace OfficeOpenXml.FormulaParsing.FormulaExpressions
             Context = ctx;
         }
         public abstract CompileResult Compile();
-        public virtual void Negate()
-        {
-
-        }         
+        public abstract Expression Negate();
         internal virtual Expression CloneWithOffset(int row, int col)
         {
             return this;
         }
 
         internal abstract ExpressionStatus Status { get; set; }
-        public virtual FormulaRangeAddress GetAddress() { return null; }
+        public virtual FormulaRangeAddress[] GetAddress() { return null; }
         internal virtual void MergeAddress(string address)
         {
 
         }
-
     }
 }

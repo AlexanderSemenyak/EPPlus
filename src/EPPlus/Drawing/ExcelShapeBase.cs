@@ -395,11 +395,11 @@ namespace OfficeOpenXml.Drawing
         {
             get
             {
-                return GetXmlNodeAngel(_rotationPath);
+                return GetXmlNodeAngle(_rotationPath);
             }
             set
             {
-                SetXmlNodeAngel(_rotationPath, value, "Rotation", -100000, 100000);
+                SetXmlNodeAngle(_rotationPath, value, "Rotation", -100000, 100000);
             }
         }
 		/// <summary>

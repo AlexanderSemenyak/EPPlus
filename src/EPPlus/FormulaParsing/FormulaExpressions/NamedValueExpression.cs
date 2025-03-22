@@ -17,6 +17,7 @@ using System;
 using OfficeOpenXml.ExternalReferences;
 using OfficeOpenXml.Utils;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.Text;
+using System.Collections.Generic;
 
 namespace OfficeOpenXml.FormulaParsing.FormulaExpressions
 {
@@ -26,11 +27,18 @@ namespace OfficeOpenXml.FormulaParsing.FormulaExpressions
         internal int _worksheetIx;
         internal INameInfo _name;        
         int _negate = 0; //0 if no negation is performed. -1 or 1 if the value should be negated. In this case the value is converted to a double and negated. If the value is non numeric #VALUE is returned.
-        public NamedValueExpression(string name, ParsingContext parsingContext, short externalReferenceIx, int worksheetIx) : base(parsingContext)
+        internal NamedValueExpression(string name, ParsingContext parsingContext, short externalReferenceIx, int worksheetIx) : base(parsingContext)
         {
             _externalReferenceIx = externalReferenceIx;
             _worksheetIx = worksheetIx;
             _name = Context.ExcelDataProvider.GetName(_externalReferenceIx, worksheetIx, name);
+        }
+        private NamedValueExpression(INameInfo nameInfo, ParsingContext parsingContext, short externalReferenceIx, int worksheetIx, int negate) : base(parsingContext)
+        {
+            _externalReferenceIx = externalReferenceIx;
+            _worksheetIx = worksheetIx;
+            _name = nameInfo;
+            _negate = negate;
         }
 
         internal override ExpressionType ExpressionType => ExpressionType.NameValue;
@@ -39,19 +47,6 @@ namespace OfficeOpenXml.FormulaParsing.FormulaExpressions
             if (_name == null) return new CompileResult(ExcelErrorValue.Create(eErrorType.Name), DataType.ExcelError);
 
             var value = _name.GetValue(Context.CurrentCell);
-            //if (value == null)
-            //{
-            //    // check if there is a table with the name
-            //    var table = Context.ExcelDataProvider.GetExcelTable(_name.Name);
-            //    if(table != null)
-            //    {
-            //        var ri = new RangeInfo(table.WorkSheet, table.Address);
-            //        return new AddressCompileResult(ri, DataType.ExcelRange, ri.Address);
-            //    }
-
-            //    return new CompileResult(eErrorType.Name);
-            //}
-
             if (value==null)
             {
                 return new CompileResult(null, DataType.Empty);
@@ -60,7 +55,7 @@ namespace OfficeOpenXml.FormulaParsing.FormulaExpressions
             if (value is IRangeInfo)
             {
                 var range = (IRangeInfo)value;
-                if (range.GetNCells()>1)
+                if (range.GetNCells() > 1)
                 {
                     if(_negate == -1)
                     {
@@ -74,7 +69,7 @@ namespace OfficeOpenXml.FormulaParsing.FormulaExpressions
                     {
                         return new AddressCompileResult(null, DataType.Empty, range.Address);
                     }
-                    var v = range.GetOffset(0,0);
+                    var v = range.GetOffset(0, 0);
                     return GetNegatedValue(v, range.Address);
                 }
             }
@@ -110,7 +105,7 @@ namespace OfficeOpenXml.FormulaParsing.FormulaExpressions
                 }
                 else
                 {
-                    return CompileResultFactory.Create(d * _negate, address);
+                    return CompileResultFactory.Create(d * _negate);
                 }
             }
         }
@@ -137,45 +132,31 @@ namespace OfficeOpenXml.FormulaParsing.FormulaExpressions
             return resultRange;
         }
 
-        public override void Negate()
+        public override Expression Negate()
         {
-            if(_negate==0)
+            int n;
+            if (_negate == 0)
             {
-                _negate = -1;
+                n = -1;
             }
             else
             {
-                _negate *= -1;
+                n = _negate * -1;
             }
+            return new NamedValueExpression(_name, Context, _externalReferenceIx, _worksheetIx, n);
         }
-        private ExcelExternalDefinedName GetExternalName()
+        public override FormulaRangeAddress[] GetAddress()
         {
-            ExcelWorkbook wb = Context.Package.Workbook;
-            if (_externalReferenceIx >= 0 && _externalReferenceIx < wb.ExternalLinks.Count && wb.ExternalLinks[_externalReferenceIx].ExternalLinkType == ExternalReferences.eExternalLinkType.ExternalWorkbook)
-            {
-                var er = (ExcelExternalWorkbook)wb.ExternalLinks[_externalReferenceIx];
-                if (_worksheetIx < 0)
-                {
-                    return er.CachedNames[_name.Name];
-                }
-                else
-                {
-                    return er.CachedWorksheets[_worksheetIx].CachedNames[_name.Name];
-                }
-            }
-            return null;
-        }
-        public override FormulaRangeAddress GetAddress()
-        {
+
             if(_name?.Value is IRangeInfo ri) 
             {
                 if(_name.IsRelative)
                 {
-                    return _name.GetRelativeRange(ri, Context.CurrentCell).Address;
+                    return _name.GetRelativeRange(ri, Context.CurrentCell).Addresses.Select(x => x.Clone()).ToArray();
                 }
                 else
                 {
-                    return ri.Address.Clone();
+                    return ri.Addresses.Select(x=>x.Clone()).ToArray();
                 }
             }
             return null;

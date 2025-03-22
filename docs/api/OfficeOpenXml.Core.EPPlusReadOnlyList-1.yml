@@ -48,7 +48,9 @@ items:
   - OfficeOpenXml.ExternalReferences.ExcelExternalWorksheetCollection
   - OfficeOpenXml.Table.PivotTable.ExcelPivotAreaReferenceCollection
   - OfficeOpenXml.Table.PivotTable.ExcelPivotAreaReferenceItems
+  - OfficeOpenXml.Table.PivotTable.ExcelPivotTableAreaConditionalFormattingCollection
   - OfficeOpenXml.Table.PivotTable.ExcelPivotTableAreaStyleCollection
+  - OfficeOpenXml.Table.PivotTable.ExcelPivotTableConditionalFormattingCollection
   implements:
   - System.Collections.Generic.IEnumerable{{T}}
   - System.Collections.IEnumerable

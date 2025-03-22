@@ -239,7 +239,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: Count
     path: ../src/EPPlus/ExcelStyleCollection.cs
-    startLine: 104
+    startLine: 105
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml

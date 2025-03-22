@@ -63,8 +63,7 @@ namespace OfficeOpenXml.Drawing.Chart
             }
 
             InitSeries(this, drawings.NameSpaceManager, _chartNode, PivotTableSource != null);
-            if (PivotTableSource != null) SetPivotSource(PivotTableSource);
-
+            if(PivotTableSource != null) SetPivotSource(PivotTableSource);
 
             if (topChart == null)
                 LoadAxis();
@@ -81,12 +80,13 @@ namespace OfficeOpenXml.Drawing.Chart
         internal ExcelChartStandard(ExcelDrawings drawings, XmlNode node, Uri uriChart, ZipPackagePart part, XmlDocument chartXml, XmlNode chartNode, ExcelGroupShape parent, string drawingPath = "xdr:graphicFrame", string nvPrPath = "xdr:nvGraphicFramePr/xdr:cNvPr") :
            base(drawings, node, chartXml, parent, drawingPath, nvPrPath)
         {
-            var ptSource = _chartXmlHelper.GetXmlNodeString("c:pivotSource/c:name");
-            if (!string.IsNullOrEmpty(ptSource))
+            var originalPtSource = _chartXmlHelper.GetXmlNodeString("c:pivotSource/c:name");
+            if (!string.IsNullOrEmpty(originalPtSource))
             {
+                var ptSource = originalPtSource;
                 if (ptSource.StartsWith("["))
                 {
-                    ptSource = ptSource.Substring(ptSource.IndexOf("]") + 1);
+                    ptSource = originalPtSource.Substring(originalPtSource.IndexOf("]") + 1);
                 }
                 var wsName = ExcelAddressBase.GetWorksheetPart(ptSource, "");
                 var ws = drawings.Worksheet.Workbook.Worksheets[wsName];
@@ -97,14 +97,14 @@ namespace OfficeOpenXml.Drawing.Chart
                     _chartXmlHelper.SetXmlNodeString("c:pivotSource/c:name", "[]" + ptSource);
                 }
             }
+
             UriChart = uriChart;
             Part = part;
             ChartXml = chartXml;
             _chartNode = chartNode;
-            InitSeries(this, drawings.NameSpaceManager, _chartNode, PivotTableSource != null);
-            InitChartLoad(drawings, chartNode);
+            InitChartLoad(drawings, chartNode, PivotTableSource != null);
             ChartType = GetChartType(chartNode.LocalName);
-        }
+        } 
         internal ExcelChartStandard(ExcelChart topChart, XmlNode chartNode, ExcelGroupShape parent, string drawingPath = "xdr:graphicFrame", string nvPrPath = "xdr:nvGraphicFramePr/xdr:cNvPr") :
             base(topChart, chartNode, parent, drawingPath, nvPrPath)
         {
@@ -113,12 +113,10 @@ namespace OfficeOpenXml.Drawing.Chart
             ChartXml = topChart.ChartXml;
             _plotArea = topChart.PlotArea;
             _chartNode = chartNode;
-            InitSeries(this, topChart._drawings.NameSpaceManager, _chartNode, false);
-            InitChartLoad(topChart._drawings, chartNode);
+            InitChartLoad(topChart._drawings, chartNode, false);
         }
-        private void InitChartLoad(ExcelDrawings drawings, XmlNode chartNode)
+        private void InitChartLoad(ExcelDrawings drawings, XmlNode chartNode, bool isPivot)
         {
-            bool isPivot = false;
             Init(drawings, chartNode);
             InitSeries(this, drawings.NameSpaceManager, _chartNode, isPivot);
             LoadAxis();
@@ -1207,9 +1205,15 @@ namespace OfficeOpenXml.Drawing.Chart
             chart.PrependChild(fmts);
             fmts.InnerXml = "<c:pivotFmt><c:idx val=\"0\"/><c:marker><c:symbol val=\"none\"/></c:marker></c:pivotFmt>";
 
-            Series.AddPivotSerie(pivotTableSource);
+            for(int i = 0; i < pivotTableSource.DataFields.Count; i++)
+            {
+                Series.AddPivotSerie(pivotTableSource);
+            }
         }
         ExcelChartAxisStandard[] _axisStandard = null;
+        /// <summary>
+        /// Axis array
+        /// </summary>
         public new ExcelChartAxisStandard[] Axis
         {
             get

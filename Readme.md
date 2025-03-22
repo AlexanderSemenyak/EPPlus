@@ -37,7 +37,7 @@ using(var package = new ExcelPackage(new FileInfo("MyWorkbook.xlsx")))
 }
 ```
 ### 2. Via appSettings.json
-```json
+```jsonc
 {
     {
     "EPPlus": {

@@ -242,7 +242,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: GetEnumerator
     path: ../src/EPPlus/Table/PivotTable/PivotArea/ExcelPivotAreaDataFieldReference.cs
-    startLine: 152
+    startLine: 154
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Table.PivotTable
@@ -280,7 +280,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: System.Collections.IEnumerable.GetEnumerator
     path: ../src/EPPlus/Table/PivotTable/PivotArea/ExcelPivotAreaDataFieldReference.cs
-    startLine: 161
+    startLine: 163
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Table.PivotTable

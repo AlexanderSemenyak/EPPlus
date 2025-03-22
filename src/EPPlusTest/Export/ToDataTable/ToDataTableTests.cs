@@ -1,18 +1,13 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OfficeOpenXml;
 using OfficeOpenXml.Export.ToDataTable;
-using OfficeOpenXml.LoadFunctions.Params;
 using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace EPPlusTest.Export.ToDataTable
 {
     [TestClass]
-    public class ToDataTableTests
+    public class ToDataTableTests : TestBase
     {
         [TestMethod]
         public void ToDataTableShouldReturnDataTable_WithDefaultOptions()
@@ -450,6 +445,68 @@ namespace EPPlusTest.Export.ToDataTable
                 var dt = sheet.Cells["A1:B2"].ToDataTable(opt => opt.FirstRowIsColumnNames = false);
                 var val = dt.Rows[0][0];
                 Assert.AreEqual("1", val);
+            }
+        }
+
+        [TestMethod]
+        public void TransposedWorksheet()
+        {
+            using (var package = new ExcelPackage())
+            {
+                var sheet = package.Workbook.Worksheets.Add("test");
+                sheet.Cells["A1"].Value = "Id";
+                sheet.Cells["B1"].Value = 1;
+                sheet.Cells["C1"].Value = 2;
+                sheet.Cells["D1"].Value = 3;
+                sheet.Cells["E1"].Value = 4;
+                sheet.Cells["F1"].Value = 5;
+                sheet.Cells["G1"].Value = 6;
+                sheet.Cells["A2"].Value = "Name";
+                sheet.Cells["B2"].Value = "Scott";
+                sheet.Cells["C2"].Value = "Mats";
+                sheet.Cells["D2"].Value = "Jimmy";
+                sheet.Cells["E2"].Value = "Cameron";
+                sheet.Cells["F2"].Value = "Luther";
+                sheet.Cells["G2"].Value = "Josh";
+
+                var options = ToDataTableOptions.Create(o =>
+                {
+                    o.DataIsTransposed = true;
+                });
+
+                var dt = sheet.Cells["A1:G2"].ToDataTable(options);
+                Assert.AreEqual("Scott", dt.Rows[0]["Name"]);
+            }
+        }
+        //i1632
+        [TestMethod]
+        public void EnsureErrorValuesCanBeWritten()
+        {
+            using (var package = OpenTemplatePackage("TableToDataTable.xlsx"))
+            {
+                var sheet = package.Workbook.Worksheets["Sheet1"];
+                var table = sheet.Tables["Table1"];
+
+                ToDataTableOptions dtOptions = ToDataTableOptions.Create();
+                for (int i = 0; i < table.Columns.Count; i++)
+                {
+                    dtOptions.Mappings.Add(i, table.Columns[i].Name, typeof(object), false, cellVal => {
+                        if (cellVal is ExcelErrorValue eev)
+                        {
+                            return cellVal.ToString();
+                            // return eev.Type;
+                        }
+                        return cellVal;
+                    });
+                }
+
+                var dt = table.ToDataTable(dtOptions);
+                var rows = dt.Rows;
+
+                Assert.AreEqual("#VALUE!", rows[2][2]);
+                Assert.AreEqual("#N/A", rows[2][3]);
+
+                SaveAndCleanup(package);
             }
         }
     }

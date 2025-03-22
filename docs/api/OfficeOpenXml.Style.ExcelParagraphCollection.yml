@@ -343,7 +343,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: System.Collections.Generic.IEnumerable<OfficeOpenXml.Style.ExcelParagraph>.GetEnumerator
     path: ../src/EPPlus/Style/RichText/ExcelParagraphCollection.cs
-    startLine: 214
+    startLine: 217
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Style
@@ -376,7 +376,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: System.Collections.IEnumerable.GetEnumerator
     path: ../src/EPPlus/Style/RichText/ExcelParagraphCollection.cs
-    startLine: 223
+    startLine: 226
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Style

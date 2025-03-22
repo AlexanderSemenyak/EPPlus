@@ -1647,7 +1647,6 @@ namespace EPPlusTest.ConditionalFormatting
                 var sheet = pck.Workbook.Worksheets.Add("formulas");
                 var sheet2 = pck.Workbook.Worksheets.Add("formulasRef");
 
-
                 var range = new ExcelAddress("B1:B5");
 
                 var cf = sheet.ConditionalFormatting.AddBeginsWith(range);
@@ -1839,7 +1838,7 @@ namespace EPPlusTest.ConditionalFormatting
             {
                 var sheet = pck.Workbook.Worksheets.Add("basicSheet");
 
-                for(int i = 1; i < 2100; i++)
+                for (int i = 1; i < 2100; i++)
                 {
                     sheet.Cells[1, i].ConditionalFormatting.AddContainsBlanks();
                     sheet.Cells[i, 1].ConditionalFormatting.AddBottomPercent();
@@ -1847,7 +1846,7 @@ namespace EPPlusTest.ConditionalFormatting
                 }
 
                 var dictCon = sheet.Cells["A1:E5"].ConditionalFormatting.GetConditionalFormattings();
-                Assert.AreEqual(sheet.Cells["A1"].ConditionalFormatting.GetConditionalFormattings()[0].Type, 
+                Assert.AreEqual(sheet.Cells["A1"].ConditionalFormatting.GetConditionalFormattings()[0].Type,
                     eExcelConditionalFormattingRuleType.ContainsBlanks);
             }
         }
@@ -2139,7 +2138,7 @@ namespace EPPlusTest.ConditionalFormatting
         [TestMethod]
         public void DoubleQuoteInNumfmtWriteReadExt()
         {
-            using(var package = OpenPackage("CF_NumFt_ReadWrite.xlsx", true))
+            using (var package = OpenPackage("CF_NumFt_ReadWrite.xlsx", true))
             {
                 var sheet = package.Workbook.Worksheets.Add("numfmt");
                 package.Workbook.Worksheets.Add("Sheet2");
@@ -2164,12 +2163,160 @@ namespace EPPlusTest.ConditionalFormatting
         [TestMethod]
         public void EnsureBgAndPatternColorAreCorrect()
         {
-            using(var p = OpenTemplatePackage("SavedDXF.xlsx"))
+            using (var p = OpenTemplatePackage("SavedDXF.xlsx"))
             {
                 var ws = p.Workbook.Worksheets[0];
                 var fill = ws.Cells["B1"].ConditionalFormatting.GetConditionalFormattings()[0].Style.Fill;
                 Assert.AreEqual(fill.BackgroundColor.Theme, eThemeSchemeColor.Text2);
-                Assert.AreEqual(fill.PatternColor.Color, Color.FromArgb(255,192,0,0));
+                Assert.AreEqual(fill.PatternColor.Color, Color.FromArgb(255, 192, 0, 0));
+            }
+        }
+
+        //s695
+        [TestMethod]
+        public void SingularRangeShouldExtendOnInsert()
+        {
+            using (var p = OpenTemplatePackage("s695.xlsx"))
+            {
+                var targetSheet = p.Workbook.Worksheets["Data Sheet"];
+
+                int lastRow = targetSheet.Dimension.End.Row;
+
+                targetSheet.InsertRow(lastRow + 1, 5);
+
+                Assert.AreEqual("C8:C17", targetSheet.ConditionalFormatting[1].Address.Address);
+
+                SaveAndCleanup(p);
+            }
+        }
+
+        [TestMethod]
+        public void SingularRangeShouldExtendOnInsertGenerated()
+        {
+            using (var p = OpenPackage("cf_SingularRangeExtendOnInsert.xlsx", true))
+            {
+                var targetSheet = p.Workbook.Worksheets.Add("Data Sheet");
+
+                var blanks = targetSheet.Cells["A2:A5"].ConditionalFormatting.AddContainsBlanks();
+
+                blanks.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                blanks.Style.Fill.BackgroundColor.SetColor(Color.BlueViolet);
+
+                targetSheet.InsertRow(6, 5);
+
+                Assert.AreEqual("A2:A10", targetSheet.ConditionalFormatting[0].Address.Address);
+
+                SaveAndCleanup(p);
+            }
+        }
+
+        [TestMethod]
+        public void MultipleConditionalFormattingRangesShouldBeReadCorrectlyAfterSave()
+        {
+            using (var p1 = OpenPackage("cf_severalCFRead.xlsx", true))
+            {
+                var targetSheet = p1.Workbook.Worksheets.Add("Data Sheet");
+
+                var blanks = targetSheet.Cells["A2:A5"].ConditionalFormatting.AddContainsBlanks();
+
+                blanks.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                blanks.Style.Fill.BackgroundColor.SetColor(Color.BlueViolet);
+                var aboveAverage = targetSheet.Cells["B2:B5"].ConditionalFormatting.AddAboveAverage();
+
+                aboveAverage.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                aboveAverage.Style.Fill.BackgroundColor.SetColor(Color.BlueViolet);
+
+                targetSheet.InsertRow(6, 5);
+
+                Assert.AreEqual("A2:A10", targetSheet.ConditionalFormatting[0].Address.Address);
+
+                targetSheet.Cells["B2:B5"].DataValidation.AddListDataValidation();
+                targetSheet.Cells["A2:A5"].DataValidation.AddListDataValidation();
+
+                SaveAndCleanup(p1, false);
+
+                using (var p2 = new ExcelPackage(p1.Stream))
+                {
+                    var sheet = p2.Workbook.Worksheets[0];
+                    SaveWorkbook("cf_severalCFReadSave2.xlsx", p2);
+
+                    using (var p3 = new ExcelPackage(p2.Stream))
+                    {
+                        var sheet2 = p3.Workbook.Worksheets[0];
+                        Assert.AreEqual(2, sheet2.ConditionalFormatting.Count);
+                        SaveWorkbook("cf_severalCFReadSave3.xlsx", p3);
+                    }
+                }
+            }
+        }
+
+        protected static void SaveAndCleanup(ExcelPackage pck, bool disposePackage = true)
+        {
+            if (pck.Workbook.Worksheets.Count > 0)
+            {
+                pck.Save();
+            }
+
+            if (disposePackage)
+            {
+                pck.Dispose();
+            }
+        }
+
+        [TestMethod]
+        public void CopyingDxfs()
+        {
+            using (var p = OpenPackage("CF_DxfStyleCopying.xlsx", true))
+            {
+                var ws = p.Workbook.Worksheets.Add("SomeWorksheet");
+
+                ws.Cells["A1:A5"].Formula = "ROW()+5";
+
+                var cf = ws.Cells["A1:A5"].ConditionalFormatting.AddBetween();
+                cf.Formula = "8";
+                cf.Formula2 = "11";
+
+                cf.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                cf.Style.Fill.BackgroundColor.Color = Color.RoyalBlue;
+
+                cf.Style.Fill.BackgroundColor.Color = Color.RoyalBlue;
+                using (var p2 = OpenPackage("CF_DxfStyleCopyingWithCopies.xlsx", true))
+                {
+                    p2.Workbook.Worksheets.Add("Sheet1", ws);
+                    SaveAndCleanup(p2);
+                }
+                SaveAndCleanup(p);
+            }
+        }
+
+        [TestMethod]
+        public void CopyingDxfsSaveBetween()
+        {
+            using (var p = OpenPackage("CF_DxfStyleCopying_SaveBetween.xlsx", true))
+            {
+                var ws = p.Workbook.Worksheets.Add("SomeWorksheet");
+
+                ws.Cells["A1:A5"].Formula = "ROW()+5";
+
+                var cf = ws.Cells["A1:A5"].ConditionalFormatting.AddBetween();
+                cf.Formula = "8";
+                cf.Formula2 = "11";
+
+                cf.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                cf.Style.Fill.BackgroundColor.Color = Color.RoyalBlue;
+                SaveAndCleanup(p);
+            }
+
+
+            using (var p2 = OpenPackage("CF_DxfStyleCopyingWithCopies_SaveBetween.xlsx", true))
+            {
+                using (var p = OpenPackage("CF_DxfStyleCopying_SaveBetween.xlsx", false))
+                {
+                    var ws = p.Workbook.Worksheets[0];
+                    p2.Workbook.Worksheets.Add("Sheet1", ws);
+                }
+
+                SaveAndCleanup(p2);
             }
         }
     }

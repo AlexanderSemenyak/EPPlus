@@ -140,6 +140,17 @@ namespace OfficeOpenXml.Export.ToDataTable
         public bool AlwaysAllowNull { get; set; }
 
         /// <summary>
+        /// Set to true if the worksheet is contains transposed data.
+        /// </summary>
+        public bool DataIsTransposed { get; set; }
+
+        /// <summary>
+        /// If true, EPPlus will prepend duplicate column names from the exported worksheet with a number (2,3,4,..n).
+        /// If false, EPPlus will throw an <see cref="InvalidOperationException" /> when processing a duplicate column name. Default value is false.
+        /// </summary>
+        public bool AllowDuplicateColumnNames { get; set; }
+
+        /// <summary>
         /// Sets the primary key of the data table. 
         /// </summary>
         /// <param name="columnNames">The name or names of one or more column in the <see cref="System.Data.DataTable"/> that constitutes the primary key</param>

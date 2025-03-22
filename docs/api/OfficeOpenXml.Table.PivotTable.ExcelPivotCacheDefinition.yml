@@ -9,6 +9,7 @@ items:
   - OfficeOpenXml.Table.PivotTable.ExcelPivotCacheDefinition.CacheDefinitionXml
   - OfficeOpenXml.Table.PivotTable.ExcelPivotCacheDefinition.CacheSource
   - OfficeOpenXml.Table.PivotTable.ExcelPivotCacheDefinition.PivotTable
+  - OfficeOpenXml.Table.PivotTable.ExcelPivotCacheDefinition.Refresh
   - OfficeOpenXml.Table.PivotTable.ExcelPivotCacheDefinition.SaveData
   - OfficeOpenXml.Table.PivotTable.ExcelPivotCacheDefinition.SourceRange
   langs:
@@ -25,7 +26,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: ExcelPivotCacheDefinition
     path: ../src/EPPlus/Table/PivotTable/ExcelPivotCacheDefinition.cs
-    startLine: 24
+    startLine: 28
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Table.PivotTable
@@ -50,6 +51,38 @@ items:
   modifiers.vb:
   - Public
   - Class
+- uid: OfficeOpenXml.Table.PivotTable.ExcelPivotCacheDefinition.Refresh
+  commentId: M:OfficeOpenXml.Table.PivotTable.ExcelPivotCacheDefinition.Refresh
+  id: Refresh
+  parent: OfficeOpenXml.Table.PivotTable.ExcelPivotCacheDefinition
+  langs:
+  - csharp
+  - vb
+  name: Refresh()
+  nameWithType: ExcelPivotCacheDefinition.Refresh()
+  fullName: OfficeOpenXml.Table.PivotTable.ExcelPivotCacheDefinition.Refresh()
+  type: Method
+  source:
+    remote:
+      path: src/EPPlus/Table/PivotTable/ExcelPivotCacheDefinition.cs
+      branch: develop7
+      repo: https://github.com/EPPlusSoftware/EPPlus.git
+    id: Refresh
+    path: ../src/EPPlus/Table/PivotTable/ExcelPivotCacheDefinition.cs
+    startLine: 90
+  assemblies:
+  - EPPlus
+  namespace: OfficeOpenXml.Table.PivotTable
+  summary: "\nRefreshes the pivot tables cache.\n"
+  example: []
+  syntax:
+    content: public void Refresh()
+    content.vb: Public Sub Refresh
+  overload: OfficeOpenXml.Table.PivotTable.ExcelPivotCacheDefinition.Refresh*
+  modifiers.csharp:
+  - public
+  modifiers.vb:
+  - Public
 - uid: OfficeOpenXml.Table.PivotTable.ExcelPivotCacheDefinition.CacheDefinitionXml
   commentId: P:OfficeOpenXml.Table.PivotTable.ExcelPivotCacheDefinition.CacheDefinitionXml
   id: CacheDefinitionXml
@@ -68,7 +101,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: CacheDefinitionXml
     path: ../src/EPPlus/Table/PivotTable/ExcelPivotCacheDefinition.cs
-    startLine: 96
+    startLine: 103
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Table.PivotTable
@@ -105,7 +138,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: CacheDefinitionUri
     path: ../src/EPPlus/Table/PivotTable/ExcelPivotCacheDefinition.cs
-    startLine: 106
+    startLine: 113
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Table.PivotTable
@@ -142,7 +175,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: PivotTable
     path: ../src/EPPlus/Table/PivotTable/ExcelPivotCacheDefinition.cs
-    startLine: 121
+    startLine: 128
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Table.PivotTable
@@ -179,7 +212,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: SourceRange
     path: ../src/EPPlus/Table/PivotTable/ExcelPivotCacheDefinition.cs
-    startLine: 143
+    startLine: 149
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Table.PivotTable
@@ -216,7 +249,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: SaveData
     path: ../src/EPPlus/Table/PivotTable/ExcelPivotCacheDefinition.cs
-    startLine: 218
+    startLine: 237
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Table.PivotTable
@@ -253,7 +286,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: CacheSource
     path: ../src/EPPlus/Table/PivotTable/ExcelPivotCacheDefinition.cs
-    startLine: 232
+    startLine: 251
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Table.PivotTable
@@ -570,6 +603,11 @@ references:
   name: System
   nameWithType: System
   fullName: System
+- uid: OfficeOpenXml.Table.PivotTable.ExcelPivotCacheDefinition.Refresh*
+  commentId: Overload:OfficeOpenXml.Table.PivotTable.ExcelPivotCacheDefinition.Refresh
+  name: Refresh
+  nameWithType: ExcelPivotCacheDefinition.Refresh
+  fullName: OfficeOpenXml.Table.PivotTable.ExcelPivotCacheDefinition.Refresh
 - uid: OfficeOpenXml.Table.PivotTable.ExcelPivotCacheDefinition.CacheDefinitionXml*
   commentId: Overload:OfficeOpenXml.Table.PivotTable.ExcelPivotCacheDefinition.CacheDefinitionXml
   name: CacheDefinitionXml

@@ -83,7 +83,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: BorderReference
     path: ../src/EPPlus/Drawing/Chart/Style/ExcelChartStyleEntry.cs
-    startLine: 64
+    startLine: 66
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing.Chart.Style
@@ -119,7 +119,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: FillReference
     path: ../src/EPPlus/Drawing/Chart/Style/ExcelChartStyleEntry.cs
-    startLine: 80
+    startLine: 82
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing.Chart.Style
@@ -156,7 +156,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: EffectReference
     path: ../src/EPPlus/Drawing/Chart/Style/ExcelChartStyleEntry.cs
-    startLine: 96
+    startLine: 98
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing.Chart.Style
@@ -193,7 +193,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: FontReference
     path: ../src/EPPlus/Drawing/Chart/Style/ExcelChartStyleEntry.cs
-    startLine: 112
+    startLine: 114
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing.Chart.Style
@@ -230,7 +230,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: Fill
     path: ../src/EPPlus/Drawing/Chart/Style/ExcelChartStyleEntry.cs
-    startLine: 128
+    startLine: 130
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing.Chart.Style
@@ -267,7 +267,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: Border
     path: ../src/EPPlus/Drawing/Chart/Style/ExcelChartStyleEntry.cs
-    startLine: 143
+    startLine: 145
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing.Chart.Style
@@ -304,7 +304,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: Effect
     path: ../src/EPPlus/Drawing/Chart/Style/ExcelChartStyleEntry.cs
-    startLine: 158
+    startLine: 160
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing.Chart.Style
@@ -341,7 +341,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: ThreeD
     path: ../src/EPPlus/Drawing/Chart/Style/ExcelChartStyleEntry.cs
-    startLine: 173
+    startLine: 175
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing.Chart.Style
@@ -378,7 +378,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: DefaultTextRun
     path: ../src/EPPlus/Drawing/Chart/Style/ExcelChartStyleEntry.cs
-    startLine: 188
+    startLine: 190
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing.Chart.Style
@@ -415,7 +415,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: DefaultTextBody
     path: ../src/EPPlus/Drawing/Chart/Style/ExcelChartStyleEntry.cs
-    startLine: 204
+    startLine: 206
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing.Chart.Style
@@ -452,7 +452,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: Modifier
     path: ../src/EPPlus/Drawing/Chart/Style/ExcelChartStyleEntry.cs
-    startLine: 219
+    startLine: 221
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing.Chart.Style
@@ -489,7 +489,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: HasFill
     path: ../src/EPPlus/Drawing/Chart/Style/ExcelChartStyleEntry.cs
-    startLine: 254
+    startLine: 256
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing.Chart.Style
@@ -526,7 +526,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: HasBorder
     path: ../src/EPPlus/Drawing/Chart/Style/ExcelChartStyleEntry.cs
-    startLine: 268
+    startLine: 270
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing.Chart.Style
@@ -563,7 +563,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: HasEffect
     path: ../src/EPPlus/Drawing/Chart/Style/ExcelChartStyleEntry.cs
-    startLine: 278
+    startLine: 280
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing.Chart.Style
@@ -600,7 +600,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: HasThreeD
     path: ../src/EPPlus/Drawing/Chart/Style/ExcelChartStyleEntry.cs
-    startLine: 288
+    startLine: 290
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing.Chart.Style
@@ -637,7 +637,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: HasTextBody
     path: ../src/EPPlus/Drawing/Chart/Style/ExcelChartStyleEntry.cs
-    startLine: 299
+    startLine: 301
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing.Chart.Style
@@ -674,10 +674,12 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: HasRichText
     path: ../src/EPPlus/Drawing/Chart/Style/ExcelChartStyleEntry.cs
-    startLine: 306
+    startLine: 311
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing.Chart.Style
+  summary: "\nTrue if the entry has richtext\n"
+  example: []
   syntax:
     content: public bool HasRichText { get; }
     parameters: []
@@ -709,7 +711,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: HasTextRun
     path: ../src/EPPlus/Drawing/Chart/Style/ExcelChartStyleEntry.cs
-    startLine: 317
+    startLine: 322
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing.Chart.Style

@@ -266,7 +266,7 @@ items:
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Drawing
-  summary: "\nWidth in pixels\n"
+  summary: "\nWidth in points\n"
   example: []
   syntax:
     content: public double Width { get; set; }

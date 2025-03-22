@@ -25,6 +25,7 @@ csharp_style_prefer_null_check_over_type_check = true:suggestion
 csharp_prefer_simple_default_expression = true:suggestion
 csharp_style_prefer_local_over_anonymous_function = true:suggestion
 csharp_space_around_binary_operators = before_and_after
+csharp_style_prefer_primary_constructors = true:suggestion
 [*.{cs,vb}]
 #### Naming styles ####
 
@@ -91,3 +92,4 @@ dotnet_style_prefer_inferred_anonymous_type_member_names = true:suggestion
 dotnet_style_prefer_compound_assignment = true:suggestion
 dotnet_style_prefer_simplified_interpolation = true:suggestion
 dotnet_style_namespace_match_folder = true:suggestion
+dotnet_style_prefer_collection_expression = when_types_loosely_match:suggestion

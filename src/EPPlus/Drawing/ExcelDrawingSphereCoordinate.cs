@@ -43,12 +43,12 @@ namespace OfficeOpenXml.Drawing
         {
             get
             {
-                return GetXmlNodeAngel(_latPath);
+                return GetXmlNodeAngle(_latPath);
             }
             set
             {
                 InitXml();
-                SetXmlNodeAngel(_latPath, value, "Latitude");
+                SetXmlNodeAngle(_latPath, value, "Latitude");
             }
         }
         /// <summary>
@@ -58,12 +58,12 @@ namespace OfficeOpenXml.Drawing
         {
             get
             {
-                return GetXmlNodeAngel(_lonPath);
+                return GetXmlNodeAngle(_lonPath);
             }
             set
             {
                 InitXml();
-                SetXmlNodeAngel(_lonPath, value, "Longitude");
+                SetXmlNodeAngle(_lonPath, value, "Longitude");
             }
         }
         /// <summary>
@@ -73,12 +73,12 @@ namespace OfficeOpenXml.Drawing
         {
             get
             {
-                return GetXmlNodeAngel(_revPath);
+                return GetXmlNodeAngle(_revPath);
             }
             set
             {
                 InitXml();
-                SetXmlNodeAngel(_revPath, value, "Revolution");
+                SetXmlNodeAngle(_revPath, value, "Revolution");
             }
         }
         bool isInit = false;

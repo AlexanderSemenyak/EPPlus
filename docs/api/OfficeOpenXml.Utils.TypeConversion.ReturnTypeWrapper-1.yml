@@ -264,7 +264,7 @@ items:
       repo: https://github.com/EPPlusSoftware/EPPlus.git
     id: IsTimeSpan
     path: ../src/EPPlus/Utils/TypeConversion/ReturnTypeWrapper.cs
-    startLine: 83
+    startLine: 87
   assemblies:
   - EPPlus
   namespace: OfficeOpenXml.Utils.TypeConversion

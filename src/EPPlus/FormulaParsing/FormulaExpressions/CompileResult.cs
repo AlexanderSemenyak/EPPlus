@@ -27,6 +27,9 @@ using OfficeOpenXml.FormulaParsing.Excel.Functions.Information;
 
 namespace OfficeOpenXml.FormulaParsing.FormulaExpressions
 {
+    /// <summary>
+    /// Result type
+    /// </summary>
     public enum CompileResultType
     {
         /// <summary>
@@ -40,12 +43,25 @@ namespace OfficeOpenXml.FormulaParsing.FormulaExpressions
         /// <summary>
         /// The result is a dynamic array formula.
         /// </summary>
-        DynamicArray = 2
+        DynamicArray = 2,
+        /// <summary>
+        /// The result is a dynamic array formula. Even if the result is nested in another function that the cell should be marked as dynamic.
+        /// </summary>
+        DynamicArray_AlwaysSetCellAsDynamic = 3
     }
+    /// <summary>
+    /// CompileResultBase
+    /// </summary>
     public abstract class CompileResultBase
     {
+        /// <summary>
+        /// Result type
+        /// </summary>
         public abstract CompileResultType ResultType { get; }
     }
+    /// <summary>
+    /// Compile result
+    /// </summary>
     public class CompileResult : CompileResultBase
     {
         private static CompileResult _empty = new CompileResult(null, DataType.Empty);
@@ -126,29 +142,22 @@ namespace OfficeOpenXml.FormulaParsing.FormulaExpressions
             DataType = dataType;
         }
 
-        internal void Negate()
+        internal CompileResult Negate()
         {
             if(DataType == DataType.ExcelRange && Result is IRangeInfo ri)
             {
-                Result = RangeOperationsOperator.Negate(ri);
+                return new CompileResult(RangeOperationsOperator.Negate(ri), DataType.ExcelRange);
             }
 
             else if (IsNumeric)
             {
-                if (_resultNumeric.HasValue)
-                {
-                    _resultNumeric *= -1;
-                }
-                else 
-                {
-                    _resultNumeric = ResultNumeric * -1; 
-                }
-                Result = ResultNumeric;
+                return new CompileResult(ResultNumeric * -1, DataType.Decimal);
             }
             else if (DataType != DataType.ExcelError)
             {
-                Result = ErrorValues.ValueError;
+                return _errorValue;
             }
+            return this;
         }
         internal static CompileResult GetDynamicArrayResultError(eErrorType errorType)
         {
@@ -201,25 +210,36 @@ namespace OfficeOpenXml.FormulaParsing.FormulaExpressions
             }
         }
 
+        /// <summary>
+        /// Compile result with error type
+        /// </summary>
+        /// <param name="errorType"></param>
         public CompileResult(eErrorType errorType)
         {
             Result = ExcelErrorValue.Create(errorType);
             DataType = DataType.ExcelError;
         }
-
+        /// <summary>
+        /// Compile result with error value
+        /// </summary>
+        /// <param name="errorValue"></param>
         public CompileResult(ExcelErrorValue errorValue)
         {
             Require.Argument(errorValue).IsNotNull("errorValue");
             Result = errorValue;
             DataType = DataType.ExcelError;
         }
-
+        /// <summary>
+        /// RESULT
+        /// </summary>
         public object Result
         {
             get;
             private set;
         }
-
+        /// <summary>
+        /// Result Value
+        /// </summary>
         public object ResultValue
         {
             get
@@ -242,7 +262,9 @@ namespace OfficeOpenXml.FormulaParsing.FormulaExpressions
                 }
             }
         }
-
+        /// <summary>
+        /// Result numeric
+        /// </summary>
         public double ResultNumeric
         {
             get
@@ -288,13 +310,17 @@ namespace OfficeOpenXml.FormulaParsing.FormulaExpressions
 				return _resultNumeric.Value;
             }
         }
-
+        /// <summary>
+        /// Data type
+        /// </summary>
         public DataType DataType
         {
             get;
             private set;
         }
-        
+        /// <summary>
+        /// Is the result numeric
+        /// </summary>
         public bool IsNumeric
         {
             get 
@@ -303,6 +329,9 @@ namespace OfficeOpenXml.FormulaParsing.FormulaExpressions
             }
         }
 
+        /// <summary>
+        /// Is result numeric string
+        /// </summary>
         public bool IsNumericString
         {
             get
@@ -315,7 +344,9 @@ namespace OfficeOpenXml.FormulaParsing.FormulaExpressions
                 return false;
             }
         }
-
+        /// <summary>
+        /// Is percentage string
+        /// </summary>
         public bool IsPercentageString
         {
             get
@@ -329,7 +360,9 @@ namespace OfficeOpenXml.FormulaParsing.FormulaExpressions
             }
             
         }
-
+        /// <summary>
+        /// Is date string
+        /// </summary>
 		public bool IsDateString
 		{
 			get
@@ -342,17 +375,28 @@ namespace OfficeOpenXml.FormulaParsing.FormulaExpressions
                 return false;
 			}
 		}
-
+        /// <summary>
+        /// Is result of subtotal
+        /// </summary>
 		public bool IsResultOfSubtotal { get; set; }
 
+        /// <summary>
+        /// Is hidden cell
+        /// </summary>
         public bool IsHiddenCell { get; set; }
 
         //public int ExcelAddressReferenceId { get; set; }
 
+        /// <summary>
+        /// Is result of resolved excelRange
+        /// </summary>
         public bool IsResultOfResolvedExcelRange
         {
             get { return Address != null; }
         }
+        /// <summary>
+        /// Range address
+        /// </summary>
         public virtual FormulaRangeAddress Address
         {
             get
@@ -360,6 +404,9 @@ namespace OfficeOpenXml.FormulaParsing.FormulaExpressions
                 return null;
             }
         }
+        /// <summary>
+        /// Result type
+        /// </summary>
         public override CompileResultType ResultType
         {
             get
@@ -369,28 +416,56 @@ namespace OfficeOpenXml.FormulaParsing.FormulaExpressions
         }
 
     }
+    /// <summary>
+    /// Address compile result
+    /// </summary>
     public class AddressCompileResult : CompileResult
     {
+        /// <summary>
+        /// Address result
+        /// </summary>
+        /// <param name="result"></param>
+        /// <param name="dataType"></param>
+        /// <param name="address"></param>
         public AddressCompileResult(object result, DataType dataType, FormulaRangeAddress address) : base(result, dataType)
         {
             Address = address;
         }
+        /// <summary>
+        /// Address result without address
+        /// </summary>
+        /// <param name="result"></param>
+        /// <param name="dataType"></param>
         public AddressCompileResult(object result, DataType dataType) : base(result, dataType)
         { 
 
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="error"></param>
         public AddressCompileResult(eErrorType error) : base(error)
         {
 
         }
+        /// <summary>
+        /// Address compile result
+        /// </summary>
+        /// <param name="errorValue"></param>
         public AddressCompileResult(ExcelErrorValue errorValue) : base(errorValue)
         {
 
         }
+        /// <summary>
+        /// Address
+        /// </summary>
         public override FormulaRangeAddress Address
         {
             get;
         }
+        /// <summary>
+        /// ResultType
+        /// </summary>
         public override CompileResultType ResultType
         {
             get
@@ -408,18 +483,50 @@ namespace OfficeOpenXml.FormulaParsing.FormulaExpressions
     /// </summary>
     public class DynamicArrayCompileResult : AddressCompileResult
     {
-        public DynamicArrayCompileResult(object result, DataType dataType, FormulaRangeAddress address) : base(result, dataType)
+        CompileResultType _resultType = CompileResultType.DynamicArray;
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="result"></param>
+        /// <param name="dataType"></param>
+        /// <param name="address"></param>
+        /// <param name="resultType"></param>
+        public DynamicArrayCompileResult(object result, DataType dataType, FormulaRangeAddress address, CompileResultType resultType) : base(result, dataType, address)
+        {
+            _resultType = resultType;
+        }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="result"></param>
+        /// <param name="dataType"></param>
+        /// <param name="address"></param>
+        public DynamicArrayCompileResult(object result, DataType dataType, FormulaRangeAddress address) : base(result, dataType, address)
         {
             
         }
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="result"></param>
+        /// <param name="dataType"></param>
         public DynamicArrayCompileResult(object result, DataType dataType) : base(result, dataType)
         {
 
         }
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="error"></param>
         public DynamicArrayCompileResult(eErrorType error) : base(error)
         {
 
         }
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="errorValue"></param>
         public DynamicArrayCompileResult(ExcelErrorValue errorValue) : base(errorValue)
         {
 
@@ -431,7 +538,7 @@ namespace OfficeOpenXml.FormulaParsing.FormulaExpressions
         {
             get
             {
-                return CompileResultType.DynamicArray;
+                return _resultType;
             }
         }
     }

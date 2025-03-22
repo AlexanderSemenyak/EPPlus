@@ -221,7 +221,7 @@ namespace OfficeOpenXml.Table.PivotTable
         /// <param name="ClearRange">Clear the table range</param>
         public void Delete(int Index, bool ClearRange = false)
         {
-            if(Index >=0 && Index <_pivotTables.Count)
+            if(Index < 0 && Index >= _pivotTables.Count)
             {
                 throw new IndexOutOfRangeException();
             }
@@ -255,6 +255,7 @@ namespace OfficeOpenXml.Table.PivotTable
                 {
                     _ws.Workbook._pivotTableIds.Remove(cacheReference.CacheDefinitionUri);
                     _ws.Workbook._pivotTableCaches.Remove(cacheAddress);
+                    _ws.Workbook.DeleteNode("d:pivotCaches");
                 }
             }
 
@@ -262,6 +263,29 @@ namespace OfficeOpenXml.Table.PivotTable
 
             _pivotTables.Remove(PivotTable);
             _pivotTableNames.Remove(PivotTable.Name);
+        }
+        /// <summary>
+        /// Calculate all pivot tables in the collection.
+        /// Also see <seealso cref="ExcelPivotTable.Calculate(bool)"/> and <seealso cref="ExcelWorkbook.CalculateAllPivotTables(bool)"/>
+        /// </summary>
+        /// <param name="refresh">If the cache should be refreshed.</param>
+        public void Calculate(bool refresh = false)
+        {
+            var caches = new HashSet<PivotTableCacheInternal>();
+            foreach (var pt in _pivotTables)
+            {
+                var cache = pt.CacheDefinition._cacheReference;
+                if (cache == null) continue;
+                if (!caches.Contains(cache))
+                {
+                    pt.Calculate(refresh);
+                    caches.Add(cache);
+                }
+                else
+                {
+                    pt.Calculate(false);
+                }
+            }
         }
     }
 }

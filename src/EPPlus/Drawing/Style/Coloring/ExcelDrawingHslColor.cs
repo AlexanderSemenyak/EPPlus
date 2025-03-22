@@ -34,11 +34,11 @@ namespace OfficeOpenXml.Drawing.Style.Coloring
         {
             get
             {
-                return GetXmlNodeAngel("@hue");
+                return GetXmlNodeAngle("@hue");
             }
             set
             {
-                SetXmlNodeAngel("@hue", value, "Hue");
+                SetXmlNodeAngle("@hue", value, "Hue");
             }
         }
         /// <summary>

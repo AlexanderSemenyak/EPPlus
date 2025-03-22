@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
+using System.Xml;
 
 namespace OfficeOpenXml.Drawing.Slicer
 {
@@ -21,7 +22,7 @@ namespace OfficeOpenXml.Drawing.Slicer
         {
             _cache = cache;
             _items = new List<ExcelPivotTableSlicerItem>();
-            RefreshMe();
+            RefreshMe();            
         }
 
         /// <summary>
@@ -52,7 +53,7 @@ namespace OfficeOpenXml.Drawing.Slicer
                 {
                     _items.RemoveAt(_items.Count - 1);
                 }
-            }
+            }            
         }
 
         /// <summary>

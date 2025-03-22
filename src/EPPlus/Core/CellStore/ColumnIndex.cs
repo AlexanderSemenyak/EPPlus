@@ -17,7 +17,10 @@ namespace OfficeOpenXml.Core.CellStore
 {
     internal class ColumnIndex<T> : IndexBase, IDisposable
     {
+        private readonly static object _syncRoot = new object();
         internal List<T> _values = new List<T>();
+        internal PageIndex[] _pages;
+        internal int PageCount;
 
         public ColumnIndex()
         {
@@ -32,121 +35,203 @@ namespace OfficeOpenXml.Core.CellStore
         {
             var page = (Row >> CellStoreSettings._pageBits);
             int pagePos;
-            if (page >= 0 && page < PageCount && _pages[page].Index == page)
+            lock (_syncRoot)
             {
-                pagePos = page;
-            }
-            else
-            {
-                pagePos = ArrayUtil.OptimizedBinarySearch(_pages, page, PageCount);
-            }
-
-            if (pagePos >= 0)
-            {
-                GetPage(Row, ref pagePos);
-                return pagePos;
-            }
-            else
-            {
-                var p = ~pagePos;
-
-                if (GetPage(Row, ref p))
+                if (page >= 0 && page < PageCount && _pages[page].Index == page)
                 {
-                    return p;
+                    pagePos = page;
                 }
                 else
                 {
+                    pagePos = ArrayUtil.OptimizedBinarySearch(_pages, page, PageCount);
+                }
+
+                if (pagePos >= 0)
+                {
+                    GetPage(Row, ref pagePos);
                     return pagePos;
+                }
+                else
+                {
+                    var p = ~pagePos;
+
+                    if (GetPage(Row, ref p))
+                    {
+                        return p;
+                    }
+                    else
+                    {
+                        return pagePos;
+                    }
                 }
             }
         }
 
         private bool GetPage(int Row, ref int pagePos)
         {
-            if (pagePos < PageCount && _pages[pagePos].MinIndex <= Row && (pagePos + 1 == PageCount || _pages[pagePos + 1].MinIndex > Row))
+            lock (_syncRoot)
             {
-                return true;
-            }
-            else
-            {
-                if (pagePos + 1 < PageCount && (_pages[pagePos + 1].MinIndex <= Row))
+                if (pagePos < PageCount && _pages[pagePos].MinIndex <= Row && (pagePos + 1 == PageCount || _pages[pagePos + 1].MinIndex > Row))
                 {
-                    do
-                    {
-                        pagePos++;
-                    }
-                    while (pagePos + 1 < PageCount && _pages[pagePos + 1].MinIndex <= Row);
                     return true;
                 }
-                else if (pagePos - 1 >= 0 && _pages[pagePos - 1].MaxIndex >= Row)
+                else
                 {
-                    do
+                    if (pagePos + 1 < PageCount && (_pages[pagePos + 1].MinIndex <= Row))
                     {
-                        pagePos--;
+                        do
+                        {
+                            pagePos++;
+                        }
+                        while (pagePos + 1 < PageCount && _pages[pagePos + 1].MinIndex <= Row);
+                        return true;
                     }
-                    while (pagePos - 1 > 0 && _pages[pagePos - 1].MaxIndex >= Row);
-                    return true;
+                    else if (pagePos - 1 >= 0 && _pages[pagePos - 1].MaxIndex >= Row)
+                    {
+                        do
+                        {
+                            pagePos--;
+                        }
+                        while (pagePos - 1 > 0 && _pages[pagePos - 1].MaxIndex >= Row);
+                        return true;
+                    }
+                    return false;
                 }
-                return false;
             }
         }
         internal int GetNextRow(int row)
         {
-            var p = GetPagePosition(row);
-            if (p < 0)
+            lock (_syncRoot)
             {
-                p = ~p;
-                if (p >= PageCount)
+                var p = GetPagePosition(row);
+                if (p < 0)
                 {
-                    return -1;
-                }
-                else
-                {
-
-                    if (_pages[p].IndexOffset + _pages[p].Rows[0].Index < row)
+                    p = ~p;
+                    if (p >= PageCount)
                     {
-                        if (p + 1 >= PageCount)
+                        return -1;
+                    }
+                    else
+                    {
+
+                        if (_pages[p].IndexOffset + _pages[p].Rows[0].Index < row)
                         {
-                            return -1;
+                            if (p + 1 >= PageCount)
+                            {
+                                return -1;
+                            }
+                            else
+                            {
+                                return _pages[p + 1].IndexOffset + _pages[p].Rows[0].Index;
+                            }
                         }
                         else
-                        {
-                            return _pages[p + 1].IndexOffset + _pages[p].Rows[0].Index;
-                        }
-                    }
-                    else
-                    {
-                        return _pages[p].IndexOffset + _pages[p].Rows[0].Index;
-                    }
-                }
-            }
-            else
-            {
-                if (p < PageCount)
-                {
-                    var r = _pages[p].GetNextRow(row);
-                    if (r >= 0)
-                    {
-                        return _pages[p].IndexOffset + _pages[p].Rows[r].Index;
-                    }
-                    else
-                    {
-                        if (++p < PageCount)
                         {
                             return _pages[p].IndexOffset + _pages[p].Rows[0].Index;
                         }
+                    }
+                }
+                else
+                {
+                    if (p < PageCount)
+                    {
+                        var r = _pages[p].GetNextRow(row);
+                        if (r >= 0)
+                        {
+                            return _pages[p].IndexOffset + _pages[p].Rows[r].Index;
+                        }
                         else
                         {
-                            return -1;
+                            if (++p < PageCount)
+                            {
+                                return _pages[p].IndexOffset + _pages[p].Rows[0].Index;
+                            }
+                            else
+                            {
+                                return -1;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        return -1;
+                    }
+                }
+            }
+        }
+        internal int GetPrevRow(int row)
+        {
+            lock (_syncRoot)
+            {
+                row--;
+                var p = GetPagePosition(row);
+                if (p < 0)
+                {
+                    p = (~p) - 1;
+                    if (p < 0)
+                    {
+                        return -1;
+                    }
+                    else
+                    {
+
+                        if (_pages[p].IndexOffset + _pages[p].Rows[0].Index < row)
+                        {
+                            if (p + 1 >= PageCount)
+                            {
+                                return -1;
+                            }
+                            else
+                            {
+                                return _pages[p + 1].IndexOffset + _pages[p].Rows[0].Index;
+                            }
+                        }
+                        else
+                        {
+                            return _pages[p].IndexOffset + _pages[p].Rows[0].Index;
                         }
                     }
                 }
                 else
                 {
-                    return -1;
+                    if (p < PageCount)
+                    {
+                        var page = _pages[p];
+                        var r = page.GetRowPosition(row);
+                        if (r >= 0)
+                        {
+                            return page.IndexOffset + page.Rows[r].Index;
+                        }
+                        else
+                        {
+                            r = ~r;
+                            if (r > 0) r--;
+                            if(page.RowCount > r && page.IndexOffset + page.Rows[r].Index <= row)
+                            {
+                                return page.IndexOffset + page.Rows[r].Index;
+                            }
+                            else if(--p >= 0)
+                            {
+                                
+                                page = _pages[p];
+                                while(page.RowCount==0 && p > 0) page = _pages[--p];
+                                if (p < 0) return -1;
+                                return page.IndexOffset + page.Rows[page.RowCount-1].Index;
+                            }
+                            else
+                            {
+                                return -1;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        return -1;
+                    }
                 }
             }
         }
+
         internal int GetPointer(int Row)
         {
             var pos = GetPagePosition(Row);
@@ -181,18 +266,6 @@ namespace OfficeOpenXml.Core.CellStore
                 return -1;
             }
         }
-
-        //internal int FindNext(int Page)
-        //{
-        //    var p = GetPagePosition(Page);
-        //    if (p < 0)
-        //    {
-        //        return ~p;
-        //    }
-        //    return p;
-        //}
-        internal PageIndex[] _pages;
-        internal int PageCount;
         public void Dispose()
         {
             if (_pages == null) return;
